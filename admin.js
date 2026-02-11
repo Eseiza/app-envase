@@ -1,77 +1,67 @@
-const getFechaHoy = () => new Date().toLocaleDateString('es-AR');
+// CONFIGURACIÓN DE FIREBASE (Pégala aquí)
+const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_PROYECTO.firebaseapp.com",
+    databaseURL: "https://TU_PROYECTO.firebaseio.com",
+    projectId: "TU_PROYECTO",
+    storageBucket: "TU_PROYECTO.appspot.com",
+    messagingSenderId: "...",
+    appId: "..."
+};
 
-function obtenerDatos() {
-    return JSON.parse(localStorage.getItem('historial_panificados')) || {};
-}
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const getFechaHoy = () => new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
 
-function guardarDatos(data) {
-    localStorage.setItem('historial_panificados', JSON.stringify(data));
-}
-
-// Agregar pedido nuevo
+// --- AGREGAR TAREA ---
 document.getElementById('add-task-btn').onclick = function() {
     const producto = document.getElementById('task-category').options[document.getElementById('task-category').selectedIndex].text;
     const cantidad = document.getElementById('taskTitle').value;
     const fecha = getFechaHoy();
 
-    if (!cantidad || producto.includes("--")) return alert("Selecciona producto y cantidad");
+    if (!cantidad || producto.includes("--")) return alert("Completa los datos");
 
-    let historial = obtenerDatos();
-    if (!historial[fecha]) historial[fecha] = { tareas: [], sobrantes: [] };
-
-    historial[fecha].tareas.push({
-        id: Date.now(),
+    const nuevaRef = db.ref(`historial/${fecha}/tareas`).push();
+    nuevaRef.set({
+        id: nuevaRef.key,
         producto,
         cantidad,
         completado: false
     });
-
-    guardarDatos(historial);
-    renderizarPanel(fecha);
     document.getElementById('taskTitle').value = "";
 };
 
-// Función de renderizado (Sirve para hoy o para fechas anteriores)
-function renderizarPanel(fechaAMostrar = getFechaHoy()) {
-    const historial = obtenerDatos();
-    const datosDia = historial[fechaAMostrar] || { tareas: [], sobrantes: [] };
+// --- ESCUCHAR CAMBIOS EN TIEMPO REAL ---
+db.ref(`historial/${getFechaHoy()}`).on('value', (snapshot) => {
+    const data = snapshot.val() || { tareas: {}, sobrantes: {} };
+    renderizar(data);
+});
 
-    // Mostrar Tareas/Pedidos
+function renderizar(data) {
+    // Render Tareas
     const listaT = document.getElementById('taskList');
     listaT.innerHTML = "";
-    datosDia.tareas.forEach(t => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <span><strong>${t.producto}</strong> - Cant: ${t.cantidad} ${t.completado ? '✅' : '⏳'}</span>
-            <button onclick="borrarTarea('${fechaAMostrar}', ${t.id})" style="background:red; color:white; border:none; padding:5px; cursor:pointer;">Eliminar</button>
-        `;
-        listaT.appendChild(li);
-    });
+    if (data.tareas) {
+        Object.values(data.tareas).forEach(t => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span><b>${t.producto}</b>: ${t.cantidad} ${t.completado ? '✅' : '⏳'}</span>
+                            <button onclick="borrarTarea('${t.id}')">❌</button>`;
+            listaT.appendChild(li);
+        });
+    }
 
-    // Mostrar Sobrantes reportados por operarios
+    // Render Sobrantes
     const listaS = document.getElementById('sobrantesList');
     listaS.innerHTML = "";
-    datosDia.sobrantes.forEach(s => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span>🍞 ${s.producto}: ${s.columnas} col x ${s.filas} fil</span>`;
-        listaS.appendChild(li);
-    });
+    if (data.sobrantes) {
+        Object.values(data.sobrantes).forEach(s => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>🍞 ${s.producto}: ${s.columnas} col x ${s.filas} fil</span>`;
+            listaS.appendChild(li);
+        });
+    }
 }
 
-window.borrarTarea = (fecha, id) => {
-    let historial = obtenerDatos();
-    historial[fecha].tareas = historial[fecha].tareas.filter(t => t.id !== id);
-    guardarDatos(historial);
-    renderizarPanel(fecha);
+window.borrarTarea = (id) => {
+    db.ref(`historial/${getFechaHoy()}/tareas/${id}`).remove();
 };
-
-// Lógica del buscador de historial
-window.consultarHistorial = () => {
-    const fechaInput = document.getElementById('fecha-busqueda').value; // Formato yyyy-mm-dd
-    if (!fechaInput) return;
-    const [aaaa, mm, dd] = fechaInput.split('-');
-    const fechaFormateada = `${parseInt(dd)}/${parseInt(mm)}/${aaaa}`;
-    renderizarPanel(fechaFormateada);
-};
-
-renderizarPanel();
