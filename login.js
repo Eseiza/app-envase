@@ -32,9 +32,10 @@ loginForm.addEventListener('submit', function(event) {
         messageDisplay.style.color = "green";
         
         // Redirección a la página de administración
-        setTimeout(() => {
-            window.location.href = "admin.html"; 
-        }, 1500); 
+      // En login.js, dentro del if de éxito:
+setTimeout(() => {
+    window.location.href = "./admin.html"; // El "./" ayuda a encontrarlo en la raíz
+}, 1500);
 
     } else {
         messageDisplay.textContent = "Error: Usuario o contraseña incorrectos.";
@@ -42,3 +43,4 @@ loginForm.addEventListener('submit', function(event) {
     }
 
 });
+
