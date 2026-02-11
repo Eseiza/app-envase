@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Sobrantes</title>
+    <link rel="stylesheet" href="style4.css">
+</head>
+<body>
+    <div class="container">
+        <img src="https://www.romeropanificados.com.ar/wp-content/uploads/2023/01/Recurso-9.png" 
+     alt="Icono de Caja de Reporte" class="header-icon">
+
+        <h1>Reporte de Sobrantes</h1>
+        
+        <section id="ingrese-los-restantes">
+        <h2>Ingrese los Sobrantes</h2>
+    
+    <div class="add-task-form">
+        
+        <div>
+            <label for="opcion-restante">Seleccione el Tipo:</label>
+            <select id="opcion-restante" name="tipo_restante" required>
+                <option value="" disabled selected>-- Elija un Producto --</option>
+                <option value="Hamb">Hamb</option>
+                <option value="Sp">Sp</option>
+                <option value="Lactal">Lactal</option>
+            </select>
+        </div>
+        
+        <br>
+        
+        <div>
+            <label for="detalle-restante">Columnas: </label>
+            <input type="text" id="columnas-restante" name="columnas_restante" maxlength="255" placeholder="Ingrese cant. de columnas" required>
+        </div>
+        
+        <br>
+
+        <div>
+            <label for="info-adicional">Filas: </label>
+            <input type="text" id="filas-adicional" name="filas_adicional" maxlength="100" placeholder="Ingrese cant. de filas" required>
+        </div>
+
+        <br>
+        
+        <button id="guardar-sobrante-btn" type="button">Guardar Sobrante</button>
+    </div>
+</section> 
+        
+        <div id="lista-sobrantes-admin" class="task-list-container">
+            <h2>Sobrantes Reportados</h2>
+            <ul id="taskList">
+                </ul>
+        </div>
+    </div>
+
+    <script src="sobrante.js"></script>
+</body>
+</html>

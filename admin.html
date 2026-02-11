@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración Principal</title>
+    <link rel="stylesheet" href="style2.css">
+</head>
+ 
+<body>
+  
+    <div class="container">
+        <header class="app-header">
+        <img src="https://www.romeropanificados.com.ar/wp-content/uploads/2023/01/Recurso-9.png" 
+             alt="Icono de Caja de Reporte" class="header-icon">
+    </header>
+
+        <h1>Panel de Administración</h1>
+
+        <section id="seccion-ingreso-tareas">
+            <h2>Crear Tarea Nueva</h2>
+            <div class="add-task-form">
+                <select id="task-category">
+                    <option value="" disabled selected>-- Selecciona un Producto --</option>
+                    <option value="sp">Sp</option>
+                    <option value="lactal">Lactal</option>
+                    <option value="hamb">Hamb</option>
+                </select>
+                <input type="text" id="taskTitle" placeholder="Cantidad de Producto...">
+                <button id="add-task-btn">Agregar</button>
+            </div>
+            
+            <div class="task-list-container">
+                <h3>Lista de Tareas Agregadas</h3>
+                <ul id="taskList">
+                </ul>
+            </div>
+        </section>
+
+        <hr>
+
+        <section id="seccion-sobrantes-reportados">
+            <div id="lista-sobrantes-admin" class="task-list-container">
+                <h2>Sobrantes Reportados</h2>
+                
+                <ul id="sobrantesList"> 
+                </ul>
+            </div>
+        </section>
+        
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

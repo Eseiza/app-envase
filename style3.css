@@ -1,0 +1,160 @@
+/*
+======================================
+ESTILOS BASE (Móvil Primero y Centrado)
+======================================
+*/
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #977a1b4f;
+    margin: 0;
+    padding: 20px 10px; /* Reducimos el padding horizontal para móvil */
+    
+    /* Centrado global con Flexbox */
+    display: flex;
+    flex-direction: column; /* Apila los elementos verticalmente */
+    align-items: center; /* Centra los elementos horizontalmente */
+    min-height: 100vh; /* Asegura que ocupe toda la altura de la ventana */
+}
+
+h1 {
+    color: #b13009;
+    margin-bottom: 30px;
+    text-align: center; /* Asegura el centrado del texto */
+    font-size: 1.8em; /* Ajuste para móvil */
+}
+
+/* --- Icono --- */
+.header-icon {
+    width: 100px; /* Tamaño adecuado para móvil */
+    height: auto;
+    margin-bottom: 20px;
+}
+
+/* --- Contenedor de la Lista --- */
+#pedidosList {
+    list-style: none;
+    padding: 0;
+    /* Reducimos el max-width para que se vea bien en pantallas grandes también */
+    max-width: 500px; 
+    width: 100%; /* Ocupa todo el ancho disponible dentro de max-width */
+}
+
+/* Estilo base para cada elemento de la lista (Lado a lado por defecto) */
+#pedidosList li {
+    display: flex;
+    align-items: center;
+    gap: 15px; 
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background-color: #dee2e6;
+    border: 1px solid #b0b3b4;
+    border-radius: 6px;
+    transition: box-shadow 0.3s;
+    /* Permite que el texto ocupe el espacio sin desbordar */
+    word-break: break-word; 
+    min-height: 40px;
+}
+
+#pedidosList li:hover {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.completado span {
+    text-decoration: line-through; 
+    color: #888; 
+    font-style: italic;
+}
+
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    min-width: 20px; 
+}
+
+/* --- Botón de Navegación --- */
+.boton-navegacion {
+    display: block; /* Hacemos que ocupe su propia línea para centrarlo mejor */
+    padding: 10px 20px;
+    background-color: #e08128;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    margin: 20px auto; /* Centrado con margen automático */
+    max-width: 300px; /* Ancho máximo para que no sea gigante en escritorio */
+    text-align: center;
+}
+
+.boton-navegacion:hover {
+    background-color: #e0a028;
+}
+
+/*
+=====================================================
+MEDIA QUERY: MÓVIL (hasta 599px)
+=====================================================
+*/
+@media (max-width: 599px) {
+    
+    body {
+        /* Eliminamos el padding lateral para ganar espacio en móvil */
+        padding: 15px 5px; 
+    }
+
+    /* Forzamos el texto a apilarse si es demasiado largo en el móvil */
+    #pedidosList li {
+        flex-wrap: wrap; 
+        padding: 10px;
+    }
+
+    /* Aseguramos que el texto del pedido ocupe el espacio restante */
+    #pedidosList li span {
+        flex-grow: 1;
+        /* Aseguramos que el texto no desborde si está envuelto */
+        min-width: 0; 
+    }
+
+    .header-icon {
+        width: 80px; /* Icono un poco más pequeño */
+    }
+}
+
+/*
+=====================================================
+MEDIA QUERY: TABLETA Y ESCRITORIO (min-width: 600px)
+=====================================================
+
+Mantenemos el diseño base aquí, pero con más espacio y centrando el contenido.
+*/
+@media (min-width: 600px) {
+    
+    /* El diseño del formulario ya es bueno para tableta y escritorio */
+    body {
+        /* Centramos el contenido dentro de la pantalla */
+        padding: 40px; 
+    }
+
+    .header-icon {
+        width: 120px; /* Ícono más grande */
+    }
+
+    h1 {
+        font-size: 2.5em; /* Título más grande en escritorio */
+    }
+}
+
+/*
+=====================================================
+MEDIA QUERY: ESCRITORIO GRANDE (min-width: 1000px)
+=====================================================
+*/
+@media (min-width: 1000px) {
+    
+    .header-icon {
+        width: 150px;
+    }
+}

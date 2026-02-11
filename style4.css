@@ -1,0 +1,243 @@
+/* ---------------- Estilos Originales Conservados ---------------- */
+
+.app-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.header-icon {
+    width: 260px; /* Tamaño original: Mantenido, pero será sobrescrito en móvil */
+    height: auto;
+    display: block; 
+    margin: 0 auto 10px; 
+    filter: invert(100%); 
+}
+
+/* --- Estilos Generales --- */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #977a1b5d;
+    margin: 0;
+    padding: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 1000px; 
+    box-sizing: border-box;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    border-bottom: 3px solid #b13009;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+
+h2 {
+    color: #333;
+    margin-top: 25px;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    border-left: 5px solid #e0d428;
+    padding-left: 10px;
+}
+
+/* --- Estilos del Formulario de Ingreso (Apilado por defecto) --- */
+
+.add-task-form select, 
+.add-task-form input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 100%; 
+    box-sizing: border-box;
+    margin-top: 5px;
+}
+
+#guardar-sobrante-btn {
+    padding: 10px 15px;
+    background-color: #e08128;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 15px;
+    transition: background-color 0.3s;
+}
+
+#guardar-sobrante-btn:hover {
+    background-color: #e0a028;
+}
+
+/* --- Estilos de la Lista de Sobrantes (Diseño lado a lado por defecto) --- */
+
+#taskList {
+    list-style: none;
+    padding: 0;
+}
+
+#taskList li {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    background-color: #f9f9f9;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.task-actions { margin-left: auto; }
+.task-actions button { 
+    background-color: #dc3545; 
+    color: white;
+    border: none;
+    padding: 7px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    width: auto; 
+}
+.task-actions button:hover { background-color: #c82333; }
+.tarea-completada { background-color: #f9f9f9 !important; border-left: none; opacity: 1; }
+
+
+/*
+=====================================================
+  MEDIA QUERY: MÓVIL (hasta 599px)
+=====================================================
+*/
+@media (max-width: 599px) {
+    
+    /* 1. Icono: Reducido para evitar desbordamiento */
+    .header-icon {
+        width: 100px;
+        height: auto;
+    }
+
+    .container {
+        padding: 15px; /* Menos padding en pantallas muy pequeñas */
+    }
+
+    /* 2. Lista: Forzamos el apilamiento vertical */
+    #taskList li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #taskList li span {
+        margin-bottom: 10px;
+        word-break: break-word;
+        width: 100%;
+    }
+
+    .task-actions {
+        width: 100%;
+        text-align: right;
+        margin-left: 0; 
+    }
+}
+
+/*
+=====================================================
+  MEDIA QUERY: TABLETA (min-width: 600px)
+=====================================================
+
+En este rango, usamos la disposición horizontal de los 3 campos, 
+pero con un diseño de 2 columnas para que no se vean demasiado pequeños.
+*/
+@media (min-width: 600px) and (max-width: 999px) {
+    
+    .container {
+        padding: 30px; 
+    }
+
+    .header-icon {
+        width: 140px; /* Tamaño intermedio del icono */
+    }
+    
+    /* Formulario: 2 Columnas para Tableta */
+    .add-task-form {
+        display: flex;
+        justify-content: space-between; 
+        align-items: flex-end; 
+        gap: 20px; 
+        flex-wrap: wrap; 
+    }
+    
+    /* 2 elementos por fila: Producto y Columnas/Filas */
+    .add-task-form > div {
+        flex-basis: calc(50% - 10px); /* 50% de ancho con margen de 20px */
+        margin-bottom: 20px; 
+    }
+
+    /* El botón se centra, ocupando el ancho del contenedor */
+    #guardar-sobrante-btn {
+        width: 300px;
+        margin-left: auto;
+        margin-right: auto; 
+        margin-top: 20px; 
+        flex-basis: 100%; /* Ocupa toda la fila inferior */
+    }
+    
+    /* Lista: Vuelve al diseño lado a lado (heredado del estilo base) */
+}
+
+
+/*
+=====================================================
+  MEDIA QUERY: ESCRITORIO GRANDE (min-width: 1000px)
+=====================================================
+
+Aquí es donde volvemos al diseño de 3 columnas completo.
+*/
+@media (min-width: 1000px) {
+    
+    .container {
+        padding: 50px; 
+    }
+
+    .header-icon {
+        width: 180px; 
+    }
+    
+    /* Formulario: 3 Columnas para Escritorio Grande */
+    .add-task-form {
+        display: flex;
+        justify-content: space-between; 
+        align-items: flex-end; 
+        gap: 20px; 
+        flex-wrap: wrap; 
+    }
+    
+    /* Hacemos que los 3 campos de entrada ocupen aproximadamente 1/3 */
+    .add-task-form > div {
+        flex-basis: calc(33.33% - 14px); 
+        margin-bottom: 0; 
+    }
+
+    /* El botón se centra debajo de los campos */
+    #guardar-sobrante-btn {
+        width: 300px; 
+        margin-left: auto;
+        margin-right: auto; 
+        margin-top: 30px; 
+        flex-basis: 100%;
+    }
+}
