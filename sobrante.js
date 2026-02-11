@@ -1,3 +1,18 @@
+const firebaseConfig = {
+    // PEGA AQUÍ TUS DATOS DE FIREBASE
+    apiKey: "...",
+    authDomain: "...",
+    databaseURL: "...",
+    projectId: "...",
+    storageBucket: "...",
+    messagingSenderId: "...",
+    appId: "..."
+};
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const getFechaHoy = () => new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
 const getFechaHoy = () => new Date().toLocaleDateString('es-AR');
 
 document.getElementById('guardar-sobrante-btn').onclick = function() {
@@ -24,3 +39,4 @@ document.getElementById('guardar-sobrante-btn').onclick = function() {
     alert("Reporte guardado con éxito.");
     window.location.href = "lista.html"; // Redirige al operario a la lista
 };
+
