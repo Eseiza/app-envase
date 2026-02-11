@@ -1,62 +1,38 @@
-const pedidosList = document.getElementById('pedidosList');
+const getFechaHoy = () => new Date().toLocaleDateString('es-AR');
 
-// Funciones de utilidad para localStorage
-function obtenerPedidos() {
-    const tareasJSON = localStorage.getItem('tareas');
-    return tareasJSON ? JSON.parse(tareasJSON) : [];
-}
+function mostrarPedidosOperario() {
+    const historial = JSON.parse(localStorage.getItem('historial_panificados')) || {};
+    const hoy = historial[getFechaHoy()] || { tareas: [] };
+    const listaDOM = document.getElementById('pedidosList');
 
-function guardarPedidos(pedidos) {
-    localStorage.setItem('tareas', JSON.stringify(pedidos));
-}
+    listaDOM.innerHTML = "";
 
-// Función para alternar el estado 'completado'
-function toggleCompletado(index) {
-    let pedidos = obtenerPedidos();
-    
-    // Cambia el estado del pedido en el índice específico
-    pedidos[index].completado = !pedidos[index].completado; 
-    
-    guardarPedidos(pedidos);
-    mostrarPedidos(); // Refresca la lista
-}
-
-// Carga y muestra los pedidos
-function mostrarPedidos() {
-    const pedidos = obtenerPedidos();
-    
-    pedidosList.innerHTML = ''; // Limpiar lista
-    
-    if (pedidos.length === 0) {
-        pedidosList.innerHTML = '<li>No hay pedidos ingresados.</li>';
+    if (hoy.tareas.length === 0) {
+        listaDOM.innerHTML = "<li>No hay pedidos para hoy.</li>";
         return;
     }
-    
-    pedidos.forEach((pedido, index) => {
-        const item = document.createElement('li');
-        
-        // Aplica la clase si está completado para el estilo CSS
-        if (pedido.completado) {
-            item.classList.add('completado');
-        }
 
-        // Crea el checkbox
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = pedido.completado; 
-        checkbox.onclick = () => toggleCompletado(index); 
-
-        // Contenido del texto
-        const textoPedido = document.createElement('span');
-        textoPedido.innerHTML = `
-            📦 PRODUCTO: ${pedido.producto} /   CANTIDAD: ${pedido.cantidad}
+    hoy.tareas.forEach(tarea => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <input type="checkbox" ${tarea.completado ? 'checked' : ''} 
+                onclick="toggleTarea(${tarea.id})">
+            <span style="${tarea.completado ? 'text-decoration:line-through' : ''}">
+                ${tarea.producto} - Cant: ${tarea.cantidad}
+            </span>
         `;
-
-        item.appendChild(checkbox);
-        item.appendChild(textoPedido);
-        pedidosList.appendChild(item);
+        listaDOM.appendChild(li);
     });
 }
 
-// Carga la lista automáticamente al abrir lista.html
-mostrarPedidos();
+window.toggleTarea = (id) => {
+    let historial = JSON.parse(localStorage.getItem('historial_panificados'));
+    const fecha = getFechaHoy();
+    const index = historial[fecha].tareas.findIndex(t => t.id === id);
+    
+    historial[fecha].tareas[index].completado = !historial[fecha].tareas[index].completado;
+    localStorage.setItem('historial_panificados', JSON.stringify(historial));
+    mostrarPedidosOperario();
+};
+
+mostrarPedidosOperario();
