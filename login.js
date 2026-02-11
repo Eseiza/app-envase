@@ -1,18 +1,17 @@
 const firebaseConfig = {
-    // PEGA AQUÍ TUS DATOS DE FIREBASE
-    apiKey: "...",
-    authDomain: "...",
-    databaseURL: "...",
-    projectId: "...",
-    storageBucket: "...",
-    messagingSenderId: "...",
-    appId: "..."
+    apiKey: "AIzaSyAJgnFCKt_8TT4BpWrDwqy--Oep0raYA18",
+    authDomain: "romero-env.firebaseapp.com",
+    databaseURL: "https://romero-env-default-rtdb.firebaseio.com",
+    projectId: "romero-env",
+    storageBucket: "romero-env.firebasestorage.app",
+    messagingSenderId: "350498956335",
+    appId: "1:350498956335:web:901f91c4d7b983308252da"
 };
 
-// Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const getFechaHoy = () => new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+// Inicializar Firebase (Solo si no está inicializado)
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
 const USUARIO_VALIDO = "adminpro";
 const CONTRASENA_VALIDA = "12345"; 
@@ -28,19 +27,19 @@ loginForm.addEventListener('submit', function(event) {
 
     if (inputUsername === USUARIO_VALIDO && inputPassword === CONTRASENA_VALIDA) {
         
-        messageDisplay.textContent = "¡Inicio de sesión exitoso! Redirigiendo a la página de administración...";
+        // --- PASO CLAVE: GUARDAR LA SESIÓN ---
+        // Esto le dice a las otras páginas que el usuario ya se identificó
+        sessionStorage.setItem('autenticado', 'true');
+        
+        messageDisplay.textContent = "¡Inicio de sesión exitoso! Redirigiendo...";
         messageDisplay.style.color = "green";
         
-        // Redirección a la página de administración
-      // En login.js, dentro del if de éxito:
-setTimeout(() => {
-    window.location.href = "./admin.html"; // El "./" ayuda a encontrarlo en la raíz
-}, 1500);
+        setTimeout(() => {
+            window.location.href = "./admin.html"; 
+        }, 1500);
 
     } else {
         messageDisplay.textContent = "Error: Usuario o contraseña incorrectos.";
         messageDisplay.style.color = "red";
     }
-
 });
-
