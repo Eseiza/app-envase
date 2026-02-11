@@ -6,7 +6,9 @@ const firebaseConfig = {
     storageBucket: "romero-env.firebasestorage.app",
     messagingSenderId: "350498956335",
     appId: "1:350498956335:web:901f91c4d7b983308252da"
+    measurementId: "G-4WWNKPPBMG"
 };
+
 
 // Inicializar Firebase (Solo si no está inicializado)
 if (!firebase.apps.length) {
@@ -43,3 +45,4 @@ loginForm.addEventListener('submit', function(event) {
         messageDisplay.style.color = "red";
     }
 });
+
