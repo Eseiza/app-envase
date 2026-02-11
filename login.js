@@ -1,3 +1,19 @@
+const firebaseConfig = {
+    // PEGA AQUÍ TUS DATOS DE FIREBASE
+    apiKey: "...",
+    authDomain: "...",
+    databaseURL: "...",
+    projectId: "...",
+    storageBucket: "...",
+    messagingSenderId: "...",
+    appId: "..."
+};
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const getFechaHoy = () => new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+
 const USUARIO_VALIDO = "adminpro";
 const CONTRASENA_VALIDA = "12345"; 
 
@@ -24,4 +40,5 @@ loginForm.addEventListener('submit', function(event) {
         messageDisplay.textContent = "Error: Usuario o contraseña incorrectos.";
         messageDisplay.style.color = "red";
     }
+
 });
