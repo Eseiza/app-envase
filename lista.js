@@ -1,12 +1,4 @@
-const firebaseConfig = {
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// 1. CONFIGURACIÓN LIMPIA
 const firebaseConfig = {
   apiKey: "AIzaSyAJgnFCKt_8TT4BpWrDwqy--Oep0raYA18",
   authDomain: "romero-env.firebaseapp.com",
@@ -18,16 +10,21 @@ const firebaseConfig = {
   measurementId: "G-4WWNKPPBMG"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-};
+// 2. INICIALIZACIÓN
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const db = firebase.database();
+
 const getFechaHoy = () => new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
 
+// 3. ESCUCHAR PEDIDOS EN TIEMPO REAL
 db.ref(`historial/${getFechaHoy()}/tareas`).on('value', (snapshot) => {
     const tareas = snapshot.val();
     const contenedor = document.getElementById('pedidosList');
+    
+    if (!contenedor) return; // Seguridad por si el ID no existe
+    
     contenedor.innerHTML = "";
 
     if (!tareas) {
@@ -37,17 +34,26 @@ db.ref(`historial/${getFechaHoy()}/tareas`).on('value', (snapshot) => {
 
     Object.values(tareas).forEach(t => {
         const li = document.createElement('li');
+        li.style.listStyle = "none";
+        li.style.marginBottom = "10px";
+        
         li.innerHTML = `
-            <input type="checkbox" ${t.completado ? 'checked' : ''} onclick="toggleTarea('${t.id}', ${t.completado})">
-            <span style="${t.completado ? 'text-decoration:line-through' : ''}">${t.producto} - Cant: ${t.cantidad}</span>
+            <label style="font-size: 1.2rem; cursor: pointer;">
+                <input type="checkbox" ${t.completado ? 'checked' : ''} 
+                       onclick="toggleTarea('${t.id}', ${t.completado})" 
+                       style="transform: scale(1.5); margin-right: 10px;">
+                <span style="${t.completado ? 'text-decoration:line-through; color:gray' : 'font-weight:bold'}">
+                    ${t.producto} - Cant: ${t.cantidad}
+                </span>
+            </label>
         `;
         contenedor.appendChild(li);
     });
 });
 
+// 4. FUNCIÓN PARA MARCAR COMO LISTO
 window.toggleTarea = (id, estadoActual) => {
     db.ref(`historial/${getFechaHoy()}/tareas/${id}`).update({
         completado: !estadoActual
     });
 };
-
