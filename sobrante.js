@@ -3,10 +3,12 @@ const getFechaHoy = () => new Date().toLocaleDateString('es-AR');
 document.getElementById('guardar-sobrante-btn').onclick = function() {
     const producto = document.getElementById('opcion-restante').options[document.getElementById('opcion-restante').selectedIndex].text;
     const columnas = document.getElementById('columnas-restante').value;
-    const filas = document.getElementById('filas-adicional').value; // ID Corregido
+    const filas = document.getElementById('filas-adicional').value; // ID Corregido según tu HTML
     const fecha = getFechaHoy();
 
-    if (!columnas || !filas) return alert("Completa los datos");
+    if (!columnas || !filas || producto.includes("--")) {
+        return alert("Por favor, completa todos los campos del sobrante.");
+    }
 
     let historial = JSON.parse(localStorage.getItem('historial_panificados')) || {};
     if (!historial[fecha]) historial[fecha] = { tareas: [], sobrantes: [] };
@@ -19,6 +21,6 @@ document.getElementById('guardar-sobrante-btn').onclick = function() {
     });
 
     localStorage.setItem('historial_panificados', JSON.stringify(historial));
-    alert("Sobrante guardado en el historial de hoy.");
-    window.location.href = "lista.html"; // Vuelve a la lista tras reportar
+    alert("Reporte guardado con éxito.");
+    window.location.href = "lista.html"; // Redirige al operario a la lista
 };
