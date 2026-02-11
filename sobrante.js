@@ -1,12 +1,4 @@
-const firebaseConfig = {
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// 1. CONFIGURACIÓN LIMPIA (Sin imports ni duplicados)
 const firebaseConfig = {
   apiKey: "AIzaSyAJgnFCKt_8TT4BpWrDwqy--Oep0raYA18",
   authDomain: "romero-env.firebaseapp.com",
@@ -18,29 +10,41 @@ const firebaseConfig = {
   measurementId: "G-4WWNKPPBMG"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-};
+// 2. INICIALIZACIÓN
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const db = firebase.database();
+
 const getFechaHoy = () => new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
 
-document.getElementById('guardar-sobrante-btn').onclick = function() {
-    const producto = document.getElementById('opcion-restante').options[document.getElementById('opcion-restante').selectedIndex].text;
-    const columnas = document.getElementById('columnas-restante').value;
-    const filas = document.getElementById('filas-adicional').value;
-    const fecha = getFechaHoy();
+// 3. LOGICA DEL BOTÓN
+const btnGuardar = document.getElementById('guardar-sobrante-btn');
 
-    if (!columnas || !filas) return alert("Completa los datos");
+if (btnGuardar) {
+    btnGuardar.onclick = function() {
+        const productoSelect = document.getElementById('opcion-restante');
+        const producto = productoSelect.options[productoSelect.selectedIndex].text;
+        const columnas = document.getElementById('columnas-restante').value;
+        const filas = document.getElementById('filas-adicional').value;
+        const fecha = getFechaHoy();
 
-    db.ref(`historial/${fecha}/sobrantes`).push({
-        producto,
-        columnas,
-        filas,
-        hora: new Date().toLocaleTimeString()
-    });
+        // Validación básica
+        if (!columnas || !filas || producto.includes("--")) {
+            return alert("Por favor, completa todos los campos (Producto, Columnas y Filas)");
+        }
 
-    alert("Enviado al Supervisor");
-    window.location.href = "lista.html";
-};
-
+        // 4. GUARDAR EN FIREBASE
+        db.ref(`historial/${fecha}/sobrantes`).push({
+            producto: producto,
+            columnas: columnas,
+            filas: filas,
+            hora: new Date().toLocaleTimeString()
+        }).then(() => {
+            alert("Reporte enviado con éxito al supervisor");
+            window.location.href = "lista.html"; // Regresa a la lista de tareas
+        }).catch((error) => {
+            alert("Error al enviar: " + error.message);
+        });
+    };
+}
