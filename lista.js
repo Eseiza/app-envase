@@ -1,3 +1,19 @@
+const firebaseConfig = {
+    // PEGA AQUÍ TUS DATOS DE FIREBASE
+    apiKey: "...",
+    authDomain: "...",
+    databaseURL: "...",
+    projectId: "...",
+    storageBucket: "...",
+    messagingSenderId: "...",
+    appId: "..."
+};
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const getFechaHoy = () => new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+
 const getFechaHoy = () => new Date().toLocaleDateString('es-AR');
 
 function renderizarListaOperario() {
@@ -36,3 +52,4 @@ window.cambiarEstado = (id) => {
 };
 
 renderizarListaOperario();
+
