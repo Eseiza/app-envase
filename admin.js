@@ -1,103 +1,71 @@
-// Utilidades para LocalStorage
-function obtenerTareasGuardadas() {
-    const tareasJSON = localStorage.getItem('tareas');
-    return tareasJSON ? JSON.parse(tareasJSON) : []; 
+// --- UTILIDADES ---
+const getFechaHoy = () => new Date().toLocaleDateString('es-AR');
+
+function obtenerHistorial() {
+    return JSON.parse(localStorage.getItem('historial_panificados')) || {};
 }
 
-function guardarTareas(tareas) {
-    localStorage.setItem('tareas', JSON.stringify(tareas));
+function guardarHistorial(historial) {
+    localStorage.setItem('historial_panificados', JSON.stringify(historial));
 }
 
-// NUEVA: Utilidad para obtener sobrantes
-function obtenerSobrantesGuardados() {
-    const sobrantesJSON = localStorage.getItem('sobrantes');
-    return sobrantesJSON ? JSON.parse(sobrantesJSON) : [];
-}
+// --- RENDERIZADO ---
+function actualizarVista(fechaAMostrar = getFechaHoy()) {
+    const historial = obtenerHistorial();
+    const datosDia = historial[fechaAMostrar] || { tareas: [], sobrantes: [] };
 
-// Referencias del DOM
-const botonAgregar = document.getElementById('add-task-btn');
-const listaTareas = document.getElementById('taskList');
-const listaSobrantesDOM = document.getElementById('sobrantesList'); // Referencia del HTML
-const inputCantidad = document.getElementById('taskTitle');
-const selectProducto = document.getElementById('task-category');
-
-// --- Gestión de Pedidos ---
-function agregarInformacionALista() {
-    const producto = selectProducto.options[selectProducto.selectedIndex].text; 
-    const cantidad = inputCantidad.value;
-
-    if (selectProducto.selectedIndex === 0 || cantidad.trim() === '') {
-        alert('Por favor, selecciona un producto e ingresa una cantidad.');
-        return;
-    }
-
-    const nuevaTarea = {
-        id: Date.now(), // ID único para evitar errores al borrar
-        producto,
-        cantidad,
-        completado: false 
-    };
-    
-    let tareas = obtenerTareasGuardadas();
-    tareas.push(nuevaTarea);
-    guardarTareas(tareas);
-    cargarTareasIniciales();
-
-    inputCantidad.value = '';
-    selectProducto.selectedIndex = 0;
-}
-
-function renderizarTareaEnLista(tarea) {
-    const nuevoElementoLista = document.createElement('li');
-    if (tarea.completado) nuevoElementoLista.classList.add('tarea-completada'); 
-
-    nuevoElementoLista.innerHTML = `
-        <span><strong>${tarea.producto}</strong> - Cant: ${tarea.cantidad} ${tarea.completado ? '✅' : '⏳'}</span>
-        <div class="task-actions">
-            ${!tarea.completado ? `<button onclick="marcarComoCompletado(${tarea.id})">✔️</button>` : ''}
-            <button onclick="eliminarTarea(${tarea.id})">❌</button>
-        </div>
-    `;
-    listaTareas.appendChild(nuevoElementoLista);
-}
-
-// --- Gestión de Sobrantes (Panel Admin) ---
-function cargarSobrantesAdmin() {
-    if (!listaSobrantesDOM) return;
-    listaSobrantesDOM.innerHTML = '';
-    const sobrantes = obtenerSobrantesGuardados();
-    
-    sobrantes.forEach(s => {
+    // Tareas (Pedidos)
+    const listaT = document.getElementById('taskList');
+    listaT.innerHTML = "";
+    datosDia.tareas.forEach(t => {
         const li = document.createElement('li');
-        li.innerHTML = `<span>🍞 <strong>${s.producto}</strong>: ${s.columnas} col x ${s.filas} fil</span>`;
-        listaSobrantesDOM.appendChild(li);
+        li.className = t.completado ? "tarea-completada" : "";
+        li.innerHTML = `
+            <span><strong>${t.producto}</strong>: ${t.cantidad} ${t.completado ? '✅' : '⏳'}</span>
+            <button onclick="eliminarTarea('${fechaAMostrar}', ${t.id})">❌</button>
+        `;
+        listaT.appendChild(li);
+    });
+
+    // Sobrantes Reportados
+    const listaS = document.getElementById('sobrantesList');
+    listaS.innerHTML = "";
+    datosDia.sobrantes.forEach(s => {
+        const li = document.createElement('li');
+        li.innerHTML = `🍞 <strong>${s.producto}</strong>: ${s.columnas} col x ${s.filas} fil`;
+        listaS.appendChild(li);
     });
 }
 
-// --- Funciones Globales (para los botones onclick) ---
-window.marcarComoCompletado = (id) => {
-    let tareas = obtenerTareasGuardadas();
-    const index = tareas.findIndex(t => t.id === id);
-    if (index !== -1) {
-        tareas[index].completado = true;
-        guardarTareas(tareas);
-        cargarTareasIniciales();
-    }
+// --- ACCIONES ---
+document.getElementById('add-task-btn').onclick = function() {
+    const producto = document.getElementById('task-category').options[document.getElementById('task-category').selectedIndex].text;
+    const cantidad = document.getElementById('taskTitle').value;
+    const fecha = getFechaHoy();
+
+    if (!cantidad) return alert("Ingresa cantidad");
+
+    let historial = obtenerHistorial();
+    if (!historial[fecha]) historial[fecha] = { tareas: [], sobrantes: [] };
+
+    historial[fecha].tareas.push({ id: Date.now(), producto, cantidad, completado: false });
+    guardarHistorial(historial);
+    actualizarVista();
 };
 
-window.eliminarTarea = (id) => {
-    let tareas = obtenerTareasGuardadas();
-    tareas = tareas.filter(t => t.id !== id);
-    guardarTareas(tareas);
-    cargarTareasIniciales();
+window.eliminarTarea = (fecha, id) => {
+    let historial = obtenerHistorial();
+    historial[fecha].tareas = historial[fecha].tareas.filter(t => t.id !== id);
+    guardarHistorial(historial);
+    actualizarVista(fecha);
 };
 
-function cargarTareasIniciales() {
-    listaTareas.innerHTML = '';
-    obtenerTareasGuardadas().forEach(renderizarTareaEnLista);
-}
+window.consultarHistorial = () => {
+    const fechaInput = document.getElementById('fecha-busqueda').value;
+    if (!fechaInput) return;
+    const [aaaa, mm, dd] = fechaInput.split('-');
+    actualizarVista(`${parseInt(dd)}/${parseInt(mm)}/${aaaa}`);
+};
 
-// Inicialización
-botonAgregar.addEventListener('click', agregarInformacionALista);
-cargarTareasIniciales();
-cargarSobrantesAdmin();
+// Carga Inicial
+actualizarVista();
