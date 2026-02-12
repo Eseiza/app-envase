@@ -1,73 +1,50 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f7f6; /* Fondo suave */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
-
-.login-container {
-    background-color: #ffffff;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra elegante */
-    width: 100%;
-    max-width: 350px;
-    text-align: center;
-}
-
-h1 {
-    color: #333;
-    margin-bottom: 20px;
-    font-size: 33px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-    text-align: left;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
-}
-
-input[type="text"],
-input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
-}
-
-button[type="submit"] {
-    width: 100%;
-    padding: 10px;
-    background-color: #b13009; /* Azul primario */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
-    transition: background-color 0.3s;
-}
-
-button[type="submit"]:hover {
-    background-color: #b15509;
-}
-
-.form-options {
-    text-align: left;
-    margin-bottom: 15px;
-}
-
 #loginMessage {
     margin-top: 20px;
     font-weight: bold;
+
+}
+/* --- CONFIGURACIÓN PARA EL GRÁFICO --- */
+.chart-container {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin: 20px 0;
+    width: 100%;
+    max-width: 700px; /* Para que no se estire demasiado */
+}
+
+/* --- REGLAS DE IMPRESIÓN (PARA EL PDF) --- */
+@media print {
+    /* Ocultamos lo que no queremos que salga en el papel/PDF */
+    .no-print, 
+    button, 
+    select, 
+    input, 
+    .btn-logout, 
+    .admin-form,
+    hr {
+        display: none !important;
+    }
+
+    /* Ajustamos el diseño para la hoja A4 */
+    body {
+        background: white !important;
+        color: black;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 100%;
+        box-shadow: none;
+        border: none;
+    }
+
+    h2 {
+        border-bottom: 2px solid #333;
+        padding-bottom: 5px;
+        margin-top: 30px;
+    }
 }
