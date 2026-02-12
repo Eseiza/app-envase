@@ -1,159 +1,83 @@
-/* --- ESTILO ORIGINAL PANIFICADORA (OSCURO) --- */
-:root {
-    --fondo: #121212;
-    --tarjeta: #1e1e1e;
-    --texto: #ffffff;
-    --primario: #f39c12; /* Naranja fuerte */
-    --secundario: #2ecc71; /* Verde éxito */
-    --borde: #333333;
-}
-
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: var(--fondo);
-    color: var(--texto);
-
-
-
-    margin: 0;
-    padding: 0;
-}
-
-.container {
-    max-width: 600px;
-    margin: 20px auto;
-    background: var(--tarjeta);
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-
-}
-
-.app-header {
-    text-align: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--borde);
-    margin-bottom: 20px;
-
-
-
-
-
-
-}
-
-/* --- INPUTS Y BOTONES --- */
-input, select {
-
-
-
-
-
-
-
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    background: #2b2b2b;
-    border: 1px solid var(--borde);
-    border-radius: 8px;
-    color: white;
-    box-sizing: border-box;
-}
-
-button {
-    width: 100%;
-    padding: 15px;
-    border-radius: 10px;
-
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-top: 10px;
-
-}
-
-#add-task-btn, #guardar-sobrante-btn {
-    background-color: var(--primario);
-    color: black;
-}
-
-.btn-pdf {
-    background-color: var(--secundario);
-    color: white;
-}
-
-.btn-logout {
-    background: #c0392b;
-    color: white;
-    width: auto;
-    padding: 5px 15px;
-    font-size: 12px;
-}
-
-/* --- LISTAS --- */
-ul {
-    list-style: none;
-    padding: 0;
-}
-
-li {
-    background: #252525;
-    margin: 10px 0;
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid var(--borde);
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6; /* Fondo suave */
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    height: 100vh;
+    margin: 0;
+
 }
 
-/* --- GRÁFICO --- */
-.chart-container {
-    margin-top: 30px;
+.login-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra elegante */
+    width: 100%;
+    max-width: 350px;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+
+
+    margin-bottom: 20px;
+    font-size: 33px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+
+
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+
+
+    font-weight: bold;
+    color: #555;
+
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
     padding: 10px;
-    background: #fff; /* El gráfico se ve mejor en blanco para el PDF */
-    border-radius: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
 }
 
-/* --- REGLAS DE IMPRESIÓN (PARA EL PDF) --- */
-@media print {
-    .no-print, button, input, select, .btn-logout, hr {
-
-
-
-
-
-
-
-        display: none !important;
-    }
-
-
-    body {
-        background: white !important;
-        color: black !important;
-
-
-    }
-
-    .container {
-        width: 100%;
-        max-width: 100%;
-        background: white;
-        box-shadow: none;
-        border: none;
-    }
-
-    li {
-        background: white;
-        border: 1px solid #ddd;
-        color: black;
-    }
-
-    .chart-container {
-        background: white;
-        border: none;
-    }
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #b13009; /* Azul primario */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.3s;
 }
+
+button[type="submit"]:hover {
+    background-color: #b15509;
+
+
+}
+
+.form-options {
+    text-align: left;
+    margin-bottom: 15px;
+
+}
+
+#loginMessage {
+    margin-top: 20px;
+    font-weight: bold;
