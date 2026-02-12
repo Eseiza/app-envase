@@ -3,57 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración Principal</title>
-    <link rel="stylesheet" href="style2.css">
+    <title>Sistema de Producción - Panificadora Romero</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
- 
 <body>
-  
-    <div class="container">
-        <header class="app-header">
-        <img src="https://www.romeropanificados.com.ar/wp-content/uploads/2023/01/Recurso-9.png" 
-             alt="Icono de Caja de Reporte" class="header-icon">
+    <header class="app-header">
+        <h1>Panificadora Romero - Administración</h1>
+        <button onclick="cerrarSesion()" class="btn-logout no-print">Cerrar Sesión</button>
     </header>
 
-        <h1>Panel de Administración</h1>
+    <main class="container">
+        <section class="admin-form no-print">
+            <h3>Cargar Orden de Producción</h3>
+            <select id="task-category">
+                <option value="">-- Seleccionar Variedad --</option>
+                <option value="max">Max</option>
+                <option value="super">Super</option>
+                <option value="lactal">Pan Lactal</option>
+            </select>
+            <input type="number" id="taskTitle" placeholder="Cant. de bandejas">
+            <button id="add-task-btn">Enviar a Planta</button>
+        </section>
 
-        <section id="seccion-ingreso-tareas">
-            <h2>Crear Tarea Nueva</h2>
-            <div class="add-task-form">
-                <select id="task-category">
-                    <option value="" disabled selected>-- Selecciona un Producto --</option>
-                    <option value="sp">Sp</option>
-                    <option value="lactal">Lactal</option>
-                    <option value="hamb">Hamb</option>
-                </select>
-                <input type="text" id="taskTitle" placeholder="Cantidad de Producto...">
-                <button id="add-task-btn">Agregar</button>
+        <hr class="no-print">
+
+        <section class="reporte-final">
+            <h2>Pedidos en Curso</h2>
+            <ul id="taskList"></ul>
+
+            <h2>Stock de Salida (Total Unidades)</h2>
+            <ul id="sobrantesList"></ul>
+            
+            <div class="chart-container">
+                <canvas id="graficoStock"></canvas>
             </div>
             
-            <div class="task-list-container">
-                <h3>Lista de Tareas Agregadas</h3>
-                <ul id="taskList">
-                </ul>
-            </div>
+            <button onclick="descargarReporte()" class="btn-pdf no-print">Generar Reporte PDF</button>
         </section>
+    </main>
 
-        <hr>
-
-        <section id="seccion-sobrantes-reportados">
-            <div id="lista-sobrantes-admin" class="task-list-container">
-                <h2>Sobrantes Reportados</h2>
-                
-                <ul id="sobrantesList"> 
-                </ul>
-            </div>
-        </section>
-        
-    </div>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-
     <script src="admin.js"></script>
-
 </body>
-
 </html>
