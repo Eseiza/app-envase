@@ -1,55 +1,73 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración Principal</title>
-    <link rel="stylesheet" href="style2.css">
-</head>
- 
-<body>
-  
-    <div class="container">
-        <header class="app-header">
-        <img src="https://www.romeropanificados.com.ar/wp-content/uploads/2023/01/Recurso-9.png" 
-             alt="Icono de Caja de Reporte" class="header-icon">
-    </header>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6; /* Fondo suave */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
 
-        <h1>Panel de Administración</h1>
+.login-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra elegante */
+    width: 100%;
+    max-width: 350px;
+    text-align: center;
+}
 
-        <section id="seccion-ingreso-tareas">
-            <h2>Crear Tarea Nueva</h2>
-            <div class="add-task-form">
-                <select id="task-category">
-                    <option value="" disabled selected>-- Selecciona un Producto --</option>
-                    <option value="sp">Sp</option>
-                    <option value="lactal">Lactal</option>
-                    <option value="hamb">Hamb</option>
-                </select>
-                <input type="text" id="taskTitle" placeholder="Cantidad de Producto...">
-                <button id="add-task-btn">Agregar</button>
-            </div>
-            
-            <div class="task-list-container">
-                <h3>Lista de Tareas Agregadas</h3>
-                <ul id="taskList">
-                </ul>
-            </div>
-        </section>
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 33px;
+}
 
-        <hr>
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
 
-        <section id="seccion-sobrantes-reportados">
-            <div id="lista-sobrantes-admin" class="task-list-container">
-                <h2>Sobrantes Reportados</h2>
-                
-                <ul id="sobrantesList"> 
-                </ul>
-            </div>
-        </section>
-        
-    </div>
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
 
-    <script src="admin.js"></script>
-</body>
-</html>
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #b13009; /* Azul primario */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+    background-color: #b15509;
+}
+
+.form-options {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+#loginMessage {
+    margin-top: 20px;
+    font-weight: bold;
+}
