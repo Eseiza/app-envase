@@ -1,73 +1,278 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f7f6; /* Fondo suave */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+/*
+======================================
+ESTILOS BASE (Centrado y Móvil Primero)
+======================================
+*/
+
+.app-header {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
-.login-container {
+.header-icon {
+    width: 260px; /* Tamaño original (Será ajustado en móvil) */
+    height: auto;
+    display: block;
+    margin: 0 auto 10px;
+    filter: invert(100%);
+}
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #977a1b5d;
+
+    margin: 0;
+    padding: 20px 0;
+    
+    /* Centrado Total: El contenedor padre se estira */
+    display: flex;
+    flex-direction: column; /* Apila el contenido del body */
+    align-items: center; /* Centra horizontalmente */
+    justify-content: center; /* Centra verticalmente */
+    min-height: 100vh;
+}
+
+.container {
     background-color: #ffffff;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra elegante */
-    width: 100%;
-    max-width: 350px;
-    text-align: center;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    /* Ajustes clave para 100% responsividad: */
+    width: 95%; /* Ocupa el 95% del ancho para dejar margen en móvil */
+    max-width: 1000px;
+    box-sizing: border-box;
 }
 
 h1 {
+    color: #1a1a1a;
+    text-align: center;
+    border-bottom: 3px solid #b13009;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+    font-size: 2em;
+}
+
+h2 {
     color: #333;
+    margin-top: 25px;
     margin-bottom: 20px;
-    font-size: 33px;
+    font-size: 1.5em;
+    border-left: 5px solid #e0d428;
+    padding-left: 10px;
 }
 
-.form-group {
-    margin-bottom: 15px;
-    text-align: left;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+h3 {
     color: #555;
+    margin-top: 15px;
+    font-size: 1.2em;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 5px;
 }
 
-input[type="text"],
-input[type="password"] {
-    width: 100%;
+hr {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), #ccc, rgba(0, 0, 0, 0));
+    margin: 30px 0;
+
+
+
+
+
+}
+
+/* --- Formulario (Por defecto: Fila para Escritorio) --- */
+.add-task-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: stretch;
+    padding: 15px;
+    background-color: #f7f7f7;
+    border-radius: 5px;
+
+
+
+
+}
+
+.add-task-form select, 
+.add-task-form input[type="text"] {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+    font-size: 16px;
+    flex-grow: 1;
+    min-width: 0;
 }
 
-button[type="submit"] {
-    width: 100%;
-    padding: 10px;
-    background-color: #b13009; /* Azul primario */
+.add-task-form button {
+    padding: 10px 15px;
+    background-color: #e0a028;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
-    margin-top: 10px;
     transition: background-color 0.3s;
+    flex-shrink: 0;
 }
 
-button[type="submit"]:hover {
-    background-color: #b15509;
+.add-task-form button:hover {
+    background-color: #e0b528;
 }
 
-.form-options {
-    text-align: left;
-    margin-bottom: 15px;
+/* --- Listas (Por defecto: Lado a lado para Escritorio) --- */
+.task-list-container {
+    padding: 10px 0;
 }
 
-#loginMessage {
-    margin-top: 20px;
-    font-weight: bold;
+#taskList, #sobrantesList {
+
+    list-style: none;
+    padding: 0;
+}
+
+#taskList li, #sobrantesList li {
+
+
+
+
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    transition: background-color 0.3s, border-left 0.3s;
+    word-break: break-word;
+}
+
+#sobrantesList li {
+    background-color: #fff3e0;
+    border-left: 5px solid #ff9800;
+}
+
+.task-actions {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+.task-actions button {
+    border: none;
+    padding: 7px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.task-actions button:last-child { 
+    background-color: #dc3545; 
+    color: white;
+}
+
+.task-actions button:last-child:hover {
+    background-color: #c82333;
+}
+
+.tarea-completada {
+    background-color: #d4edda !important; 
+    border-left: 5px solid #28a745 !important;
+    opacity: 0.85;
+}
+
+
+/*
+=====================================================
+  MEDIA QUERY: MÓVIL (hasta 599px)
+=====================================================
+*/
+@media (max-width: 599px) {
+    
+    .container {
+        padding: 15px;
+        width: 100%; /* Ocupa todo el ancho en móvil */
+    }
+    
+    /* Icono */
+    .header-icon {
+        width: 100px;
+    }
+
+    /* Formulario: Forzamos el apilamiento vertical */
+    .add-task-form {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .add-task-form select, 
+    .add-task-form input[type="text"],
+    .add-task-form button {
+        width: 100%;
+        flex-grow: 0;
+        flex-shrink: 0;
+    }
+
+    /* Listas: Forzamos el apilamiento de contenido y botones */
+    #taskList li, #sobrantesList li {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+    }
+    #taskList li > span, #sobrantesList li > span {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    .task-actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-left: 0;
+
+
+    }
+}
+
+
+/*
+=====================================================
+  MEDIA QUERY: TABLETA Y ESCRITORIO (min-width: 600px)
+=====================================================
+
+Mantienen el diseño de fila y el centrado heredado del body.
+*/
+@media (min-width: 600px) {
+    
+    .container {
+        padding: 30px; 
+        width: 80%; /* Más estrecho para un mejor centrado en tabletas */
+    }
+
+    .header-icon {
+        width: 160px;
+
+    }
+}
+
+
+/*
+=====================================================
+  MEDIA QUERY: ESCRITORIO GRANDE (min-width: 1000px)
+=====================================================
+*/
+@media (min-width: 1000px) {
+    
+    .container {
+        padding: 40px; 
+        width: 100%; /* Vuelve a ocupar más espacio */
+        max-width: 1000px;
+    }
+
+    .header-icon {
+        width: 260px;
+    }
 }
