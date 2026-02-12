@@ -1,130 +1,55 @@
-/* --- ESTILO ORIGINAL PANIFICADORA (OSCURO) --- */
-:root {
-    --fondo: #121212;
-    --tarjeta: #1e1e1e;
-    --texto: #ffffff;
-    --primario: #f39c12; /* Naranja fuerte */
-    --secundario: #2ecc71; /* Verde éxito */
-    --borde: #333333;
-}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración Principal</title>
+    <link rel="stylesheet" href="style2.css">
+</head>
+ 
+<body>
+  
+    <div class="container">
+        <header class="app-header">
+        <img src="https://www.romeropanificados.com.ar/wp-content/uploads/2023/01/Recurso-9.png" 
+             alt="Icono de Caja de Reporte" class="header-icon">
+    </header>
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: var(--fondo);
-    color: var(--texto);
-    margin: 0;
-    padding: 0;
-}
+        <h1>Panel de Administración</h1>
 
-.container {
-    max-width: 600px;
-    margin: 20px auto;
-    background: var(--tarjeta);
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
+        <section id="seccion-ingreso-tareas">
+            <h2>Crear Tarea Nueva</h2>
+            <div class="add-task-form">
+                <select id="task-category">
+                    <option value="" disabled selected>-- Selecciona un Producto --</option>
+                    <option value="sp">Sp</option>
+                    <option value="lactal">Lactal</option>
+                    <option value="hamb">Hamb</option>
+                </select>
+                <input type="text" id="taskTitle" placeholder="Cantidad de Producto...">
+                <button id="add-task-btn">Agregar</button>
+            </div>
+            
+            <div class="task-list-container">
+                <h3>Lista de Tareas Agregadas</h3>
+                <ul id="taskList">
+                </ul>
+            </div>
+        </section>
 
-.app-header {
-    text-align: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--borde);
-    margin-bottom: 20px;
-}
+        <hr>
 
-/* --- INPUTS Y BOTONES --- */
-input, select {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    background: #2b2b2b;
-    border: 1px solid var(--borde);
-    border-radius: 8px;
-    color: white;
-    box-sizing: border-box;
-}
+        <section id="seccion-sobrantes-reportados">
+            <div id="lista-sobrantes-admin" class="task-list-container">
+                <h2>Sobrantes Reportados</h2>
+                
+                <ul id="sobrantesList"> 
+                </ul>
+            </div>
+        </section>
+        
+    </div>
 
-button {
-    width: 100%;
-    padding: 15px;
-    border-radius: 10px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-top: 10px;
-}
-
-#add-task-btn, #guardar-sobrante-btn {
-    background-color: var(--primario);
-    color: black;
-}
-
-.btn-pdf {
-    background-color: var(--secundario);
-    color: white;
-}
-
-.btn-logout {
-    background: #c0392b;
-    color: white;
-    width: auto;
-    padding: 5px 15px;
-    font-size: 12px;
-}
-
-/* --- LISTAS --- */
-ul {
-    list-style: none;
-    padding: 0;
-}
-
-li {
-    background: #252525;
-    margin: 10px 0;
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid var(--borde);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* --- GRÁFICO --- */
-.chart-container {
-    margin-top: 30px;
-    padding: 10px;
-    background: #fff; /* El gráfico se ve mejor en blanco para el PDF */
-    border-radius: 10px;
-}
-
-/* --- REGLAS DE IMPRESIÓN (PARA EL PDF) --- */
-@media print {
-    .no-print, button, input, select, .btn-logout, hr {
-        display: none !important;
-    }
-
-    body {
-        background: white !important;
-        color: black !important;
-    }
-
-    .container {
-        width: 100%;
-        max-width: 100%;
-        background: white;
-        box-shadow: none;
-        border: none;
-    }
-
-    li {
-        background: white;
-        border: 1px solid #ddd;
-        color: black;
-    }
-
-    .chart-container {
-        background: white;
-        border: none;
-    }
-}
+    <script src="admin.js"></script>
+</body>
+</html>
