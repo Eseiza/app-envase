@@ -70,4 +70,50 @@ button[type="submit"]:hover {
 #loginMessage {
     margin-top: 20px;
     font-weight: bold;
+
+}
+/* --- CONFIGURACIÓN PARA EL GRÁFICO --- */
+.chart-container {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin: 20px 0;
+    width: 100%;
+    max-width: 700px; /* Para que no se estire demasiado */
+}
+
+/* --- REGLAS DE IMPRESIÓN (PARA EL PDF) --- */
+@media print {
+    /* Ocultamos lo que no queremos que salga en el papel/PDF */
+    .no-print, 
+    button, 
+    select, 
+    input, 
+    .btn-logout, 
+    .admin-form,
+    hr {
+        display: none !important;
+    }
+
+    /* Ajustamos el diseño para la hoja A4 */
+    body {
+        background: white !important;
+        color: black;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 100%;
+        box-shadow: none;
+        border: none;
+    }
+
+    h2 {
+        border-bottom: 2px solid #333;
+        padding-bottom: 5px;
+        margin-top: 30px;
+    }
 }
