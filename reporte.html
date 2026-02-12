@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Producción - Panificadora</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="background: white; color: black;"> <div class="container" style="box-shadow: none; max-width: 900px;">
+        <h1 id="tituloReporte">Reporte de Producción - Panificadora Romero</h1>
+        <p id="fechaReporte"></p>
+        
+        <div class="chart-container">
+            <canvas id="graficoStock"></canvas>
+        </div>
+
+        <ul id="listaDetalle" style="margin-top: 20px;"></ul>
+
+        <button onclick="window.print()" class="no-print" style="background: #27ae60; color: white;">Imprimir / Guardar PDF</button>
+        <button onclick="window.location.href='admin.html'" class="no-print" style="background: #555; color: white;">Volver al Panel</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <script src="reporte.js"></script>
+</body>
+</html>
