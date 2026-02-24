@@ -1,19 +1,18 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f7f6; /* Fondo suave */
+    background-color: #f4f7f6;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-
 }
 
 .login-container {
     background-color: #ffffff;
     padding: 40px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra elegante */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 350px;
     text-align: center;
@@ -21,8 +20,6 @@ body {
 
 h1 {
     color: #333;
-
-
     margin-bottom: 20px;
     font-size: 33px;
 }
@@ -30,33 +27,55 @@ h1 {
 .form-group {
     margin-bottom: 15px;
     text-align: left;
-
-
 }
 
 label {
     display: block;
     margin-bottom: 5px;
-
-
     font-weight: bold;
     color: #555;
-
 }
 
+/* Inputs sin flechita */
 input[type="text"],
 input[type="password"] {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+    box-sizing: border-box;
+    background-color: #ffffff;
+    color: #333;
+    font-size: 14px;
+}
+
+/* Select con flechita propia */
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    color: #333;
+    font-size: 14px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23555' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+}
+
+select:focus {
+    outline: none;
+    border-color: #b13009;
+    box-shadow: 0 0 0 2px rgba(177, 48, 9, 0.15);
 }
 
 button[type="submit"] {
     width: 100%;
     padding: 10px;
-    background-color: #b13009; /* Azul primario */
+    background-color: #b13009;
     color: white;
     border: none;
     border-radius: 4px;
@@ -68,16 +87,14 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background-color: #b15509;
-
-
 }
 
 .form-options {
     text-align: left;
     margin-bottom: 15px;
-
 }
 
 #loginMessage {
     margin-top: 20px;
     font-weight: bold;
+}
