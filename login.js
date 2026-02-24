@@ -8,7 +8,6 @@ const firebaseConfig = {
     appId: "1:350498956335:web:901f91c4d7b983308252da"
 };
 
-
 // Inicializar Firebase (Solo si no está inicializado)
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
@@ -25,13 +24,21 @@ loginForm.addEventListener('submit', function(event) {
     
     const inputUsername = document.getElementById('username').value;
     const inputPassword = document.getElementById('password').value;
+    const supervisorSeleccionado = document.getElementById('supervisor').value; // ✅ NUEVO
+
+    // Validar que se haya seleccionado un supervisor
+    if (!supervisorSeleccionado) {
+        messageDisplay.textContent = "Por favor, selecciona un supervisor de turno.";
+        messageDisplay.style.color = "red";
+        return;
+    }
 
     if (inputUsername === USUARIO_VALIDO && inputPassword === CONTRASENA_VALIDA) {
         
-        // --- PASO CLAVE: GUARDAR LA SESIÓN ---
-        // Esto le dice a las otras páginas que el usuario ya se identificó
+        // --- GUARDAR LA SESIÓN ---
         sessionStorage.setItem('autenticado', 'true');
-        
+        sessionStorage.setItem('supervisor', supervisorSeleccionado); // ✅ NUEVO
+
         messageDisplay.textContent = "¡Inicio de sesión exitoso! Redirigiendo...";
         messageDisplay.style.color = "green";
         
@@ -44,5 +51,3 @@ loginForm.addEventListener('submit', function(event) {
         messageDisplay.style.color = "red";
     }
 });
-
-
