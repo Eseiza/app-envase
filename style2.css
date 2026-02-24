@@ -1,25 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
 /*
 ======================================
-ESTILOS BASE (Centrado y Móvil Primero)
+  VARIABLES DE MARCA - ROMERO
 ======================================
 */
-
-.app-header {
-    text-align: center;
-    margin-bottom: 20px;
+:root {
+    --dorado: #c8960c;
+    --dorado-claro: #e8b84b;
+    --bordo: #7a1a0a;
+    --rojo: #b13009;
+    --crema: #fdf6ec;
+    --gris-claro: #f5f0e8;
+    --texto: #2a1a0a;
+    --texto-suave: #6b4c2a;
 }
 
-.header-icon {
-    width: 260px;
-    height: auto;
-    display: block;
-    margin: 0 auto 10px;
-    filter: invert(100%);
-}
-
+/*
+======================================
+  BASE
+======================================
+*/
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #977a1b5d;
+    font-family: 'Lato', Arial, sans-serif;
+    background-color: var(--crema);
     margin: 0;
     padding: 20px 0;
     display: flex;
@@ -31,64 +35,93 @@ body {
 
 .container {
     background-color: #ffffff;
-    padding: 30px;
+    padding: 40px;
     border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 20px rgba(122, 26, 10, 0.12);
     width: 95%;
     max-width: 1000px;
     box-sizing: border-box;
+    border-top: 4px solid var(--dorado);
 }
 
-h1 {
-    color: #1a1a1a;
+/*
+======================================
+  HEADER
+======================================
+*/
+.app-header {
     text-align: center;
-    border-bottom: 3px solid #b13009;
+    margin-bottom: 20px;
+}
+
+.header-icon {
+    width: 220px;
+    height: auto;
+    display: block;
+    margin: 0 auto 10px;
+    filter: invert(100%);
+}
+
+/*
+======================================
+  TIPOGRAFÍA
+======================================
+*/
+h1 {
+    color: var(--texto);
+    text-align: center;
+    border-bottom: 3px solid var(--rojo);
     padding-bottom: 15px;
     margin-bottom: 20px;
     font-size: 2em;
+    letter-spacing: 1px;
 }
 
 h2 {
-    color: #333;
+    color: var(--texto);
     margin-top: 25px;
     margin-bottom: 20px;
     font-size: 1.5em;
-    border-left: 5px solid #e0d428;
+    border-left: 5px solid var(--dorado);
     padding-left: 10px;
 }
 
 h3 {
-    color: #555;
+    color: var(--texto-suave);
     margin-top: 15px;
     font-size: 1.2em;
-    border-bottom: 1px dashed #ccc;
+    border-bottom: 1px dashed var(--dorado-claro);
     padding-bottom: 5px;
 }
 
 hr {
     border: 0;
     height: 1px;
-    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), #ccc, rgba(0, 0, 0, 0));
+    background-image: linear-gradient(to right, rgba(0,0,0,0), var(--dorado-claro), rgba(0,0,0,0));
     margin: 30px 0;
 }
 
-/* Badge supervisor */
+/*
+======================================
+  BADGE SUPERVISOR
+======================================
+*/
 .supervisor-badge {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background-color: #f7f7f7;
-    border: 1px solid #ddd;
-    border-left: 5px solid #b13009;
+    gap: 10px;
+    background-color: var(--gris-claro);
+    border: 1px solid var(--dorado-claro);
+    border-left: 5px solid var(--dorado);
     border-radius: 4px;
     padding: 10px 16px;
     margin-bottom: 25px;
     font-size: 15px;
-    color: #555;
+    color: var(--texto-suave);
 }
 
 .supervisor-badge strong {
-    color: #1a1a1a;
+    color: var(--bordo);
     font-size: 15px;
 }
 
@@ -96,234 +129,171 @@ hr {
     font-size: 18px;
 }
 
-/* Inputs y selects del formulario */
-.add-task-form select,
-.add-task-form input[type="text"],
-.add-task-form input[type="number"] {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-    flex-grow: 1;
-    min-width: 0;
-    background-color: #fff;
-    color: #333;
-    box-sizing: border-box;
-}
-
-.add-task-form select:focus,
-.add-task-form input:focus {
-    outline: none;
-    border-color: #b13009;
-    box-shadow: 0 0 0 2px rgba(177, 48, 9, 0.15);
-}
-
-.add-task-form select:disabled {
-    background-color: #f0f0f0;
-    color: #aaa;
-    cursor: not-allowed;
-}
-
-/* --- Formulario --- */
+/*
+======================================
+  FORMULARIO
+======================================
+*/
 .add-task-form {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
     align-items: stretch;
     padding: 15px;
-    background-color: #f7f7f7;
+    background-color: var(--gris-claro);
     border-radius: 5px;
+    border: 1px solid var(--dorado-claro);
+    flex-wrap: wrap;
 }
 
-.add-task-form select, 
-.add-task-form input[type="text"] {
+.add-task-form select,
+.add-task-form input[type="number"] {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--dorado-claro);
     border-radius: 4px;
-    font-size: 16px;
+    font-size: 15px;
     flex-grow: 1;
-    min-width: 0;
+    min-width: 120px;
+    background-color: #fff;
+    color: var(--texto);
+    box-sizing: border-box;
+}
+
+.add-task-form select:focus,
+.add-task-form input:focus {
+    outline: none;
+    border-color: var(--dorado);
+    box-shadow: 0 0 0 2px rgba(200, 150, 12, 0.2);
+}
+
+.add-task-form select:disabled {
+    background-color: #ede8df;
+    color: #bbb;
+    cursor: not-allowed;
+    border-color: #ddd;
 }
 
 .add-task-form button {
-    padding: 10px 15px;
-    background-color: #e0a028;
+    padding: 10px 18px;
+    background-color: var(--dorado);
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 15px;
+    font-weight: bold;
     transition: background-color 0.3s;
     flex-shrink: 0;
 }
 
 .add-task-form button:hover {
-    background-color: #e0b528;
+    background-color: var(--dorado-claro);
 }
 
-/* --- Listas --- */
+/*
+======================================
+  LISTAS
+======================================
+*/
 .task-list-container {
     padding: 10px 0;
 }
 
-#taskList, #sobrantesList {
+#taskList,
+#sobrantesList {
     list-style: none;
     padding: 0;
 }
 
-#taskList li, #sobrantesList li {
+#taskList li {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    border: 1px solid #ddd;
+    border: 1px solid #e8dcc8;
     background-color: #fff;
     margin-bottom: 8px;
     border-radius: 4px;
-    transition: background-color 0.3s, border-left 0.3s;
+    border-left: 4px solid var(--dorado);
     word-break: break-word;
+    color: var(--texto);
 }
 
 #sobrantesList li {
-    background-color: #fff3e0;
-    border-left: 5px solid #ff9800;
-}
-
-.task-actions {
     display: flex;
-    gap: 5px;
-    flex-shrink: 0;
-    margin-left: 10px;
-}
-
-.task-actions button {
-    border: none;
-    padding: 7px 10px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: #fff8ee;
+    border: 1px solid var(--dorado-claro);
+    border-left: 5px solid var(--rojo);
+    margin-bottom: 8px;
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s;
-    white-space: nowrap;
-}
-
-.task-actions button:last-child { 
-    background-color: #dc3545; 
-    color: white;
-}
-
-.task-actions button:last-child:hover {
-    background-color: #c82333;
+    color: var(--texto);
 }
 
 .tarea-completada {
-    background-color: #d4edda !important; 
+    background-color: #d4edda !important;
     border-left: 5px solid #28a745 !important;
     opacity: 0.85;
 }
 
-/* ✅ Botón reporte */
+/*
+======================================
+  BOTÓN REPORTE
+======================================
+*/
 .btn-reporte {
     width: 100%;
     padding: 12px;
-    background-color: #e0a028;
+    background-color: var(--rojo);
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    font-weight: bold;
     margin-top: 20px;
     transition: background-color 0.3s;
+    letter-spacing: 0.5px;
 }
 
 .btn-reporte:hover {
-    background-color: #e0b528;
+    background-color: var(--bordo);
 }
 
-
 /*
-=====================================================
-  MEDIA QUERY: MÓVIL (hasta 599px)
-=====================================================
+======================================
+  RESPONSIVE - MÓVIL (hasta 599px)
+======================================
 */
 @media (max-width: 599px) {
-    
-    .container {
-        padding: 15px;
-        width: 100%;
-    }
-    
-    .header-icon {
-        width: 100px;
-    }
-
-    .add-task-form {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .add-task-form select, 
-    .add-task-form input[type="text"],
-    .add-task-form button {
-        width: 100%;
-        flex-grow: 0;
-        flex-shrink: 0;
-    }
-
-    #taskList li, #sobrantesList li {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 10px;
-    }
-
-    #taskList li > span, #sobrantesList li > span {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    .task-actions {
-        width: 100%;
-        justify-content: flex-end;
-        margin-left: 0;
-    }
-
-    .supervisor-badge {
-        font-size: 13px;
-    }
+    .container { padding: 15px; width: 100%; }
+    .header-icon { width: 100px; }
+    .add-task-form { flex-direction: column; gap: 15px; }
+    .add-task-form select,
+    .add-task-form input[type="number"],
+    .add-task-form button { width: 100%; flex-grow: 0; flex-shrink: 0; }
+    #taskList li, #sobrantesList li { flex-direction: column; align-items: flex-start; padding: 10px; }
+    .supervisor-badge { font-size: 13px; }
 }
 
-
 /*
-=====================================================
-  MEDIA QUERY: TABLETA Y ESCRITORIO (min-width: 600px)
-=====================================================
+======================================
+  RESPONSIVE - TABLETA (600px+)
+======================================
 */
 @media (min-width: 600px) {
-    
-    .container {
-        padding: 30px; 
-        width: 80%;
-    }
-
-    .header-icon {
-        width: 160px;
-    }
+    .container { padding: 30px; width: 80%; }
+    .header-icon { width: 160px; }
 }
 
-
 /*
-=====================================================
-  MEDIA QUERY: ESCRITORIO GRANDE (min-width: 1000px)
-=====================================================
+======================================
+  RESPONSIVE - ESCRITORIO (1000px+)
+======================================
 */
 @media (min-width: 1000px) {
-    
-    .container {
-        padding: 40px; 
-        width: 100%;
-        max-width: 1000px;
-    }
-
-    .header-icon {
-        width: 260px;
-    }
-    }
+    .container { padding: 40px; width: 100%; max-width: 1000px; }
+    .header-icon { width: 220px; }
+        }
