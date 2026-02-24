@@ -11,29 +11,40 @@
 
     <div class="container">
         <header class="app-header">
-        <img src="https://www.romeropanificados.com.ar/wp-content/uploads/2023/01/Recurso-9.png" 
-             alt="Icono de Caja de Reporte" class="header-icon">
-    </header>
+            <img src="https://www.romeropanificados.com.ar/wp-content/uploads/2023/01/Recurso-9.png" 
+                 alt="Icono de Caja de Reporte" class="header-icon">
+        </header>
 
         <h1>Panel de Administración</h1>
+
+        <!-- ✅ NUEVO: Badge del supervisor de turno -->
+        <div class="supervisor-badge">
+            <span class="supervisor-icon">⭐</span>
+            <span>Supervisor de turno: <strong id="supervisor-nombre">Cargando...</strong></span>
+        </div>
 
         <section id="seccion-ingreso-tareas">
             <h2>Crear Tarea Nueva</h2>
             <div class="add-task-form">
-                <select id="task-category">
-                    <option value="" disabled selected>-- Selecciona un Producto --</option>
-                    <option value="sp">Sp</option>
-                    <option value="lactal">Lactal</option>
-                    <option value="hamb">Hamb</option>
+                <input type="number" id="taskVuelta" placeholder="N° Vuelta..." min="1">
+                <select id="task-marca">
+                    <option value="" disabled selected>-- Marca --</option>
+                    <option value="roxy">The Roxy</option>
+                    <option value="romero">Romero</option>
                 </select>
-                <input type="text" id="taskTitle" placeholder="Cantidad de Producto...">
+                <select id="task-categoria" disabled>
+                    <option value="" disabled selected>-- Línea --</option>
+                </select>
+                <select id="task-category" disabled>
+                    <option value="" disabled selected>-- Producto --</option>
+                </select>
+                <input type="number" id="taskTitle" placeholder="Bandejas..." min="1">
                 <button id="add-task-btn">Agregar</button>
             </div>
 
             <div class="task-list-container">
                 <h3>Lista de Tareas Agregadas</h3>
-                <ul id="taskList">
-                </ul>
+                <ul id="taskList"></ul>
             </div>
         </section>
 
@@ -41,24 +52,19 @@
 
         <section id="seccion-sobrantes-reportados">
             <div id="lista-sobrantes-admin" class="task-list-container">
-                <h2>Sobrantes Reportados</h2>
-
-                <ul id="sobrantesList"> 
-                </ul>
+                <h2>Control de Producción</h2>
+                <ul id="sobrantesList"></ul>
             </div>
         </section>
         
-        <button onclick="window.location.href='reporte.html'" 
-        style="background: #3498db; color: white; margin-top: 20px;">
-    📊 Ver Gráfico y Generar PDF
-</button>
-
+        <button onclick="window.location.href='reporte.html'" class="btn-reporte">
+            📊 Ver Gráfico y Generar PDF
+        </button>
     </div>
 
-
-
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="admin.js"></script>
 
 </body>
 </html>
-
