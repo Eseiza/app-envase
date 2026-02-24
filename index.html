@@ -23,6 +23,17 @@
                 <label for="password">Contraseña:</label>
                 <input type="password" id="password" name="password" required>
             </div>
+
+            <!-- ✅ NUEVO: Selector de Supervisor -->
+            <div class="form-group">
+                <label for="supervisor">Supervisor de Turno:</label>
+                <select id="supervisor" name="supervisor" required>
+                    <option value="" disabled selected>-- Selecciona un Supervisor --</option>
+                    <option value="Angel Rene">Angel Rene</option>
+                    <option value="Juan Aranzabal">Juan Aranzabal</option>
+                    <option value="Maximiliano Belaunzaran">Maximiliano Belaunzaran</option>
+                </select>
+            </div>
         
             <button type="submit">Iniciar Sesión</button>
         </form>
@@ -35,4 +46,3 @@
 </body>
 
 </html>
-
