@@ -10,24 +10,22 @@ ESTILOS BASE (Centrado y Móvil Primero)
 }
 
 .header-icon {
-    width: 260px; /* Tamaño original (Será ajustado en móvil) */
+    width: 260px;
     height: auto;
     display: block;
     margin: 0 auto 10px;
     filter: invert(100%);
 }
+
 body {
     font-family: 'Arial', sans-serif;
     background-color: #977a1b5d;
-
     margin: 0;
     padding: 20px 0;
-    
-    /* Centrado Total: El contenedor padre se estira */
     display: flex;
-    flex-direction: column; /* Apila el contenido del body */
-    align-items: center; /* Centra horizontalmente */
-    justify-content: center; /* Centra verticalmente */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     min-height: 100vh;
 }
 
@@ -36,8 +34,7 @@ body {
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    /* Ajustes clave para 100% responsividad: */
-    width: 95%; /* Ocupa el 95% del ancho para dejar margen en móvil */
+    width: 95%;
     max-width: 1000px;
     box-sizing: border-box;
 }
@@ -47,7 +44,7 @@ h1 {
     text-align: center;
     border-bottom: 3px solid #b13009;
     padding-bottom: 15px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     font-size: 2em;
 }
 
@@ -73,14 +70,61 @@ hr {
     height: 1px;
     background-image: linear-gradient(to right, rgba(0, 0, 0, 0), #ccc, rgba(0, 0, 0, 0));
     margin: 30px 0;
-
-
-
-
-
 }
 
-/* --- Formulario (Por defecto: Fila para Escritorio) --- */
+/* Badge supervisor */
+.supervisor-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+    border-left: 5px solid #b13009;
+    border-radius: 4px;
+    padding: 10px 16px;
+    margin-bottom: 25px;
+    font-size: 15px;
+    color: #555;
+}
+
+.supervisor-badge strong {
+    color: #1a1a1a;
+    font-size: 15px;
+}
+
+.supervisor-icon {
+    font-size: 18px;
+}
+
+/* Inputs y selects del formulario */
+.add-task-form select,
+.add-task-form input[type="text"],
+.add-task-form input[type="number"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    flex-grow: 1;
+    min-width: 0;
+    background-color: #fff;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.add-task-form select:focus,
+.add-task-form input:focus {
+    outline: none;
+    border-color: #b13009;
+    box-shadow: 0 0 0 2px rgba(177, 48, 9, 0.15);
+}
+
+.add-task-form select:disabled {
+    background-color: #f0f0f0;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+/* --- Formulario --- */
 .add-task-form {
     display: flex;
     gap: 10px;
@@ -89,10 +133,6 @@ hr {
     padding: 15px;
     background-color: #f7f7f7;
     border-radius: 5px;
-
-
-
-
 }
 
 .add-task-form select, 
@@ -121,23 +161,17 @@ hr {
     background-color: #e0b528;
 }
 
-/* --- Listas (Por defecto: Lado a lado para Escritorio) --- */
+/* --- Listas --- */
 .task-list-container {
     padding: 10px 0;
 }
 
 #taskList, #sobrantesList {
-
     list-style: none;
     padding: 0;
 }
 
 #taskList li, #sobrantesList li {
-
-
-
-
-
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -187,6 +221,24 @@ hr {
     opacity: 0.85;
 }
 
+/* ✅ Botón reporte */
+.btn-reporte {
+    width: 100%;
+    padding: 12px;
+    background-color: #e0a028;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.btn-reporte:hover {
+    background-color: #e0b528;
+}
+
 
 /*
 =====================================================
@@ -197,19 +249,18 @@ hr {
     
     .container {
         padding: 15px;
-        width: 100%; /* Ocupa todo el ancho en móvil */
+        width: 100%;
     }
     
-    /* Icono */
     .header-icon {
         width: 100px;
     }
 
-    /* Formulario: Forzamos el apilamiento vertical */
     .add-task-form {
         flex-direction: column;
         gap: 15px;
     }
+
     .add-task-form select, 
     .add-task-form input[type="text"],
     .add-task-form button {
@@ -218,22 +269,25 @@ hr {
         flex-shrink: 0;
     }
 
-    /* Listas: Forzamos el apilamiento de contenido y botones */
     #taskList li, #sobrantesList li {
         flex-direction: column;
         align-items: flex-start;
         padding: 10px;
     }
+
     #taskList li > span, #sobrantesList li > span {
         width: 100%;
         margin-bottom: 10px;
     }
+
     .task-actions {
         width: 100%;
         justify-content: flex-end;
         margin-left: 0;
+    }
 
-
+    .supervisor-badge {
+        font-size: 13px;
     }
 }
 
@@ -242,19 +296,16 @@ hr {
 =====================================================
   MEDIA QUERY: TABLETA Y ESCRITORIO (min-width: 600px)
 =====================================================
-
-Mantienen el diseño de fila y el centrado heredado del body.
 */
 @media (min-width: 600px) {
     
     .container {
         padding: 30px; 
-        width: 80%; /* Más estrecho para un mejor centrado en tabletas */
+        width: 80%;
     }
 
     .header-icon {
         width: 160px;
-
     }
 }
 
@@ -268,11 +319,11 @@ Mantienen el diseño de fila y el centrado heredado del body.
     
     .container {
         padding: 40px; 
-        width: 100%; /* Vuelve a ocupar más espacio */
+        width: 100%;
         max-width: 1000px;
     }
 
     .header-icon {
         width: 260px;
     }
-}
+    }
