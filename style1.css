@@ -1,6 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
+/*
+======================================
+  VARIABLES DE MARCA - ROMERO
+======================================
+*/
+:root {
+    --dorado: #c8960c;
+    --dorado-claro: #e8b84b;
+    --bordo: #7a1a0a;
+    --rojo: #b13009;
+    --crema: #fdf6ec;
+    --gris-claro: #f5f0e8;
+    --texto: #2a1a0a;
+    --texto-suave: #6b4c2a;
+}
+
+/*
+======================================
+  BASE
+======================================
+*/
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f7f6;
+    font-family: 'Lato', Arial, sans-serif;
+    background-color: var(--crema);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -8,93 +35,133 @@ body {
     margin: 0;
 }
 
+/*
+======================================
+  CONTENEDOR
+======================================
+*/
 .login-container {
     background-color: #ffffff;
     padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(122, 26, 10, 0.12);
     width: 100%;
-    max-width: 350px;
+    max-width: 370px;
     text-align: center;
+    border-top: 4px solid var(--dorado);
 }
 
-h1 {
-    color: #333;
-    margin-bottom: 20px;
-    font-size: 33px;
+/*
+======================================
+  HEADER
+======================================
+*/
+.header-icon {
+    max-width: 200px;
+    margin-bottom: 16px;
 }
 
+.divider {
+    border: none;
+    border-top: 1px solid var(--dorado-claro);
+    margin: 0 0 24px 0;
+}
+
+/*
+======================================
+  FORMULARIO
+======================================
+*/
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 16px;
     text-align: left;
 }
 
 label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
+    margin-bottom: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* Inputs sin flechita */
 input[type="text"],
 input[type="password"] {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 11px 12px;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    box-sizing: border-box;
     background-color: #ffffff;
-    color: #333;
-    font-size: 14px;
+    color: var(--texto);
+    font-size: 15px;
+    font-family: 'Lato', Arial, sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Select con flechita propia */
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: var(--dorado);
+    box-shadow: 0 0 0 2px rgba(200, 150, 12, 0.2);
+}
+
 select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 11px 12px;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    box-sizing: border-box;
     background-color: #ffffff;
-    color: #333;
-    font-size: 14px;
+    color: var(--texto);
+    font-size: 15px;
+    font-family: 'Lato', Arial, sans-serif;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23555' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23c8960c' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
     cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 select:focus {
     outline: none;
-    border-color: #b13009;
-    box-shadow: 0 0 0 2px rgba(177, 48, 9, 0.15);
+    border-color: var(--dorado);
+    box-shadow: 0 0 0 2px rgba(200, 150, 12, 0.2);
 }
 
+/*
+======================================
+  BOTÓN
+======================================
+*/
 button[type="submit"] {
     width: 100%;
-    padding: 10px;
-    background-color: #b13009;
+    padding: 12px;
+    background-color: var(--rojo);
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
-    margin-top: 10px;
+    font-weight: 700;
+    font-family: 'Lato', Arial, sans-serif;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
     transition: background-color 0.3s;
 }
 
 button[type="submit"]:hover {
-    background-color: #b15509;
+    background-color: var(--bordo);
 }
 
-.form-options {
-    text-align: left;
-    margin-bottom: 15px;
-}
-
+/*
+======================================
+  MENSAJE
+======================================
+*/
 #loginMessage {
-    margin-top: 20px;
+    margin-top: 16px;
     font-weight: bold;
+    font-size: 14px;
 }
