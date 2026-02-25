@@ -1,0 +1,206 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
+/*
+======================================
+  VARIABLES DE MARCA - ROMERO
+======================================
+*/
+:root {
+    --dorado: #c8960c;
+    --dorado-claro: #e8b84b;
+    --bordo: #7a1a0a;
+    --rojo: #b13009;
+    --crema: #fdf6ec;
+    --gris-claro: #f5f0e8;
+    --texto: #2a1a0a;
+    --texto-suave: #6b4c2a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/*
+======================================
+  BASE
+======================================
+*/
+body {
+    font-family: 'Lato', Arial, sans-serif;
+    background-color: var(--crema);
+    padding: 30px 20px;
+    color: var(--texto);
+}
+
+/*
+======================================
+  CONTENEDOR
+======================================
+*/
+.container {
+    background-color: #fff;
+    max-width: 900px;
+    margin: 0 auto;
+    border-radius: 10px;
+    border-top: 4px solid var(--dorado);
+    box-shadow: 0 6px 20px rgba(122, 26, 10, 0.12);
+    overflow: hidden;
+}
+
+/*
+======================================
+  HEADER
+======================================
+*/
+.reporte-header {
+    padding: 30px 40px 20px;
+    border-bottom: 1px solid var(--dorado-claro);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.reporte-header img {
+    height: 60px;
+}
+
+.reporte-header-text h1 {
+    font-size: 1.5em;
+    color: var(--texto);
+    letter-spacing: 0.5px;
+}
+
+.reporte-header-text p {
+    font-size: 13px;
+    color: var(--texto-suave);
+    margin-top: 4px;
+}
+
+/*
+======================================
+  BODY
+======================================
+*/
+.reporte-body {
+    padding: 30px 40px;
+}
+
+/*
+======================================
+  SECCIONES
+======================================
+*/
+.section-title {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--texto);
+    border-left: 4px solid var(--dorado);
+    padding-left: 10px;
+    margin-bottom: 16px;
+}
+
+.chart-section {
+    margin-bottom: 30px;
+}
+
+.chart-container {
+    background-color: var(--gris-claro);
+    border: 1px solid var(--dorado-claro);
+    border-radius: 6px;
+    padding: 20px;
+}
+
+/*
+======================================
+  LISTA DETALLE
+======================================
+*/
+.detalle-section {
+    margin-bottom: 30px;
+}
+
+#listaDetalle {
+    list-style: none;
+    padding: 0;
+}
+
+#listaDetalle li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid #e8dcc8;
+    border-left: 4px solid var(--dorado);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    background-color: #fff;
+    color: var(--texto);
+    font-size: 15px;
+}
+
+#listaDetalle li span.cantidad {
+    font-weight: 700;
+    color: var(--bordo);
+}
+
+/*
+======================================
+  BOTONES
+======================================
+*/
+.reporte-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 11px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Lato', Arial, sans-serif;
+    letter-spacing: 0.4px;
+    transition: background-color 0.3s;
+    flex: 1;
+    min-width: 160px;
+}
+
+.btn-imprimir {
+    background-color: var(--rojo);
+    color: white;
+}
+
+.btn-imprimir:hover { background-color: var(--bordo); }
+
+.btn-volver {
+    background-color: var(--gris-claro);
+    color: var(--texto);
+    border: 1px solid var(--dorado-claro);
+}
+
+.btn-volver:hover { background-color: #ede8df; }
+
+/*
+======================================
+  PRINT
+======================================
+*/
+@media print {
+    body { background: white; padding: 0; }
+    .container { box-shadow: none; border-radius: 0; border-top: none; }
+    .no-print { display: none; }
+}
+
+/*
+======================================
+  RESPONSIVE
+======================================
+*/
+@media (max-width: 599px) {
+    .reporte-header { padding: 20px; flex-direction: column; align-items: flex-start; }
+    .reporte-body { padding: 20px; }
+    .btn { min-width: 100%; }
+}
