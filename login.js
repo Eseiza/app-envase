@@ -14,7 +14,7 @@ if (!firebase.apps.length) {
 }
 
 const USUARIO_VALIDO = "adminpro";
-const CONTRASENA_VALIDA = "12345"; 
+const CONTRASENA_VALIDA = "Supervisor123"; 
 
 const loginForm = document.getElementById('loginForm');
 const messageDisplay = document.getElementById('loginMessage');
@@ -51,3 +51,4 @@ loginForm.addEventListener('submit', function(event) {
         messageDisplay.style.color = "red";
     }
 });
+
