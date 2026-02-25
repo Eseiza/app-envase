@@ -2,22 +2,42 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reporte de Producción - Panificadora</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Producción - Romero Panificados</title>
+    <link rel="stylesheet" href="style5.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body style="background: white; color: black;"> <div class="container" style="box-shadow: none; max-width: 900px;">
-        <h1 id="tituloReporte">Reporte de Producción - Panificadora Romero</h1>
-        <p id="fechaReporte"></p>
-        
-        <div class="chart-container">
-            <canvas id="graficoStock"></canvas>
+<body>
+    <div class="container">
+
+        <div class="reporte-header">
+            <img src="https://www.romeropanificados.com.ar/wp-content/uploads/2023/01/Recurso-8.png" alt="Romero Panificados">
+            <div class="reporte-header-text">
+                <h1>Reporte de Producción</h1>
+                <p id="fechaReporte">Fecha: cargando...</p>
+            </div>
         </div>
 
-        <ul id="listaDetalle" style="margin-top: 20px;"></ul>
+        <div class="reporte-body">
 
-        <button onclick="window.print()" class="no-print" style="background: #27ae60; color: white;">Imprimir / Guardar PDF</button>
-        <button onclick="window.location.href='admin.html'" class="no-print" style="background: #555; color: white;">Volver al Panel</button>
+            <div class="chart-section">
+                <p class="section-title">📊 Gráfico de Producción</p>
+                <div class="chart-container">
+                    <canvas id="graficoStock"></canvas>
+                </div>
+            </div>
+
+            <div class="detalle-section">
+                <p class="section-title">📋 Detalle por Producto</p>
+                <ul id="listaDetalle"></ul>
+            </div>
+
+            <div class="reporte-actions no-print">
+                <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir / Guardar PDF</button>
+                <button onclick="window.location.href='admin.html'" class="btn btn-volver">← Volver al Panel</button>
+            </div>
+
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
