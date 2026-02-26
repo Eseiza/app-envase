@@ -16,23 +16,21 @@
     --texto-suave: #6b4c2a;
 }
 
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 /*
 ======================================
   BASE
 ======================================
 */
-* {
-    box-sizing: border-box;
-}
-
 body {
     font-family: 'Lato', Arial, sans-serif;
     background-color: var(--crema);
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
+    min-height: 100vh;
+    padding: 20px;
 }
 
 /*
@@ -46,20 +44,12 @@ body {
     border-radius: 10px;
     box-shadow: 0 6px 20px rgba(122, 26, 10, 0.12);
     width: 100%;
-    max-width: 370px;
+    max-width: 420px;
     text-align: center;
     border-top: 4px solid var(--dorado);
 }
 
-/*
-======================================
-  HEADER
-======================================
-*/
-.header-icon {
-    max-width: 200px;
-    margin-bottom: 16px;
-}
+.header-icon { max-width: 180px; margin-bottom: 16px; }
 
 .divider {
     border: none;
@@ -69,19 +59,74 @@ body {
 
 /*
 ======================================
+  ROLES
+======================================
+*/
+.roles-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+}
+
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.rol-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 6px;
+    border: 2px solid #e8dcc8;
+    border-radius: 10px;
+    background-color: var(--gris-claro);
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.rol-btn:hover {
+    border-color: var(--dorado);
+    background-color: #fef9ee;
+}
+
+.rol-btn.active {
+    border-color: var(--dorado);
+    background-color: #fef9ee;
+    box-shadow: 0 0 0 3px rgba(200, 150, 12, 0.2);
+}
+
+.rol-icon { font-size: 24px; }
+
+.rol-nombre {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.rol-btn.active .rol-nombre { color: var(--bordo); }
+
+/*
+======================================
   FORMULARIO
 ======================================
 */
-.form-group {
-    margin-bottom: 16px;
-    text-align: left;
-}
+.form-group { margin-bottom: 16px; text-align: left; }
 
 label {
     display: block;
     margin-bottom: 6px;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 12px;
     color: var(--texto-suave);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -100,11 +145,30 @@ input[type="password"] {
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-input[type="text"]:focus,
-input[type="password"]:focus {
+input:focus {
     outline: none;
     border-color: var(--dorado);
     box-shadow: 0 0 0 2px rgba(200, 150, 12, 0.2);
+}
+
+/*
+======================================
+  SUPERVISOR (animado)
+======================================
+*/
+.supervisor-group {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.supervisor-group.visible {
+    max-height: 100px;
+    opacity: 1;
+    margin-bottom: 16px;
 }
 
 select {
@@ -146,13 +210,16 @@ button[type="submit"] {
     font-size: 16px;
     font-weight: 700;
     font-family: 'Lato', Arial, sans-serif;
-    margin-top: 8px;
+    margin-top: 4px;
     letter-spacing: 0.5px;
     transition: background-color 0.3s;
 }
 
-button[type="submit"]:hover {
-    background-color: var(--bordo);
+button[type="submit"]:hover { background-color: var(--bordo); }
+
+button[type="submit"]:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
 /*
@@ -164,4 +231,5 @@ button[type="submit"]:hover {
     margin-top: 16px;
     font-weight: bold;
     font-size: 14px;
-}
+             }
+  
