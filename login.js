@@ -14,10 +14,10 @@ if (!firebase.apps.length) {
 
 // ✅ USUARIOS
 const USUARIOS = [
-    { usuario: "admin",      contrasena: "admin.2026",      rol: "admin",      redirige: "./admin.html"   },
-    { usuario: "supervisor", contrasena: "supervisor.2026", rol: "supervisor", redirige: "./admin.html"   },
-    { usuario: "operario",   contrasena: "operario.2026",   rol: "operario",   redirige: "./lista.html"   },
-    { usuario: "ventas",     contrasena: "ventas.2026",     rol: "ventas",     redirige: "./reporte.html" }
+    { usuario: "Admin",      contrasena: "admin.2026",      rol: "admin",      redirige: "./admin.html"   },
+    { usuario: "Supervisor", contrasena: "supervisor.2026", rol: "supervisor", redirige: "./admin.html"   },
+    { usuario: "Operario",   contrasena: "operario.2026",   rol: "operario",   redirige: "./lista.html"   },
+    { usuario: "Ventas",     contrasena: "ventas.2026",     rol: "ventas",     redirige: "./reporte.html" }
 ];
 
 const loginForm = document.getElementById('loginForm');
@@ -57,3 +57,4 @@ loginForm.addEventListener('submit', function(event) {
         messageDisplay.style.color = "red";
     }
 });
+
