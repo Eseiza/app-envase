@@ -14,11 +14,10 @@ if (!firebase.apps.length) {
 
 // ✅ USUARIOS
 const USUARIOS = [
-    { usuario: "Admin",      contrasena: "admin.2026",      rol: "admin",      redirige: "./admin.html"   },
-    { usuario: "Supervisor", contrasena: "supervisor.2026", rol: "supervisor", redirige: "./admin.html"   },
-    { usuario: "Operario",   contrasena: "operario.2026",   rol: "operario",   redirige: "./lista.html"   },
-    { usuario: "Ventas",     contrasena: "ventas.2026",     rol: "ventas",     redirige: "./reporte.html" }
-    
+    { usuario: "admin",      contrasena: "admin.2026",      rol: "admin",      redirige: "./admin.html"   },
+    { usuario: "supervisor", contrasena: "supervisor.2026", rol: "supervisor", redirige: "./admin.html"   },
+    { usuario: "operario",   contrasena: "operario.2026",   rol: "operario",   redirige: "./lista.html"   },
+    { usuario: "ventas",     contrasena: "ventas.2026",     rol: "ventas",     redirige: "./reporte.html" }
 ];
 
 let rolSeleccionado = null;
@@ -53,8 +52,8 @@ window.seleccionarRol = function(rol, elemento) {
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const inputUsername = document.getElementById('username').value;
-    const inputPassword = document.getElementById('password').value;
+    const inputUsername = document.getElementById('username').value.trim().toLowerCase();
+    const inputPassword = document.getElementById('password').value.trim();
     const messageDisplay = document.getElementById('loginMessage');
 
     if (!rolSeleccionado) {
@@ -95,5 +94,3 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         messageDisplay.style.color = "red";
     }
 });
-                                            
-
