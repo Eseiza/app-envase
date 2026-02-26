@@ -8,42 +8,48 @@ const firebaseConfig = {
     appId: "1:350498956335:web:901f91c4d7b983308252da"
 };
 
-// Inicializar Firebase (Solo si no está inicializado)
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-const USUARIO_VALIDO = "adminpro";
-const CONTRASENA_VALIDA = "Supervisor123"; 
+// ✅ USUARIOS
+const USUARIOS = [
+    { usuario: "admin",      contrasena: "admin.2026",      rol: "admin",      redirige: "./admin.html"   },
+    { usuario: "supervisor", contrasena: "supervisor.2026", rol: "supervisor", redirige: "./admin.html"   },
+    { usuario: "operario",   contrasena: "operario.2026",   rol: "operario",   redirige: "./lista.html"   },
+    { usuario: "ventas",     contrasena: "ventas.2026",     rol: "ventas",     redirige: "./reporte.html" }
+];
 
 const loginForm = document.getElementById('loginForm');
 const messageDisplay = document.getElementById('loginMessage');
 
 loginForm.addEventListener('submit', function(event) {
-    event.preventDefault(); 
-    
+    event.preventDefault();
+
     const inputUsername = document.getElementById('username').value;
     const inputPassword = document.getElementById('password').value;
-    const supervisorSeleccionado = document.getElementById('supervisor').value; // ✅ NUEVO
+    const supervisorSeleccionado = document.getElementById('supervisor').value;
 
-    // Validar que se haya seleccionado un supervisor
     if (!supervisorSeleccionado) {
-        messageDisplay.textContent = "Por favor, selecciona un supervisor de turno.";
+        messageDisplay.textContent = "Por favor, seleccioná un supervisor de turno.";
         messageDisplay.style.color = "red";
         return;
     }
 
-    if (inputUsername === USUARIO_VALIDO && inputPassword === CONTRASENA_VALIDA) {
-        
-        // --- GUARDAR LA SESIÓN ---
+    const usuarioEncontrado = USUARIOS.find(u =>
+        u.usuario === inputUsername && u.contrasena === inputPassword
+    );
+
+    if (usuarioEncontrado) {
         sessionStorage.setItem('autenticado', 'true');
-        sessionStorage.setItem('supervisor', supervisorSeleccionado); // ✅ NUEVO
+        sessionStorage.setItem('rol', usuarioEncontrado.rol);
+        sessionStorage.setItem('supervisor', supervisorSeleccionado);
 
         messageDisplay.textContent = "¡Inicio de sesión exitoso! Redirigiendo...";
         messageDisplay.style.color = "green";
-        
+
         setTimeout(() => {
-            window.location.href = "./admin.html"; 
+            window.location.href = usuarioEncontrado.redirige;
         }, 1500);
 
     } else {
@@ -51,4 +57,3 @@ loginForm.addEventListener('submit', function(event) {
         messageDisplay.style.color = "red";
     }
 });
-
