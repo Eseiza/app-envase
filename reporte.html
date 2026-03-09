@@ -10,16 +10,35 @@
 <body>
     <div class="container">
 
+        <!-- HEADER -->
         <div class="reporte-header">
             <img src="https://www.romeropanificados.com.ar/wp-content/uploads/2023/01/Recurso-8.png" alt="Romero Panificados">
             <div class="reporte-header-text">
                 <h1>Reporte de Producción</h1>
                 <p id="fechaReporte">Fecha: cargando...</p>
+                <span id="turnoLabel" class="turno-badge"></span>
             </div>
         </div>
 
         <div class="reporte-body">
 
+            <!-- SUPERVISOR -->
+            <div class="supervisor-badge">
+                <span class="supervisor-icon">⭐</span>
+                <span>Supervisor de turno: <strong id="supervisorNombre">—</strong></span>
+            </div>
+
+            <!-- SELECTOR DE TURNO -->
+            <div class="turno-selector no-print">
+                <p class="section-title">🕐 Seleccionar Turno</p>
+                <div class="turno-btns">
+                    <button class="btn-turno" id="btn-manana" onclick="cargarTurno('manana')">🌅 Mañana<br><small>05:00 - 12:59</small></button>
+                    <button class="btn-turno" id="btn-tarde"  onclick="cargarTurno('tarde')">🌇 Tarde<br><small>13:00 - 21:59</small></button>
+                    <button class="btn-turno" id="btn-noche"  onclick="cargarTurno('noche')">🌙 Noche<br><small>22:00 - 04:59</small></button>
+                </div>
+            </div>
+
+            <!-- GRÁFICO -->
             <div class="chart-section">
                 <p class="section-title">📊 Gráfico de Producción</p>
                 <div class="chart-container">
@@ -27,11 +46,36 @@
                 </div>
             </div>
 
+            <!-- PLANILLA -->
             <div class="detalle-section">
-                <p class="section-title">📋 Detalle por Producto</p>
-                <ul id="listaDetalle"></ul>
+                <p class="section-title">📋 Planilla de Control de Producción</p>
+                <table class="planilla">
+                    <thead>
+                        <tr>
+                            <th>Marca</th>
+                            <th>Línea</th>
+                            <th>Producto</th>
+                            <th>Filas</th>
+                            <th>Bandejas sueltas</th>
+                            <th>Paq. sueltos</th>
+                            <th>Total paq.</th>
+                            <th>Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody id="planillaBody">
+                        <tr><td colspan="8" class="vacio">Seleccioná un turno para ver los datos.</td></tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6" class="total-label">TOTAL GENERAL</td>
+                            <td class="total-valor" id="totalGeneral">—</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
 
+            <!-- BOTONES -->
             <div class="reporte-actions no-print">
                 <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir / Guardar PDF</button>
                 <button onclick="window.location.href='admin.html'" class="btn btn-volver">← Volver al Panel</button>
