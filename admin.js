@@ -114,8 +114,8 @@ db.ref(`historial/${getFechaHoy()}`).on('value', (snapshot) => {
     listaT.innerHTML = "";
     if (data.tareas) {
         Object.keys(data.tareas).forEach(id => {
-            const t = data.tareas[id];
-            listaT.innerHTML += `<li>Vuelta ${t.vuelta} — [${t.marca}] ${t.producto}: ${t.cantidad} bandejas ${t.completado ? '✅' : '⏳'} 
+            const t = data.tareas[id]; 
+            listaT.innerHTML += `<li>${t.vuelta}° Vuelta — [${t.marca}] ${t.producto}: ${t.cantidad} bandejas ${t.completado ? '✅' : '⏳'} 
                                  <button class="no-print" onclick="borrarTarea('${id}')">❌</button></li>`;
         });
     }
@@ -159,3 +159,4 @@ function dibujarGrafico(labels, valores) {
 window.borrarTarea = (id) => { if(confirm("¿Eliminar orden?")) db.ref(`historial/${getFechaHoy()}/tareas/${id}`).remove(); };
 window.cerrarSesion = () => { sessionStorage.clear(); window.location.href="index.html"; };
 window.descargarReporte = () => { window.print(); };
+
