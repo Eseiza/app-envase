@@ -1,25 +1,22 @@
-/* ---------------- Estilos Originales Conservados ---------------- */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
 
-.app-header {
-    text-align: center;
-    margin-bottom: 20px;
+:root {
+    --dorado: #c8960c;
+    --dorado-claro: #e8b84b;
+    --bordo: #7a1a0a;
+    --rojo: #b13009;
+    --crema: #fdf6ec;
+    --gris-claro: #f5f0e8;
+    --texto: #2a1a0a;
+    --texto-suave: #6b4c2a;
 }
 
-.header-icon {
-    width: 260px; /* Tamaño original: Mantenido, pero será sobrescrito en móvil */
-    height: auto;
-    display: block; 
-    margin: 0 auto 10px; 
-    filter: invert(100%); 
-}
-
-/* --- Estilos Generales --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #977a1b5d;
-    margin: 0;
-    padding: 20px 0;
+    font-family: 'Lato', Arial, sans-serif;
+    background-color: var(--crema);
+    padding: 30px 20px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -27,217 +24,197 @@ body {
 }
 
 .container {
-    background-color: #ffffff;
+    background-color: #fff;
     padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(122, 26, 10, 0.12);
     width: 100%;
-    max-width: 1000px; 
-    box-sizing: border-box;
+    max-width: 700px;
+    border-top: 4px solid var(--dorado);
 }
 
+.app-header { text-align: center; margin-bottom: 20px; }
+.header-icon { width: 160px; height: auto; display: block; margin: 0 auto; filter: invert(100%); }
+
 h1 {
-    color: #333;
+    color: var(--texto);
     text-align: center;
-    border-bottom: 3px solid #b13009;
-    padding-bottom: 10px;
+    border-bottom: 3px solid var(--rojo);
+    padding-bottom: 12px;
     margin-bottom: 30px;
+    font-size: 1.8em;
+    letter-spacing: 0.5px;
 }
 
 h2 {
-    color: #333;
-    margin-top: 25px;
-    margin-bottom: 20px;
-    font-size: 1.5em;
-    border-left: 5px solid #e0d428;
+    color: var(--texto);
+    margin-bottom: 16px;
+    font-size: 1.3em;
+    border-left: 5px solid var(--dorado);
     padding-left: 10px;
+    margin-top: 30px;
 }
 
-/* --- Estilos del Formulario de Ingreso (Apilado por defecto) --- */
+/* FORMULARIO */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 20px;
+    background-color: var(--gris-claro);
+    border: 1px solid var(--dorado-claro);
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
 
-.add-task-form select, 
-.add-task-form input[type="text"] {
-    padding: 10px;
-    border: 1px solid #ccc;
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1 / -1; }
+
+label {
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+select, input[type="number"] {
+    padding: 10px 12px;
+    border: 1px solid var(--dorado-claro);
     border-radius: 4px;
-    font-size: 16px;
-    width: 100%; 
-    box-sizing: border-box;
-    margin-top: 5px;
+    font-size: 15px;
+    font-family: 'Lato', Arial, sans-serif;
+    background-color: #fff;
+    color: var(--texto);
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+select:focus, input:focus {
+    outline: none;
+    border-color: var(--dorado);
+    box-shadow: 0 0 0 2px rgba(200, 150, 12, 0.2);
+}
+
+select:disabled, input:disabled {
+    background-color: #ede8df;
+    color: #bbb;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
+/* INFO BANDEJA */
+.bandeja-info {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background-color: #fff8ee;
+    border: 1px solid var(--dorado-claro);
+    border-left: 4px solid var(--dorado);
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--texto-suave);
+}
+
+.bandeja-info.visible { display: flex; }
+.bandeja-info strong { color: var(--bordo); }
+
+/* TOTAL */
+.total-box {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    background-color: var(--gris-claro);
+    border: 2px solid var(--dorado);
+    border-radius: 6px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.total-box.visible { display: flex; }
+.total-label { font-size: 12px; text-transform: uppercase; color: var(--texto-suave); letter-spacing: 0.5px; margin-bottom: 4px; }
+.total-numero { font-size: 2.5em; font-weight: 700; color: var(--bordo); line-height: 1; }
+.total-detalle { font-size: 13px; color: var(--texto-suave); margin-top: 6px; }
+
+/* BOTÓN GUARDAR */
 #guardar-sobrante-btn {
-    padding: 10px 15px;
-    background-color: #e08128;
+    width: 100%;
+    padding: 12px;
+    background-color: var(--dorado);
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
-    width: 100%;
-    margin-top: 15px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Lato', Arial, sans-serif;
     transition: background-color 0.3s;
+    margin-bottom: 10px;
 }
 
-#guardar-sobrante-btn:hover {
-    background-color: #e0a028;
-}
+#guardar-sobrante-btn:hover { background-color: var(--dorado-claro); }
+#guardar-sobrante-btn:disabled { background-color: #ccc; cursor: not-allowed; }
 
-/* --- Estilos de la Lista de Sobrantes (Diseño lado a lado por defecto) --- */
-
-#taskList {
-    list-style: none;
-    padding: 0;
-}
+/* LISTA */
+.task-list-container { padding: 10px 0; }
+#taskList { list-style: none; padding: 0; }
 
 #taskList li {
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    background-color: #f9f9f9;
+    padding: 12px 16px;
+    border: 1px solid #e8dcc8;
+    border-left: 4px solid var(--dorado);
+    background-color: #fff;
     margin-bottom: 8px;
     border-radius: 4px;
-    transition: background-color 0.3s;
+    color: var(--texto);
+    font-size: 14px;
+    gap: 12px;
 }
 
-.task-actions { margin-left: auto; }
-.task-actions button { 
-    background-color: #dc3545; 
+#taskList li.vacio {
+    border-left-color: var(--dorado-claro);
+    background-color: var(--gris-claro);
+    color: var(--texto-suave);
+    justify-content: center;
+    font-style: italic;
+}
+
+.item-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.item-marca { font-size: 11px; color: var(--texto-suave); text-transform: uppercase; letter-spacing: 0.3px; }
+.item-detalle { font-size: 12px; color: var(--texto-suave); }
+.item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.item-total { font-weight: 700; color: var(--bordo); font-size: 16px; }
+
+.btn-eliminar {
+    background-color: #dc3545;
     color: white;
     border: none;
-    padding: 7px 10px;
+    padding: 6px 10px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     transition: background-color 0.2s;
-    width: auto; 
 }
-.task-actions button:hover { background-color: #c82333; }
-.tarea-completada { background-color: #f9f9f9 !important; border-left: none; opacity: 1; }
 
+.btn-eliminar:hover { background-color: #c82333; }
 
-/*
-=====================================================
-  MEDIA QUERY: MÓVIL (hasta 599px)
-=====================================================
-*/
+/* RESPONSIVE */
 @media (max-width: 599px) {
-    
-    /* 1. Icono: Reducido para evitar desbordamiento */
-    .header-icon {
-        width: 100px;
-        height: auto;
-    }
-
-    .container {
-        padding: 15px; /* Menos padding en pantallas muy pequeñas */
-    }
-
-    /* 2. Lista: Forzamos el apilamiento vertical */
-    #taskList li {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    #taskList li span {
-        margin-bottom: 10px;
-        word-break: break-word;
-        width: 100%;
-    }
-
-    .task-actions {
-        width: 100%;
-        text-align: right;
-        margin-left: 0; 
-    }
+    .container { padding: 16px; }
+    .header-icon { width: 100px; }
+    h1 { font-size: 1.5em; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: 1; }
+    #taskList li { flex-direction: column; align-items: flex-start; }
+    .item-right { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
 }
 
-/*
-=====================================================
-  MEDIA QUERY: TABLETA (min-width: 600px)
-=====================================================
-
-En este rango, usamos la disposición horizontal de los 3 campos, 
-pero con un diseño de 2 columnas para que no se vean demasiado pequeños.
-*/
-@media (min-width: 600px) and (max-width: 999px) {
-    
-    .container {
-        padding: 30px; 
+@media (min-width: 600px) {
+    .container { padding: 40px; }
+    .header-icon { width: 140px; }
     }
-
-    .header-icon {
-        width: 140px; /* Tamaño intermedio del icono */
-    }
-    
-    /* Formulario: 2 Columnas para Tableta */
-    .add-task-form {
-        display: flex;
-        justify-content: space-between; 
-        align-items: flex-end; 
-        gap: 20px; 
-        flex-wrap: wrap; 
-    }
-    
-    /* 2 elementos por fila: Producto y Columnas/Filas */
-    .add-task-form > div {
-        flex-basis: calc(50% - 10px); /* 50% de ancho con margen de 20px */
-        margin-bottom: 20px; 
-    }
-
-    /* El botón se centra, ocupando el ancho del contenedor */
-    #guardar-sobrante-btn {
-        width: 300px;
-        margin-left: auto;
-        margin-right: auto; 
-        margin-top: 20px; 
-        flex-basis: 100%; /* Ocupa toda la fila inferior */
-    }
-    
-    /* Lista: Vuelve al diseño lado a lado (heredado del estilo base) */
-}
-
-
-/*
-=====================================================
-  MEDIA QUERY: ESCRITORIO GRANDE (min-width: 1000px)
-=====================================================
-
-Aquí es donde volvemos al diseño de 3 columnas completo.
-*/
-@media (min-width: 1000px) {
-    
-    .container {
-        padding: 50px; 
-    }
-
-    .header-icon {
-        width: 180px; 
-    }
-    
-    /* Formulario: 3 Columnas para Escritorio Grande */
-    .add-task-form {
-        display: flex;
-        justify-content: space-between; 
-        align-items: flex-end; 
-        gap: 20px; 
-        flex-wrap: wrap; 
-    }
-    
-    /* Hacemos que los 3 campos de entrada ocupen aproximadamente 1/3 */
-    .add-task-form > div {
-        flex-basis: calc(33.33% - 14px); 
-        margin-bottom: 0; 
-    }
-
-    /* El botón se centra debajo de los campos */
-    #guardar-sobrante-btn {
-        width: 300px; 
-        margin-left: auto;
-        margin-right: auto; 
-        margin-top: 30px; 
-        flex-basis: 100%;
-    }
-}
