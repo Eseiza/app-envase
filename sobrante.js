@@ -156,7 +156,7 @@ document.getElementById('guardar-sobrante-btn').onclick = function() {
         bandejas,
         incompletos,
         total,
-        hora: new Date().toLocaleTimeString()
+        hora: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
     });
 
     // Reset form
@@ -201,3 +201,4 @@ window.eliminar = (id) => {
         db.ref(`historial/${getFechaHoy()}/sobrantes/${id}`).remove();
     }
 };
+            
