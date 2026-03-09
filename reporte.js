@@ -15,12 +15,11 @@ const db = firebase.database();
 //  TURNOS
 // ======================================
 const TURNOS = {
-    manana: { label: 'Turno Mañana',  inicio: 5,  fin: 13 },
-    tarde:  { label: 'Turno Tarde',   inicio: 13, fin: 22 },
-    noche:  { label: 'Turno Noche',   inicio: 22, fin: 5  }
+    manana: { label: '🌅 Turno Mañana',  inicio: 5,  fin: 13 },
+    tarde:  { label: '🌇 Turno Tarde',   inicio: 13, fin: 22 },
+    noche:  { label: '🌙 Turno Noche',   inicio: 22, fin: 5  }
 };
 
-// Detectar turno actual según hora
 function getTurnoActual() {
     const hora = new Date().getHours();
     if (hora >= 5  && hora < 13) return 'manana';
@@ -28,7 +27,6 @@ function getTurnoActual() {
     return 'noche';
 }
 
-// Fecha para noche (si es entre 00:00 y 04:59, pertenece al día anterior)
 function getFechaParaTurno(turno) {
     const ahora = new Date();
     if (turno === 'noche' && ahora.getHours() < 5) {
@@ -47,28 +45,23 @@ let chartInstance = null;
 const hoy = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
 document.getElementById('fechaReporte').innerText = "Fecha: " + hoy;
 
-// Supervisor desde sessionStorage
 const supervisor = sessionStorage.getItem('supervisor') || '—';
 document.getElementById('supervisorNombre').innerText = supervisor;
 
-// Marcar turno actual activo
 const turnoActual = getTurnoActual();
 const btnActual = document.getElementById(`btn-${turnoActual}`);
 if (btnActual) btnActual.classList.add('active');
 
-// Cargar turno actual por defecto
 cargarTurno(turnoActual);
 
 // ======================================
 //  CARGAR TURNO
 // ======================================
 function cargarTurno(turno) {
-    // Marcar botón activo
     document.querySelectorAll('.btn-turno').forEach(b => b.classList.remove('active'));
     const btn = document.getElementById(`btn-${turno}`);
     if (btn) btn.classList.add('active');
 
-    // Label del turno
     document.getElementById('turnoLabel').innerText = TURNOS[turno].label;
 
     const fecha = getFechaParaTurno(turno);
@@ -93,7 +86,8 @@ function cargarTurno(turno) {
         // Filtrar por horario del turno
         const registros = Object.values(data).filter(s => {
             if (!s.hora) return false;
-            const h = parseInt(s.hora.split(':')[0]);
+            const h = parseInt(s.hora.split(':')[0], 10);
+            if (isNaN(h)) return false;
             if (turno === 'noche') return h >= 22 || h < 5;
             return h >= inicio && h < fin;
         });
@@ -125,14 +119,14 @@ function cargarTurno(turno) {
         });
 
         document.getElementById('totalGeneral').innerText = totalGeneral.toLocaleString();
-        renderGrafico(labels, valores);
+        renderGrafico(labels, valores, totalGeneral);
     });
 }
 
 // ======================================
-//  GRÁFICO
+//  GRÁFICO DONUT
 // ======================================
-function renderGrafico(labels, valores) {
+function renderGrafico(labels, valores, total) {
     if (chartInstance) {
         chartInstance.destroy();
         chartInstance = null;
@@ -141,34 +135,40 @@ function renderGrafico(labels, valores) {
     if (labels.length === 0) return;
 
     chartInstance = new Chart(document.getElementById('graficoStock'), {
-        type: 'bar',
+        type: 'doughnut',
         data: {
             labels,
             datasets: [{
-                label: 'Paquetes Totales',
                 data: valores,
-                backgroundColor: '#c8960c',
-                borderColor: '#7a1a0a',
-                borderWidth: 1,
-                borderRadius: 4
+                backgroundColor: ['#c8960c', '#7a1a0a', '#e8b84b', '#b13009', '#6b4c2a', '#d4a017', '#a0522d', '#c46210'],
+                borderColor: '#fff',
+                borderWidth: 3,
+                hoverOffset: 10
             }]
         },
         options: {
             responsive: true,
             plugins: {
-                legend: { labels: { color: '#2a1a0a', font: { family: 'Lato' } } }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { color: '#6b4c2a' },
-                    grid: { color: '#e8dcc8' }
+                legend: {
+                    position: 'right',
+                    labels: {
+                        color: '#2a1a0a',
+                        font: { family: 'Lato', size: 13 },
+                        padding: 16,
+                        usePointStyle: true,
+                        pointStyleWidth: 12
+                    }
                 },
-                x: {
-                    ticks: { color: '#6b4c2a' },
-                    grid: { display: false }
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            const pct = total > 0 ? Math.round(ctx.parsed / total * 100) : 0;
+                            return ` ${ctx.label}: ${ctx.parsed.toLocaleString()} paq. (${pct}%)`;
+                        }
+                    }
                 }
             }
         }
     });
-    }
+        }
+
