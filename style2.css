@@ -296,5 +296,56 @@ hr {
 @media (min-width: 1000px) {
     .container { padding: 40px; width: 100%; max-width: 1000px; }
     .header-icon { width: 220px; }
-        }
+}
 
+/*
+======================================
+  RESPONSIVE MEJORADO - MÓVIL
+======================================
+*/
+@media (max-width: 480px) {
+    .container { padding: 14px; }
+    .header-icon { width: 80px; }
+
+    h1 { font-size: 1.4em; padding-bottom: 10px; }
+    h2 { font-size: 1.2em; }
+
+    .supervisor-badge { font-size: 12px; padding: 8px 12px; }
+
+    .add-task-form {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .add-task-form select,
+    .add-task-form input[type="number"] {
+        font-size: 16px;
+        padding: 12px;
+        min-width: 0;
+        width: 100%;
+    }
+
+    .add-task-form button {
+        width: 100%;
+        padding: 13px;
+        font-size: 16px;
+    }
+
+    #taskList li, #sobrantesList li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .btn-reporte {
+        font-size: 15px;
+        padding: 13px;
+    }
+}
+
+@media (max-width: 360px) {
+    .container { padding: 10px; }
+    h1 { font-size: 1.2em; }
+}
