@@ -187,3 +187,42 @@ input[type="checkbox"] {
 @media (min-width: 1000px) {
     .header-icon { width: 160px; }
 }
+
+/*
+======================================
+  RESPONSIVE MEJORADO - MÓVIL
+======================================
+*/
+@media (max-width: 480px) {
+    body { padding: 16px 10px; }
+    .header-icon { width: 90px; }
+    h1 { font-size: 1.4em; }
+
+    #pedidosList li {
+        flex-wrap: wrap;
+        padding: 12px 10px;
+        gap: 10px;
+    }
+
+    #pedidosList li span {
+        font-size: 14px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    input[type="checkbox"] {
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+    }
+
+    .boton-navegacion {
+        font-size: 15px;
+        padding: 13px;
+    }
+}
+
+@media (max-width: 360px) {
+    body { padding: 12px 8px; }
+    h1 { font-size: 1.2em; }
+}
