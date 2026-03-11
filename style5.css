@@ -177,6 +177,8 @@ body {
 .chart-section { margin-bottom: 30px; }
 
 .chart-container {
+    display: flex;
+    justify-content: center;
     background-color: var(--gris-claro);
     border: 1px solid var(--dorado-claro);
     border-radius: 6px;
@@ -188,7 +190,15 @@ body {
   PLANILLA
 ======================================
 */
-.detalle-section { margin-bottom: 30px; }
+.detalle-section {
+    margin-bottom: 30px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.detalle-section .planilla {
+    min-width: 600px;
+}
 
 .planilla {
     width: 100%;
@@ -352,4 +362,50 @@ body {
 @media (min-width: 600px) {
     .reporte-header { padding: 30px 40px 20px; }
     .reporte-body { padding: 30px 40px; }
+}
+
+.chart-container canvas { max-width: 480px; max-height: 480px; }
+
+/*
+======================================
+  RESPONSIVE MEJORADO - MÓVIL
+======================================
+*/
+@media (max-width: 480px) {
+    body { padding: 12px 8px; }
+
+    .reporte-header {
+        padding: 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .reporte-header img { height: 45px; }
+    .reporte-header-text h1 { font-size: 1.2em; }
+
+    .reporte-body { padding: 14px; }
+
+    .supervisor-badge { font-size: 13px; padding: 8px 12px; }
+
+    .turno-btns { flex-direction: column; gap: 8px; }
+    .btn-turno { min-width: 100%; padding: 12px; font-size: 14px; }
+
+    /* Planilla con scroll horizontal en móvil */
+    .detalle-section { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .planilla { font-size: 11px; min-width: 520px; }
+    .planilla thead th,
+    .planilla tbody td,
+    .planilla tfoot td { padding: 8px 6px; }
+
+    .chart-container { padding: 12px; }
+    .chart-container canvas { max-width: 100%; max-height: 300px; }
+
+    .btn { min-width: 100%; font-size: 15px; padding: 13px; }
+}
+
+@media (max-width: 360px) {
+    .reporte-header { padding: 12px; }
+    .reporte-body { padding: 10px; }
+    .reporte-header-text h1 { font-size: 1.1em; }
 }
