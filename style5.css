@@ -312,6 +312,7 @@ body {
     }
 
     .no-print { display: none !important; }
+    .chart-section { display: none !important; }
 
     .reporte-header { border-bottom: 2px solid #333; padding: 20px; }
 
@@ -408,4 +409,130 @@ body {
     .reporte-header { padding: 12px; }
     .reporte-body { padding: 10px; }
     .reporte-header-text h1 { font-size: 1.1em; }
+}
+
+/*
+======================================
+  CALENDARIO HISTORIAL
+======================================
+*/
+.calendario-section { margin-bottom: 30px; }
+
+.calendario-wrap {
+    background-color: var(--gris-claro);
+    border: 1px solid var(--dorado-claro);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.cal-titulo {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--texto);
+    text-transform: capitalize;
+}
+
+.cal-nav-btn {
+    background-color: var(--texto);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cal-nav-btn:hover { background-color: var(--bordo); }
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.cal-dia-header {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--texto-suave);
+    text-transform: uppercase;
+    padding: 6px 2px;
+    letter-spacing: 0.3px;
+}
+
+.cal-dia {
+    text-align: center;
+    padding: 8px 4px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--texto);
+    background-color: #fff;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    position: relative;
+}
+
+.cal-dia:not(.vacio):not(.futura):hover {
+    border-color: var(--dorado);
+    background-color: #fef9ee;
+}
+
+.cal-dia.vacio {
+    background-color: transparent;
+    border-color: transparent;
+    cursor: default;
+}
+
+.cal-dia.futura {
+    color: #ccc;
+    cursor: default;
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.cal-dia.hoy {
+    border-color: var(--dorado);
+    color: var(--bordo);
+}
+
+.cal-dia.seleccionado {
+    background-color: var(--texto);
+    color: #fff;
+    border-color: var(--texto);
+}
+
+/* Punto indicador de días con datos */
+.cal-dia.con-datos::after {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 5px;
+    background-color: var(--dorado);
+    border-radius: 50%;
+    margin: 2px auto 0;
+}
+
+.cal-dia.seleccionado.con-datos::after {
+    background-color: var(--dorado-claro);
+}
+
+@media (max-width: 480px) {
+    .cal-dia { padding: 6px 2px; font-size: 12px; }
+    .cal-dia-header { font-size: 10px; }
+    .calendario-wrap { padding: 12px; }
 }
