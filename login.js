@@ -17,7 +17,8 @@ const USUARIOS = [
     { usuario: "admin",      contrasena: "admin.2026",      rol: "admin",      redirige: "./admin.html"   },
     { usuario: "supervisor", contrasena: "supervisor.2026", rol: "supervisor", redirige: "./admin.html"   },
     { usuario: "operario",   contrasena: "operario.2026",   rol: "operario",   redirige: "./lista.html"   },
-    { usuario: "ventas",     contrasena: "ventas.2026",     rol: "ventas",     redirige: "./reporte.html" }
+    { usuario: "ventas",     contrasena: "ventas.2026",     rol: "ventas",     redirige: "./reporte.html" },
+    { usuario: "romero",     contrasena: "romero.2026",     rol: "romero",     redirige: "./reporte.html" }
 ];
 
 let rolSeleccionado = null;
