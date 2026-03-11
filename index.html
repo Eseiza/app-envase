@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="style1.css">
 </head>
 <body>
+
+    <!-- FONDO -->
+    <div class="bg-gradient"></div>
+    <div class="bg-lines"></div>
+
     <div class="login-container">
         <img src="https://www.romeropanificados.com.ar/wp-content/uploads/2023/01/Recurso-8.png"
              alt="Romero Panificados" class="header-icon">
@@ -36,31 +41,37 @@
                 <span class="rol-icon">👁️</span>
                 <span class="rol-nombre">Romero</span>
             </div>
+            <div class="rol-btn" onclick="seleccionarRol('calidad', this)">
+                <span class="rol-icon">🔬</span>
+                <span class="rol-nombre">Calidad</span>
+            </div>
         </div>
 
         <!-- FORMULARIO -->
         <form id="loginForm" action="#" method="post">
-            <div class="form-group">
-                <label for="username">Usuario</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Contraseña</label>
-                <input type="password" id="password" name="password" required>
-            </div>
+            <div class="form-body" id="formBody">
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
 
-            <!-- Solo visible para Supervisor -->
-            <div class="supervisor-group" id="supervisorGroup">
-                <label for="supervisor">Supervisor de Turno</label>
-                <select id="supervisor" name="supervisor">
-                    <option value="" disabled selected>-- Seleccioná un Supervisor --</option>
-                    <option value="Angel Rene">Angel Rene</option>
-                    <option value="Juan Aranzabal">Juan Aranzabal</option>
-                    <option value="Maximiliano Belaunzaran">Maximiliano Belaunzaran</option>
-                </select>
-            </div>
+                <!-- Solo visible para Supervisor -->
+                <div class="supervisor-group" id="supervisorGroup">
+                    <label for="supervisor">Supervisor de Turno</label>
+                    <select id="supervisor" name="supervisor">
+                        <option value="" disabled selected>-- Seleccioná un Supervisor --</option>
+                        <option value="Angel Rene">Angel Rene</option>
+                        <option value="Juan Aranzabal">Juan Aranzabal</option>
+                        <option value="Maximiliano Belaunzaran">Maximiliano Belaunzaran</option>
+                    </select>
+                </div>
 
-            <button type="submit" id="btnIngresar" disabled>Seleccioná un rol</button>
+                <button type="submit" id="btnIngresar">Iniciar Sesión</button>
+            </div>
         </form>
 
         <p id="loginMessage"></p>
