@@ -15,9 +15,9 @@ const db = firebase.database();
 //  TURNOS
 // ======================================
 const TURNOS = {
-    manana: { label: '🌅 Turno Mañana',  inicio: 5,  fin: 13 },
-    tarde:  { label: '🌇 Turno Tarde',   inicio: 13, fin: 22 },
-    noche:  { label: '🌙 Turno Noche',   inicio: 22, fin: 5  }
+    manana: { label: 'Turno Mañana',  inicio: 5,  fin: 13 },
+    tarde:  { label: 'Turno Tarde',   inicio: 13, fin: 22 },
+    noche:  { label: 'Turno Noche',   inicio: 22, fin: 5  }
 };
 
 function getTurnoActual() {
