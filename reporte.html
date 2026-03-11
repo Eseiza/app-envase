@@ -75,10 +75,23 @@
                 </div>
             </div>
 
+            <!-- CALENDARIO HISTORIAL (solo admin, calidad, romero) -->
+            <div class="calendario-section no-print" id="calendarioSection" style="display:none;">
+                <p class="section-title">📅 Historial por Fecha</p>
+                <div class="calendario-wrap">
+                    <div class="cal-nav">
+                        <button class="cal-nav-btn" onclick="cambiarMes(-1)">&#8592;</button>
+                        <span id="calTitulo" class="cal-titulo"></span>
+                        <button class="cal-nav-btn" onclick="cambiarMes(1)">&#8594;</button>
+                    </div>
+                    <div class="cal-grid" id="calGrid"></div>
+                </div>
+            </div>
+
             <!-- BOTONES -->
             <div class="reporte-actions no-print">
-                <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir / Guardar PDF</button>
-                <button onclick="window.location.href='admin.html'" class="btn btn-volver">← Volver al Panel</button>
+                <button id="btn-imprimir" onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir / Guardar PDF</button>
+                <button id="btn-volver" onclick="window.location.href='admin.html'" class="btn btn-volver">← Volver al Panel</button>
             </div>
 
         </div>
