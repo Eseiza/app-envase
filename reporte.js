@@ -15,9 +15,9 @@ const db = firebase.database();
 //  TURNOS
 // ======================================
 const TURNOS = {
-    manana: { label: 'Turno Mañana',  inicio: 5,  fin: 13 },
-    tarde:  { label: 'Turno Tarde',   inicio: 13, fin: 22 },
-    noche:  { label: 'Turno Noche',   inicio: 22, fin: 5  }
+    manana: { label: '🌅 Turno Mañana',  inicio: 5,  fin: 13 },
+    tarde:  { label: '🌇 Turno Tarde',   inicio: 13, fin: 22 },
+    noche:  { label: '🌙 Turno Noche',   inicio: 22, fin: 5  }
 };
 
 function getTurnoActual() {
@@ -53,6 +53,13 @@ const btnActual = document.getElementById(`btn-${turnoActual}`);
 if (btnActual) btnActual.classList.add('active');
 
 cargarTurno(turnoActual);
+
+// Ocultar gráfico para roles que no deben verlo
+const rol = sessionStorage.getItem('rol');
+if (rol === 'supervisor' || rol === 'ventas' || rol === 'romero') {
+    const chartSection = document.querySelector('.chart-section');
+    if (chartSection) chartSection.style.display = 'none';
+}
 
 // ======================================
 //  CARGAR TURNO
@@ -170,5 +177,4 @@ function renderGrafico(labels, valores, total) {
             }
         }
     });
-        }
-
+}
