@@ -15,9 +15,9 @@ const db = firebase.database();
 //  TURNOS
 // ======================================
 const TURNOS = {
-    manana: { label: '🌅 Turno Mañana',  inicio: 5,  fin: 13 },
-    tarde:  { label: '🌇 Turno Tarde',   inicio: 13, fin: 22 },
-    noche:  { label: '🌙 Turno Noche',   inicio: 22, fin: 5  }
+    manana: { label: 'Turno Mañana',  inicio: 5,  fin: 13 },
+    tarde:  { label: 'Turno Tarde',   inicio: 13, fin: 22 },
+    noche:  { label: 'Turno Noche',   inicio: 22, fin: 5  }
 };
 
 function getTurnoActual() {
@@ -54,11 +54,54 @@ if (btnActual) btnActual.classList.add('active');
 
 cargarTurno(turnoActual);
 
-// Ocultar gráfico para roles que no deben verlo
+// Personalizar según rol
 const rol = sessionStorage.getItem('rol');
-if (rol === 'supervisor' || rol === 'ventas' || rol === 'romero') {
+
+// Mostrar calendario solo para admin, calidad y romero
+if (['admin', 'calidad', 'romero'].includes(rol)) {
+    document.getElementById('calendarioSection').style.display = 'block';
+    iniciarCalendario();
+}
+
+// Ocultar gráfico para supervisor, ventas y romero
+if (rol === 'supervisor' || rol === 'ventas') {
     const chartSection = document.querySelector('.chart-section');
     if (chartSection) chartSection.style.display = 'none';
+}
+
+// Configurar botones según rol
+const btnImprimir = document.getElementById('btn-imprimir');
+const btnVolver   = document.getElementById('btn-volver');
+
+if (rol === 'admin') {
+    // Admin: imprimir + volver al panel
+    btnImprimir.style.display = 'block';
+    btnVolver.textContent = '← Volver al Panel';
+    btnVolver.onclick = () => window.location.href = 'admin.html';
+
+} else if (rol === 'supervisor') {
+    // Supervisor: imprimir + volver al panel
+    btnImprimir.style.display = 'block';
+    btnVolver.textContent = '← Volver al Panel';
+    btnVolver.onclick = () => window.location.href = 'admin.html';
+
+} else if (rol === 'ventas') {
+    // Ventas: SIN imprimir, solo cerrar sesión
+    btnImprimir.style.display = 'none';
+    btnVolver.textContent = '🚪 Cerrar Sesión';
+    btnVolver.onclick = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
+
+} else if (rol === 'romero') {
+    // Romero: igual que Calidad, con gráfico + imprimir + cerrar sesión
+    btnImprimir.style.display = 'block';
+    btnVolver.textContent = '🚪 Cerrar Sesión';
+    btnVolver.onclick = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
+
+} else if (rol === 'calidad') {
+    // Calidad: imprimir + cerrar sesión
+    btnImprimir.style.display = 'block';
+    btnVolver.textContent = '🚪 Cerrar Sesión';
+    btnVolver.onclick = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
 }
 
 // ======================================
@@ -178,3 +221,171 @@ function renderGrafico(labels, valores, total) {
         }
     });
 }
+
+
+// ======================================
+//  CALENDARIO HISTORIAL
+// ======================================
+let calMes, calAnio, fechaSeleccionada = null;
+
+function iniciarCalendario() {
+    const hoy = new Date();
+    calMes = hoy.getMonth();
+    calAnio = hoy.getFullYear();
+    renderCalendario();
+}
+
+function cambiarMes(dir) {
+    calMes += dir;
+    if (calMes > 11) { calMes = 0; calAnio++; }
+    if (calMes < 0)  { calMes = 11; calAnio--; }
+    renderCalendario();
+}
+
+function renderCalendario() {
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    document.getElementById('calTitulo').textContent = `${meses[calMes]} ${calAnio}`;
+
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+
+    // Cabecera días
+    ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].forEach(d => {
+        const h = document.createElement('div');
+        h.className = 'cal-dia-header';
+        h.textContent = d;
+        grid.appendChild(h);
+    });
+
+    const primerDia = new Date(calAnio, calMes, 1).getDay();
+    const diasEnMes = new Date(calAnio, calMes + 1, 0).getDate();
+    const hoy = new Date();
+
+    // Espacios vacíos
+    for (let i = 0; i < primerDia; i++) {
+        const vacio = document.createElement('div');
+        vacio.className = 'cal-dia vacio';
+        grid.appendChild(vacio);
+    }
+
+    // Días del mes
+    for (let d = 1; d <= diasEnMes; d++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-dia';
+        cell.textContent = d;
+
+        // Formatear fecha igual que Firebase: D-M-YYYY
+        const fechaStr = `${d}-${calMes + 1}-${calAnio}`;
+
+        // Marcar hoy
+        if (d === hoy.getDate() && calMes === hoy.getMonth() && calAnio === hoy.getFullYear()) {
+            cell.classList.add('hoy');
+        }
+
+        // Marcar seleccionado
+        if (fechaStr === fechaSeleccionada) {
+            cell.classList.add('seleccionado');
+        }
+
+        // No permitir fechas futuras
+        const esFutura = new Date(calAnio, calMes, d) > hoy;
+        if (esFutura) {
+            cell.classList.add('futura');
+        } else {
+            cell.onclick = () => seleccionarFecha(fechaStr, cell);
+            // Verificar si hay datos en Firebase para ese día
+            db.ref(`historial/${fechaStr}/sobrantes`).once('value', snap => {
+                if (snap.exists()) cell.classList.add('con-datos');
+            });
+        }
+
+        grid.appendChild(cell);
+    }
+}
+
+function seleccionarFecha(fecha, cell) {
+    // Quitar selección anterior
+    document.querySelectorAll('.cal-dia.seleccionado').forEach(c => c.classList.remove('seleccionado'));
+    cell.classList.add('seleccionado');
+    fechaSeleccionada = fecha;
+
+    // Actualizar fecha mostrada en el header
+    document.getElementById('fechaReporte').innerText = `Fecha: ${fecha.replace(/-/g, '/')}`;
+
+    // Recargar turno activo con la fecha seleccionada
+    const turnoActivo = document.querySelector('.btn-turno.active');
+    const turno = turnoActivo ? turnoActivo.id.replace('btn-', '') : 'manana';
+    cargarTurnoPorFecha(turno, fecha);
+}
+
+// Versión de cargarTurno que acepta una fecha específica
+function cargarTurnoPorFecha(turno, fecha) {
+    document.querySelectorAll('.btn-turno').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(`btn-${turno}`);
+    if (btn) btn.classList.add('active');
+    document.getElementById('turnoLabel').innerText = TURNOS[turno].label;
+
+    const { inicio, fin } = TURNOS[turno];
+
+    db.ref(`historial/${fecha}/sobrantes`).once('value', (snapshot) => {
+        const data = snapshot.val();
+        const tbody = document.getElementById('planillaBody');
+        const labels = [];
+        const valores = [];
+        let totalGeneral = 0;
+        tbody.innerHTML = '';
+
+        if (!data) {
+            tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay datos para este turno.</td></tr>';
+            document.getElementById('totalGeneral').innerText = '—';
+            renderGrafico([], []);
+            return;
+        }
+
+        const registros = Object.values(data).filter(s => {
+            if (!s.hora) return false;
+            const h = parseInt(s.hora.split(':')[0], 10);
+            if (isNaN(h)) return false;
+            if (turno === 'noche') return h >= 22 || h < 5;
+            return h >= inicio && h < fin;
+        });
+
+        if (registros.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay registros en este turno.</td></tr>';
+            document.getElementById('totalGeneral').innerText = '—';
+            renderGrafico([], []);
+            return;
+        }
+
+        registros.forEach(s => {
+            const total = s.total || 0;
+            totalGeneral += total;
+            labels.push(s.producto);
+            valores.push(total);
+            tbody.innerHTML += `
+                <tr>
+                    <td>${s.marca || '—'}</td>
+                    <td>${s.linea || '—'}</td>
+                    <td><strong>${s.producto}</strong></td>
+                    <td>${s.filas ?? '—'}</td>
+                    <td>${s.bandejas ?? '—'}</td>
+                    <td>${s.incompletos ?? '—'}</td>
+                    <td class="total-celda">${total.toLocaleString()}</td>
+                    <td>${s.hora || '—'}</td>
+                </tr>`;
+        });
+
+        document.getElementById('totalGeneral').innerText = totalGeneral.toLocaleString();
+        renderGrafico(labels, valores, totalGeneral);
+    });
+}
+
+// Sobrescribir los botones de turno para usar fecha seleccionada si hay una
+document.querySelectorAll('.btn-turno').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const turno = btn.id.replace('btn-', '');
+        if (fechaSeleccionada) {
+            cargarTurnoPorFecha(turno, fechaSeleccionada);
+        }
+    });
+});
