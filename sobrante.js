@@ -147,6 +147,15 @@ document.getElementById('guardar-sobrante-btn').onclick = function() {
     const marcaLabel = marca.value === 'romero' ? 'Romero' : 'The Roxy';
     const lineaLabel = PRODUCTOS[marca.value][linea.value].label;
 
+    const supervisorActual = sessionStorage.getItem('supervisor') || 'No asignado';
+    const horaActual = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+
+    // Determinar turno actual
+    const horaNum = new Date().getHours();
+    let turnoActual = 'noche';
+    if (horaNum >= 5  && horaNum < 13) turnoActual = 'manana';
+    else if (horaNum >= 13 && horaNum < 22) turnoActual = 'tarde';
+
     db.ref(`historial/${getFechaHoy()}/sobrantes`).push({
         marca: marcaLabel,
         linea: lineaLabel,
@@ -156,8 +165,13 @@ document.getElementById('guardar-sobrante-btn').onclick = function() {
         bandejas,
         incompletos,
         total,
-        hora: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+        supervisor: supervisorActual,
+        turno: turnoActual,
+        hora: horaActual
     });
+
+    // Guardar supervisor del turno en nodo separado para el historial
+    db.ref(`historial/${getFechaHoy()}/supervisores/${turnoActual}`).set(supervisorActual);
 
     // Reset form
     document.getElementById('sel-marca').value = '';
@@ -201,4 +215,3 @@ window.eliminar = (id) => {
         db.ref(`historial/${getFechaHoy()}/sobrantes/${id}`).remove();
     }
 };
-            
