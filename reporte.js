@@ -275,14 +275,6 @@ function renderCalendario() {
     const grid = document.getElementById('calGrid');
     grid.innerHTML = '';
 
-    // Cabecera días
-    ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].forEach(d => {
-        const h = document.createElement('div');
-        h.className = 'cal-dia-header';
-        h.textContent = d;
-        grid.appendChild(h);
-    });
-
     const primerDia = new Date(calAnio, calMes, 1).getDay();
     const diasEnMes = new Date(calAnio, calMes + 1, 0).getDate();
     const hoy = new Date();
@@ -426,4 +418,4 @@ document.querySelectorAll('.btn-turno').forEach(btn => {
         }
     });
 });
-   
+    
