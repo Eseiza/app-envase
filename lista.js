@@ -13,7 +13,10 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-const getFechaHoy = () => new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+const getFechaHoy = () => {
+    const hoy = new Date();
+    return `${hoy.getDate()}-${hoy.getMonth() + 1}-${hoy.getFullYear()}`;
+};
 
 // ESCUCHAR PEDIDOS EN TIEMPO REAL
 db.ref(`historial/${getFechaHoy()}/tareas`).on('value', (snapshot) => {
