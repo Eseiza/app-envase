@@ -283,30 +283,30 @@ function renderCalendario() {
     for (let d = 1; d <= diasEnMes; d++) {
         const cell = document.createElement('div');
         cell.className = 'cal-dia';
-        cell.textContent = d;
 
-        // Formatear fecha igual que Firebase: D-M-YYYY
         const fechaStr = `${d}-${calMes + 1}-${calAnio}`;
-
-        // Marcar hoy
-        if (d === hoy.getDate() && calMes === hoy.getMonth() && calAnio === hoy.getFullYear()) {
-            cell.classList.add('hoy');
-        }
-
-        // Marcar seleccionado
-        if (fechaStr === fechaSeleccionada) {
-            cell.classList.add('seleccionado');
-        }
-
-        // No permitir fechas futuras
+        const esHoy    = d === hoy.getDate() && calMes === hoy.getMonth() && calAnio === hoy.getFullYear();
         const esFutura = new Date(calAnio, calMes, d) > hoy;
-        if (esFutura) {
-            cell.classList.add('futura');
-        } else {
-            cell.onclick = () => seleccionarFecha(fechaStr, cell);
+
+        // Número del día
+        const numEl = document.createElement('div');
+        numEl.className = 'dia-num';
+        numEl.textContent = d;
+        cell.appendChild(numEl);
+
+        if (esHoy)    cell.classList.add('hoy');
+        if (esFutura) cell.classList.add('futura');
+        if (fechaStr === fechaSeleccionada) cell.classList.add('seleccionado');
+
+        if (!esFutura) {
+            cell.onclick = () => seleccionarFecha(fechaStr, cell, d);
             // Verificar si hay datos en Firebase para ese día
             db.ref(`historial/${fechaStr}/sobrantes`).once('value', snap => {
-                if (snap.exists()) cell.classList.add('con-datos');
+                if (snap.exists()) {
+                    const punto = document.createElement('span');
+                    punto.className = 'punto-dato';
+                    cell.appendChild(punto);
+                }
             });
         }
 
@@ -314,7 +314,7 @@ function renderCalendario() {
     }
 }
 
-function seleccionarFecha(fecha, cell) {
+function seleccionarFecha(fecha, cell, d) {
     // Quitar selección anterior
     document.querySelectorAll('.cal-dia.seleccionado').forEach(c => c.classList.remove('seleccionado'));
     cell.classList.add('seleccionado');
@@ -322,6 +322,14 @@ function seleccionarFecha(fecha, cell) {
 
     // Actualizar fecha mostrada en el header
     document.getElementById('fechaReporte').innerText = `Fecha: ${fecha.replace(/-/g, '/')}`;
+
+    // Mostrar info de fecha seleccionada
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const info = document.getElementById('fechaInfo');
+    if (info) {
+        info.classList.add('visible');
+        document.getElementById('fechaInfoTexto').textContent = `${d} de ${meses[calMes]} de ${calAnio}`;
+    }
 
     // Recargar turno activo con la fecha seleccionada
     const turnoActivo = document.querySelector('.btn-turno.active');
