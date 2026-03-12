@@ -1,4 +1,4 @@
-const firebaseConfig = {
+   const firebaseConfig = {
     apiKey: "AIzaSyAJgnFCKt_8TT4BpWrDwqy--Oep0raYA18",
     authDomain: "romero-env.firebaseapp.com",
     databaseURL: "https://romero-env-default-rtdb.firebaseio.com",
@@ -239,17 +239,32 @@ function renderGrafico(labels, valores, total) {
 // ======================================
 let calMes, calAnio, fechaSeleccionada = null;
 
+const CAL_MES_INICIO  = 2;    // Marzo (0-indexado)
+const CAL_ANIO_INICIO = 2026;
+
 function iniciarCalendario() {
     const hoy = new Date();
-    calMes = hoy.getMonth();
+    calMes  = hoy.getMonth();
     calAnio = hoy.getFullYear();
     renderCalendario();
 }
 
 function cambiarMes(dir) {
-    calMes += dir;
-    if (calMes > 11) { calMes = 0; calAnio++; }
-    if (calMes < 0)  { calMes = 11; calAnio--; }
+    let nuevoMes  = calMes + dir;
+    let nuevoAnio = calAnio;
+
+    if (nuevoMes > 11) { nuevoMes = 0;  nuevoAnio++; }
+    if (nuevoMes < 0)  { nuevoMes = 11; nuevoAnio--; }
+
+    // No permitir ir antes de marzo 2026
+    if (nuevoAnio < CAL_ANIO_INICIO || (nuevoAnio === CAL_ANIO_INICIO && nuevoMes < CAL_MES_INICIO)) return;
+
+    // No permitir ir más allá del mes actual
+    const hoy = new Date();
+    if (nuevoAnio > hoy.getFullYear() || (nuevoAnio === hoy.getFullYear() && nuevoMes > hoy.getMonth())) return;
+
+    calMes  = nuevoMes;
+    calAnio = nuevoAnio;
     renderCalendario();
 }
 
