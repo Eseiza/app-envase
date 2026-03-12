@@ -11,7 +11,10 @@ const firebaseConfig = {
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const db = firebase.database();
 
-const getFechaHoy = () => new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+const getFechaHoy = () => {
+    const hoy = new Date();
+    return `${hoy.getDate()}-${hoy.getMonth() + 1}-${hoy.getFullYear()}`;
+};
 
 const BANDEJAS_POR_FILA = 14;
 
@@ -215,3 +218,4 @@ window.eliminar = (id) => {
         db.ref(`historial/${getFechaHoy()}/sobrantes/${id}`).remove();
     }
 };
+
