@@ -48,6 +48,14 @@ document.getElementById('fechaReporte').innerText = "Fecha: " + hoy;
 const supervisor = sessionStorage.getItem('supervisor') || '—';
 document.getElementById('supervisorNombre').innerText = supervisor;
 
+// Función para cargar supervisor desde Firebase según fecha y turno
+function cargarSupervisorFirebase(fecha, turno) {
+    db.ref(`historial/${fecha}/supervisores/${turno}`).once('value', snap => {
+        const sup = snap.val();
+        document.getElementById('supervisorNombre').innerText = sup || '—';
+    });
+}
+
 const turnoActual = getTurnoActual();
 const btnActual = document.getElementById(`btn-${turnoActual}`);
 if (btnActual) btnActual.classList.add('active');
@@ -116,6 +124,9 @@ function cargarTurno(turno) {
 
     const fecha = getFechaParaTurno(turno);
     const { inicio, fin } = TURNOS[turno];
+
+    // Cargar supervisor del turno desde Firebase
+    cargarSupervisorFirebase(fecha, turno);
 
     db.ref(`historial/${fecha}/sobrantes`).once('value', (snapshot) => {
         const data = snapshot.val();
@@ -326,6 +337,9 @@ function cargarTurnoPorFecha(turno, fecha) {
     document.getElementById('turnoLabel').innerText = TURNOS[turno].label;
 
     const { inicio, fin } = TURNOS[turno];
+
+    // Cargar supervisor del turno desde Firebase
+    cargarSupervisorFirebase(fecha, turno);
 
     db.ref(`historial/${fecha}/sobrantes`).once('value', (snapshot) => {
         const data = snapshot.val();
