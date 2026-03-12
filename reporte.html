@@ -32,9 +32,9 @@
             <div class="turno-selector no-print">
                 <p class="section-title">🕐 Seleccionar Turno</p>
                 <div class="turno-btns">
-                    <button class="btn-turno" id="btn-manana" onclick="cargarTurno('manana')">Mañana<br><small>05:00 - 12:59</small></button>
-                    <button class="btn-turno" id="btn-tarde"  onclick="cargarTurno('tarde')">Tarde<br><small>13:00 - 21:59</small></button>
-                    <button class="btn-turno" id="btn-noche"  onclick="cargarTurno('noche')">Noche<br><small>22:00 - 04:59</small></button>
+                    <button class="btn-turno" id="btn-manana" onclick="cargarTurno('manana')">🌅 Mañana<br><small>05:00 - 12:59</small></button>
+                    <button class="btn-turno" id="btn-tarde"  onclick="cargarTurno('tarde')">🌇 Tarde<br><small>13:00 - 21:59</small></button>
+                    <button class="btn-turno" id="btn-noche"  onclick="cargarTurno('noche')">🌙 Noche<br><small>22:00 - 04:59</small></button>
                 </div>
             </div>
 
@@ -79,12 +79,39 @@
             <div class="calendario-section no-print" id="calendarioSection" style="display:none;">
                 <p class="section-title">📅 Historial por Fecha</p>
                 <div class="calendario-wrap">
-                    <div class="cal-nav">
+
+                    <!-- Cabecera mes -->
+                    <div class="cal-header">
                         <button class="cal-nav-btn" onclick="cambiarMes(-1)">&#8592;</button>
                         <span id="calTitulo" class="cal-titulo"></span>
                         <button class="cal-nav-btn" onclick="cambiarMes(1)">&#8594;</button>
                     </div>
+
+                    <!-- Días de la semana -->
+                    <div class="cal-semana">
+                        <div class="cal-semana-dia">Dom</div>
+                        <div class="cal-semana-dia">Lun</div>
+                        <div class="cal-semana-dia">Mar</div>
+                        <div class="cal-semana-dia">Mié</div>
+                        <div class="cal-semana-dia">Jue</div>
+                        <div class="cal-semana-dia">Vie</div>
+                        <div class="cal-semana-dia">Sáb</div>
+                    </div>
+
+                    <!-- Grid días -->
                     <div class="cal-grid" id="calGrid"></div>
+
+                    <!-- Leyenda -->
+                    <div class="cal-leyenda">
+                        <div class="leyenda-item"><div class="leyenda-hoy">•</div> Hoy</div>
+                        <div class="leyenda-item"><div class="leyenda-sel"></div> Seleccionado</div>
+                        <div class="leyenda-item"><div class="leyenda-punto"></div> Con registros</div>
+                    </div>
+                </div>
+
+                <!-- Info fecha seleccionada -->
+                <div class="fecha-seleccionada-info" id="fechaInfo">
+                    Mostrando datos del <strong id="fechaInfoTexto"></strong>
                 </div>
             </div>
 
