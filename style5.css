@@ -619,4 +619,5 @@ body {
     .cal-dia.hoy .dia-num { width: 22px; height: 22px; font-size: 12px; }
     .cal-semana-dia { font-size: 10px; padding: 8px 2px; }
     .cal-leyenda { gap: 12px; padding: 10px 12px; }
-}
+  }
+  
