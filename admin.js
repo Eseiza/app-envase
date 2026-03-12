@@ -14,7 +14,10 @@ const firebaseConfig = {
 
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const db = firebase.database();
-const getFechaHoy = () => new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+const getFechaHoy = () => {
+    const hoy = new Date();
+    return `${hoy.getDate()}-${hoy.getMonth() + 1}-${hoy.getFullYear()}`;
+};
 
 let miGrafico;
 
@@ -159,3 +162,4 @@ function dibujarGrafico(labels, valores) {
 window.borrarTarea = (id) => { if(confirm("¿Eliminar orden?")) db.ref(`historial/${getFechaHoy()}/tareas/${id}`).remove(); };
 window.cerrarSesion = () => { sessionStorage.clear(); window.location.href="index.html"; };
 window.descargarReporte = () => { window.print(); };
+            
