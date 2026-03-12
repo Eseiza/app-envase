@@ -18,7 +18,8 @@ const USUARIOS = [
     { usuario: "supervisor", contrasena: "supervisor.2026", rol: "supervisor", redirige: "./admin.html"   },
     { usuario: "operario",   contrasena: "operario.2026",   rol: "operario",   redirige: "./lista.html"   },
     { usuario: "ventas",     contrasena: "ventas.2026",     rol: "ventas",     redirige: "./reporte.html" },
-    { usuario: "romero",     contrasena: "romero.2026",     rol: "romero",     redirige: "./reporte.html" }
+    { usuario: "romero",     contrasena: "romero.2026",     rol: "romero",     redirige: "./reporte.html" },
+    { usuario: "calidad",    contrasena: "calidad.2026",    rol: "calidad",    redirige: "./reporte.html" }
 ];
 
 let rolSeleccionado = null;
@@ -30,6 +31,9 @@ window.seleccionarRol = function(rol, elemento) {
     // Marcar activo
     document.querySelectorAll('.rol-btn').forEach(b => b.classList.remove('active'));
     elemento.classList.add('active');
+
+    // Mostrar formulario
+    document.getElementById('formBody').classList.add('visible');
 
     // Mostrar/ocultar supervisor
     const supervisorGroup = document.getElementById('supervisorGroup');
