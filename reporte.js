@@ -1,4 +1,4 @@
-   const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyAJgnFCKt_8TT4BpWrDwqy--Oep0raYA18",
     authDomain: "romero-env.firebaseapp.com",
     databaseURL: "https://romero-env-default-rtdb.firebaseio.com",
@@ -32,9 +32,9 @@ function getFechaParaTurno(turno) {
     if (turno === 'noche' && ahora.getHours() < 5) {
         const ayer = new Date(ahora);
         ayer.setDate(ayer.getDate() - 1);
-        return ayer.toLocaleDateString('es-AR').replace(/\//g, '-');
+        return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
     }
-    return ahora.toLocaleDateString('es-AR').replace(/\//g, '-');
+    return `${ahora.getDate()}-${ahora.getMonth() + 1}-${ahora.getFullYear()}`;
 }
 
 // ======================================
@@ -42,7 +42,7 @@ function getFechaParaTurno(turno) {
 // ======================================
 let chartInstance = null;
 
-const hoy = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+const hoy = (() => { const h = new Date(); return `${h.getDate()}-${h.getMonth() + 1}-${h.getFullYear()}`; })();
 document.getElementById('fechaReporte').innerText = "Fecha: " + hoy;
 
 const supervisor = sessionStorage.getItem('supervisor') || '—';
@@ -426,3 +426,4 @@ document.querySelectorAll('.btn-turno').forEach(btn => {
         }
     });
 });
+   
