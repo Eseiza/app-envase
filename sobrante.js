@@ -176,6 +176,9 @@ document.getElementById('guardar-sobrante-btn').onclick = function() {
     // Guardar supervisor del turno en nodo separado para el historial
     db.ref(`historial/${getFechaHoy()}/supervisores/${turnoActual}`).set(supervisorActual);
 
+    // Auto guardar planilla en Drive
+    autoGuardarEnDrive(turnoActual, getFechaHoy(), supervisorActual);
+
     // Reset form
     document.getElementById('sel-marca').value = '';
     document.getElementById('sel-linea').innerHTML = '<option value="" disabled selected>-- Línea --</option>';
@@ -219,3 +222,200 @@ window.eliminar = (id) => {
     }
 };
 
+// ======================================
+//  GOOGLE DRIVE - AUTO GUARDADO
+// ======================================
+
+// ⚠️ REEMPLAZÁ ESTOS VALORES CON LOS TUYOS (ver guía)
+const GOOGLE_CLIENT_ID = 'TU_CLIENT_ID_AQUI';
+const GOOGLE_API_KEY   = 'TU_API_KEY_AQUI';
+const FOLDER_RAIZ_ID   = 'TU_FOLDER_ID_AQUI';
+
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+let tokenClient;
+let gapiInited = false;
+let gisInited  = false;
+let driveAutorizado = false;
+
+// Inicializar GAPI
+function gapiLoaded() {
+    gapi.load('client', async () => {
+        await gapi.client.init({
+            apiKey: GOOGLE_API_KEY,
+            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+        });
+        gapiInited = true;
+    });
+}
+
+// Inicializar GIS
+function gisLoaded() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: SCOPES,
+        callback: (resp) => {
+            if (!resp.error) driveAutorizado = true;
+        },
+    });
+    gisInited = true;
+}
+
+window.addEventListener('load', () => {
+    if (typeof gapi !== 'undefined') gapiLoaded();
+    if (typeof google !== 'undefined') gisLoaded();
+});
+
+// Obtener o crear carpeta en Drive
+async function obtenerOCrearCarpeta(nombre, parentId) {
+    const res = await gapi.client.drive.files.list({
+        q: `name='${nombre}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`,
+        fields: 'files(id)',
+    });
+    if (res.result.files.length > 0) return res.result.files[0].id;
+
+    const crear = await gapi.client.drive.files.create({
+        resource: {
+            name: nombre,
+            mimeType: 'application/vnd.google-apps.folder',
+            parents: [parentId],
+        },
+        fields: 'id',
+    });
+    return crear.result.id;
+}
+
+// Buscar archivo existente en carpeta
+async function buscarArchivo(nombre, carpetaId) {
+    const res = await gapi.client.drive.files.list({
+        q: `name='${nombre}' and '${carpetaId}' in parents and trashed=false`,
+        fields: 'files(id)',
+    });
+    return res.result.files.length > 0 ? res.result.files[0].id : null;
+}
+
+// Generar HTML de la planilla
+function generarHTMLPlanilla(turno, fecha, sobrantes, supervisorNombre) {
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const partes = fecha.split('-');
+    const fechaLegible = `${partes[0]} de ${meses[parseInt(partes[1]) - 1]} de ${partes[2]}`;
+    const turnoLabel = { manana: 'Turno Mañana', tarde: 'Turno Tarde', noche: 'Turno Noche' }[turno] || turno;
+
+    const { inicio, fin } = { manana: {inicio:5,fin:13}, tarde: {inicio:13,fin:22}, noche: {inicio:22,fin:5} }[turno];
+
+    const registros = Object.values(sobrantes).filter(s => {
+        if (!s.hora) return false;
+        const h = parseInt(s.hora.split(':')[0], 10);
+        if (turno === 'noche') return h >= 22 || h < 5;
+        return h >= inicio && h < fin;
+    });
+
+    let totalGeneral = 0;
+    const filas = registros.map(s => {
+        totalGeneral += s.total || 0;
+        return `<tr>
+            <td>${s.marca||'—'}</td><td>${s.linea||'—'}</td>
+            <td><strong>${s.producto}</strong></td>
+            <td>${s.filas??'—'}</td><td>${s.bandejas??'—'}</td>
+            <td>${s.incompletos??'—'}</td>
+            <td><strong>${(s.total||0).toLocaleString()}</strong></td>
+            <td>${s.hora||'—'}</td>
+        </tr>`;
+    }).join('');
+
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <style>
+        body{font-family:Arial,sans-serif;padding:30px;color:#2a1a0a}
+        h1{font-size:20px;border-bottom:3px solid #c8960c;padding-bottom:8px}
+        .meta{font-size:13px;color:#6b4c2a;margin-bottom:16px}
+        .sup{background:#f5f0e8;border-left:4px solid #c8960c;padding:8px 12px;margin-bottom:20px;font-size:14px}
+        table{width:100%;border-collapse:collapse;font-size:13px}
+        thead tr{background:#2a1a0a;color:white}
+        th{padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase}
+        tbody tr:nth-child(even){background:#f5f0e8}
+        td{padding:8px 10px;border-bottom:1px solid #e8dcc8}
+        tfoot tr{background:#f5f0e8;border-top:2px solid #c8960c}
+        tfoot td{padding:8px 10px;font-weight:bold}
+        .tv{font-size:16px;color:#7a1a0a}
+    </style></head><body>
+    <h1>Planilla de Control de Producción</h1>
+    <div class="meta">${fechaLegible} — ${turnoLabel}</div>
+    <div class="sup">⭐ Supervisor: <strong>${supervisorNombre||'—'}</strong></div>
+    <table>
+        <thead><tr><th>Marca</th><th>Línea</th><th>Producto</th><th>Filas</th><th>Band.</th><th>Paq. sueltos</th><th>Total paq.</th><th>Hora</th></tr></thead>
+        <tbody>${filas}</tbody>
+        <tfoot><tr><td colspan="6" style="text-align:right">TOTAL GENERAL</td><td class="tv">${totalGeneral.toLocaleString()}</td><td></td></tr></tfoot>
+    </table>
+    </body></html>`;
+}
+
+// Auto guardar en Drive luego de cada sobrante
+async function autoGuardarEnDrive(turno, fecha, supervisorNombre) {
+    if (!gapiInited || !gisInited) return;
+
+    // Solicitar autorización si no la tiene
+    if (!driveAutorizado) {
+        tokenClient.requestAccessToken({ prompt: 'consent' });
+        // Esperar hasta que se autorice
+        await new Promise(resolve => {
+            const check = setInterval(() => {
+                if (driveAutorizado) { clearInterval(check); resolve(); }
+            }, 500);
+        });
+    }
+
+    try {
+        // Leer todos los sobrantes del día desde Firebase
+        const snap = await db.ref(`historial/${fecha}/sobrantes`).once('value');
+        const sobrantes = snap.val();
+        if (!sobrantes) return;
+
+        const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        const partes = fecha.split('-');
+        const nombreMes = meses[parseInt(partes[1]) - 1];
+        const anio = partes[2];
+        const turnoLabel = { manana: 'Turno Mañana', tarde: 'Turno Tarde', noche: 'Turno Noche' }[turno];
+        const nombreArchivo = `${turnoLabel} - ${fecha}`;
+
+        // Crear estructura de carpetas
+        const carpetaAnio  = await obtenerOCrearCarpeta(anio, FOLDER_RAIZ_ID);
+        const carpetaMes   = await obtenerOCrearCarpeta(nombreMes, carpetaAnio);
+        const carpetaFecha = await obtenerOCrearCarpeta(fecha, carpetaMes);
+
+        const htmlContent = generarHTMLPlanilla(turno, fecha, sobrantes, supervisorNombre);
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const token = gapi.client.getToken().access_token;
+
+        // Buscar si ya existe el archivo
+        const archivoExistente = await buscarArchivo(nombreArchivo, carpetaFecha);
+
+        if (archivoExistente) {
+            // Actualizar archivo existente
+            await fetch(`https://www.googleapis.com/upload/drive/v3/files/${archivoExistente}?uploadType=media`, {
+                method: 'PATCH',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'text/html' },
+                body: blob
+            });
+        } else {
+            // Crear archivo nuevo
+            const formData = new FormData();
+            formData.append('metadata', new Blob([JSON.stringify({
+                name: nombreArchivo,
+                parents: [carpetaFecha],
+                mimeType: 'application/vnd.google-apps.document'
+            })], { type: 'application/json' }));
+            formData.append('file', blob);
+
+            await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&convert=true', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData
+            });
+        }
+
+        console.log(`✅ Drive actualizado: ${anio}/${nombreMes}/${fecha}/${nombreArchivo}`);
+
+    } catch (err) {
+        console.error('Error al guardar en Drive:', err);
+    }
+    }
