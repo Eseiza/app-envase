@@ -45,14 +45,12 @@ let chartInstance = null;
 const hoy = (() => { const h = new Date(); return `${h.getDate()}-${h.getMonth() + 1}-${h.getFullYear()}`; })();
 document.getElementById('fechaReporte').innerText = "Fecha: " + hoy;
 
-const supervisor = sessionStorage.getItem('supervisor') || '—';
-document.getElementById('supervisorNombre').innerText = supervisor;
-
 // Función para cargar supervisor desde Firebase según fecha y turno
 function cargarSupervisorFirebase(fecha, turno) {
     db.ref(`historial/${fecha}/supervisores/${turno}`).once('value', snap => {
         const sup = snap.val();
-        document.getElementById('supervisorNombre').innerText = sup || '—';
+        // Si no hay en Firebase, intentar sessionStorage como fallback
+        document.getElementById('supervisorNombre').innerText = sup || sessionStorage.getItem('supervisor') || '—';
     });
 }
 
@@ -418,4 +416,3 @@ document.querySelectorAll('.btn-turno').forEach(btn => {
         }
     });
 });
-    
