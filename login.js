@@ -11,6 +11,19 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
+const db = firebase.database();
+
+const getFechaHoy = () => {
+    const hoy = new Date();
+    return `${hoy.getDate()}-${hoy.getMonth() + 1}-${hoy.getFullYear()}`;
+};
+
+function getTurnoActual() {
+    const h = new Date().getHours();
+    if (h >= 5  && h < 13) return 'manana';
+    if (h >= 13 && h < 22) return 'tarde';
+    return 'noche';
+}
 
 // ✅ USUARIOS
 const USUARIOS = [
@@ -75,6 +88,9 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             return;
         }
         sessionStorage.setItem('supervisor', supervisor);
+        // Guardar supervisor en Firebase para que sea visible desde cualquier dispositivo
+        const turno = getTurnoActual();
+        db.ref(`historial/${getFechaHoy()}/supervisores/${turno}`).set(supervisor);
     }
 
     const usuarioEncontrado = USUARIOS.find(u =>
