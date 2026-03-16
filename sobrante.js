@@ -218,7 +218,15 @@ db.ref(`historial/${getFechaHoy()}/sobrantes`).on('value', (snapshot) => {
 // ELIMINAR
 window.eliminar = (id) => {
     if (confirm("¿Eliminar este registro?")) {
-        db.ref(`historial/${getFechaHoy()}/sobrantes/${id}`).remove();
+        db.ref(`historial/${getFechaHoy()}/sobrantes/${id}`).remove().then(() => {
+            // Actualizar Drive después de eliminar
+            const horaNum = new Date().getHours();
+            let turnoActual = 'noche';
+            if (horaNum >= 5  && horaNum < 13) turnoActual = 'manana';
+            else if (horaNum >= 13 && horaNum < 22) turnoActual = 'tarde';
+            const supervisorActual = sessionStorage.getItem('supervisor') || 'No asignado';
+            autoGuardarEnDrive(turnoActual, getFechaHoy(), supervisorActual);
+        });
     }
 };
 
@@ -227,9 +235,9 @@ window.eliminar = (id) => {
 // ======================================
 
 // ⚠️ REEMPLAZÁ ESTOS VALORES CON LOS TUYOS (ver guía)
-const GOOGLE_CLIENT_ID = '49698744393-spo4nq0naa9fbahm628h4c4v3vpc0d4e.apps.googleusercontent.com';
-const GOOGLE_API_KEY   = 'AIzaSyDyxsOnSb7KXLuUcbpwdECzYqTLi98Fpmw';
-const FOLDER_RAIZ_ID   = '1G7xayYRV2CWiBMKGQx79G2DTUs3atHOk';
+const GOOGLE_CLIENT_ID = 'TU_CLIENT_ID_AQUI';
+const GOOGLE_API_KEY   = 'TU_API_KEY_AQUI';
+const FOLDER_RAIZ_ID   = 'TU_FOLDER_ID_AQUI';
 
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 
@@ -418,4 +426,4 @@ async function autoGuardarEnDrive(turno, fecha, supervisorNombre) {
     } catch (err) {
         console.error('Error al guardar en Drive:', err);
     }
-    }
+}
