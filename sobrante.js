@@ -227,9 +227,9 @@ window.eliminar = (id) => {
 // ======================================
 
 // ⚠️ REEMPLAZÁ ESTOS VALORES CON LOS TUYOS (ver guía)
-const GOOGLE_CLIENT_ID = 'TU_CLIENT_ID_AQUI';
-const GOOGLE_API_KEY   = 'TU_API_KEY_AQUI';
-const FOLDER_RAIZ_ID   = 'TU_FOLDER_ID_AQUI';
+const GOOGLE_CLIENT_ID = '49698744393-spo4nq0naa9fbahm628h4c4v3vpc0d4e.apps.googleusercontent.com';
+const GOOGLE_API_KEY   = 'AIzaSyDyxsOnSb7KXLuUcbpwdECzYqTLi98Fpmw';
+const FOLDER_RAIZ_ID   = '1G7xayYRV2CWiBMKGQx79G2DTUs3atHOk';
 
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 
