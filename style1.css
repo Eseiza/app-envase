@@ -1,30 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;1,400&family=Nunito:wght@400;600;700&display=swap');
 
-/*
-======================================
-  VARIABLES DE MARCA
-======================================
-*/
 :root {
-    --dorado: #c8960c;
+    --dorado:       #c8960c;
     --dorado-claro: #e8b84b;
-    --bordo: #7a1a0a;
-    --rojo: #b13009;
-    --crema: #fdf6ec;
-    --gris-claro: #f5f0e8;
-    --texto: #2a1a0a;
-    --texto-suave: #6b4c2a;
+    --bordo:        #7a1a0a;
+    --rojo:         #b13009;
+    --crema:        #fdf6ec;
+    --gris-claro:   #f5f0e8;
+    --texto:        #2a1a0a;
+    --texto-suave:  #6b4c2a;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/*
-======================================
-  FONDO ANIMADO
-======================================
-*/
 body {
-    font-family: 'Lato', Arial, sans-serif;
+    font-family: 'Nunito', sans-serif;
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -34,6 +24,7 @@ body {
     position: relative;
 }
 
+/* ─── FONDO ───────────────────────────────────────────── */
 .bg-gradient {
     position: fixed;
     inset: 0;
@@ -60,17 +51,13 @@ body {
     );
 }
 
-/*
-======================================
-  CONTENEDOR - Animación entrada
-======================================
-*/
+/* ─── CARD LOGIN ──────────────────────────────────────── */
 .login-container {
     position: relative;
     z-index: 1;
-    background-color: rgba(255,255,255,0.97);
+    background: rgba(255,255,255,0.98);
     padding: 40px;
-    border-radius: 14px;
+    border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(200,150,12,0.2);
     width: 100%;
     max-width: 460px;
@@ -81,7 +68,7 @@ body {
 
 @keyframes slideUp {
     from { opacity: 0; transform: translateY(40px) scale(0.97); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
 }
 
 .header-icon {
@@ -98,20 +85,16 @@ body {
 .divider {
     border: none;
     border-top: 1px solid var(--dorado-claro);
-    margin: 0 0 24px 0;
+    margin: 0 0 24px;
 }
 
-/*
-======================================
-  ROLES
-======================================
-*/
+/* ─── ROLES ───────────────────────────────────────────── */
 .roles-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--texto-suave);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
     margin-bottom: 14px;
 }
 
@@ -128,9 +111,9 @@ body {
     align-items: center;
     gap: 6px;
     padding: 14px 6px;
-    border: 2px solid #e8dcc8;
-    border-radius: 10px;
-    background-color: var(--gris-claro);
+    border: 1.5px solid #e8dcc8;
+    border-radius: 12px;
+    background: var(--gris-claro);
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     user-select: none;
@@ -138,14 +121,14 @@ body {
 
 .rol-btn:hover {
     border-color: var(--dorado);
-    background-color: #fef9ee;
+    background: #fef9ee;
     transform: translateY(-3px);
     box-shadow: 0 6px 16px rgba(200,150,12,0.2);
 }
 
 .rol-btn.active {
     border-color: var(--dorado);
-    background-color: #fef9ee;
+    background: #fef9ee;
     box-shadow: 0 0 0 3px rgba(200,150,12,0.25), 0 6px 16px rgba(200,150,12,0.2);
     transform: translateY(-3px) scale(1.04);
 }
@@ -168,16 +151,13 @@ body {
 
 .rol-btn.active .rol-nombre { color: var(--bordo); }
 
-/*
-======================================
-  FORMULARIO - Aparece con transición
-======================================
-*/
+/* ─── FORM ANIMADO ────────────────────────────────────── */
 .form-body {
     overflow: hidden;
     max-height: 0;
     opacity: 0;
     transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    text-align: left;
 }
 
 .form-body.visible {
@@ -185,28 +165,29 @@ body {
     opacity: 1;
 }
 
-.form-group { margin-bottom: 16px; text-align: left; }
+.form-group { margin-bottom: 16px; }
 
+/* ─── CAMPOS ──────────────────────────────────────────── */
 label {
     display: block;
     margin-bottom: 6px;
     font-weight: 700;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--texto-suave);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
 }
 
 input[type="text"],
 input[type="password"] {
     width: 100%;
-    padding: 11px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #fff;
+    padding: 11px 14px;
+    border: 1.5px solid #e0d0b0;
+    border-radius: 8px;
+    background: var(--crema);
     color: var(--texto);
     font-size: 15px;
-    font-family: 'Lato', Arial, sans-serif;
+    font-family: 'Nunito', sans-serif;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -216,11 +197,7 @@ input:focus {
     box-shadow: 0 0 0 3px rgba(200,150,12,0.15);
 }
 
-/*
-======================================
-  SUPERVISOR
-======================================
-*/
+/* ─── SUPERVISOR ──────────────────────────────────────── */
 .supervisor-group {
     overflow: hidden;
     max-height: 0;
@@ -238,17 +215,18 @@ input:focus {
 
 select {
     width: 100%;
-    padding: 11px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #fff;
+    padding: 11px 14px;
+    border: 1.5px solid #e0d0b0;
+    border-radius: 8px;
+    background: var(--crema);
     color: var(--texto);
     font-size: 15px;
-    font-family: 'Lato', Arial, sans-serif;
+    font-family: 'Nunito', sans-serif;
     appearance: none;
+    -webkit-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23c8960c' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 12px center;
+    background-position: right 14px center;
     cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -259,60 +237,52 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(200,150,12,0.15);
 }
 
-/*
-======================================
-  BOTÓN
-======================================
-*/
+/* ─── BOTÓN ───────────────────────────────────────────── */
 button[type="submit"] {
     width: 100%;
-    padding: 12px;
-    background-color: var(--rojo);
-    color: white;
-    border: none;
-    border-radius: 4px;
+    padding: 13px;
+    background: var(--crema);
+    color: var(--rojo);
+    border: 2px solid var(--rojo);
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
-    font-family: 'Lato', Arial, sans-serif;
+    font-family: 'Lora', serif;
     margin-top: 4px;
-    letter-spacing: 0.5px;
-    transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.3px;
+    transition: background 0.2s, color 0.2s, transform 0.15s, box-shadow 0.2s;
 }
 
 button[type="submit"]:hover {
-    background-color: var(--bordo);
+    background: var(--rojo);
+    color: var(--crema);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(122,26,10,0.3);
+    box-shadow: 0 4px 14px rgba(177,48,9,0.3);
 }
 
 button[type="submit"]:active { transform: translateY(0); }
 
 #loginMessage {
     margin-top: 16px;
-    font-weight: bold;
-    font-size: 14px;
+    font-weight: 700;
+    font-size: 13px;
     min-height: 20px;
+    font-family: 'Nunito', sans-serif;
 }
 
-/*
-======================================
-  RESPONSIVE
-======================================
-*/
+/* ─── RESPONSIVE ──────────────────────────────────────── */
 @media (max-width: 480px) {
-    .login-container { padding: 24px 18px; border-radius: 10px; }
+    .login-container { padding: 24px 18px; border-radius: 14px; }
     .header-icon { max-width: 130px; }
-    .roles-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .roles-grid { gap: 8px; }
     .rol-btn { padding: 12px 4px; }
-    .rol-icon { font-size: 22px; }
+    .rol-icon { font-size: 20px; }
     .rol-nombre { font-size: 10px; }
     input[type="text"], input[type="password"], select { padding: 13px 12px; font-size: 16px; }
-    button[type="submit"] { padding: 14px; font-size: 17px; }
+    button[type="submit"] { padding: 14px; font-size: 16px; }
 }
 
 @media (max-width: 360px) {
-    .login-container { padding: 20px 12px; }
-    .header-icon { max-width: 110px; }
     .roles-grid { grid-template-columns: repeat(2, 1fr); }
 }
