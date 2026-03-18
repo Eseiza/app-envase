@@ -29,12 +29,13 @@ body {
     align-items: center;
 }
 
-/* ─── LOGO ────────────────────────────────────────────── */
+/* ─── LOGO OSCURO ─────────────────────────────────────── */
 .header-icon {
     height: 52px;
     object-fit: contain;
     margin-bottom: 20px;
     animation: fadeIn 0.6s ease both;
+    filter: brightness(0) saturate(100%) invert(12%) sepia(40%) saturate(800%) hue-rotate(10deg) brightness(60%);
 }
 
 @keyframes fadeIn {
@@ -42,7 +43,6 @@ body {
     to   { opacity: 1; transform: scale(1); }
 }
 
-/* ─── TÍTULO ──────────────────────────────────────────── */
 h1 {
     font-family: 'Lora', serif;
     font-size: 22px;
@@ -50,10 +50,8 @@ h1 {
     color: var(--crema);
     margin-bottom: 24px;
     text-align: center;
-    letter-spacing: 0.3px;
 }
 
-/* ─── LISTA ───────────────────────────────────────────── */
 #pedidosList {
     list-style: none;
     width: 100%;
@@ -83,21 +81,10 @@ h1 {
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-#pedidosList li:hover {
-    border-color: var(--dorado);
-    box-shadow: 0 4px 16px rgba(200,150,12,0.15);
-}
+#pedidosList li:hover { border-color: var(--dorado); box-shadow: 0 4px 16px rgba(200,150,12,0.15); }
 
-#pedidosList li.completado {
-    background: #f0faf0;
-    border-color: #a8d8a0;
-    opacity: 0.75;
-}
-
-#pedidosList li.completado span {
-    text-decoration: line-through;
-    color: var(--texto-suave);
-}
+#pedidosList li.completado { background: #f0faf0; border-color: #a8d8a0; opacity: 0.75; }
+#pedidosList li.completado span { text-decoration: line-through; color: var(--texto-suave); }
 
 #pedidosList li.vacio {
     justify-content: center;
@@ -108,16 +95,8 @@ h1 {
     border-style: dashed;
 }
 
-/* ─── CHECKBOX ────────────────────────────────────────── */
-input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    accent-color: var(--rojo);
-    cursor: pointer;
-    flex-shrink: 0;
-}
+input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--rojo); cursor: pointer; flex-shrink: 0; }
 
-/* ─── BOTÓN NAVEGACIÓN ────────────────────────────────── */
 .boton-navegacion {
     display: inline-block;
     padding: 13px 28px;
@@ -133,14 +112,8 @@ input[type="checkbox"] {
     transition: background 0.2s, color 0.2s, transform 0.15s, box-shadow 0.2s;
 }
 
-.boton-navegacion:hover {
-    background: var(--rojo);
-    color: var(--crema);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(177,48,9,0.3);
-}
+.boton-navegacion:hover { background: var(--rojo); color: var(--crema); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(177,48,9,0.3); }
 
-/* ─── RESPONSIVE ──────────────────────────────────────── */
 @media (max-width: 480px) {
     h1 { font-size: 18px; }
     #pedidosList li { font-size: 14px; padding: 13px 14px; }
