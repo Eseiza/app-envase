@@ -25,7 +25,7 @@ function getTurnoActual() {
     return 'noche';
 }
 
-// ✅ USUARIOS
+// ─── USUARIOS ─────────────────────────────────────────
 const USUARIOS = [
     { usuario: "admin",      contrasena: "admin.2026",      rol: "admin",      redirige: "./admin.html"   },
     { usuario: "supervisor", contrasena: "supervisor.2026", rol: "supervisor", redirige: "./admin.html"   },
@@ -35,15 +35,57 @@ const USUARIOS = [
     { usuario: "calidad",    contrasena: "calidad.2026",    rol: "calidad",    redirige: "./reporte.html" }
 ];
 
+const ROLES = [
+    { value: "admin",      label: "Admin",      icon: "🔑" },
+    { value: "supervisor", label: "Supervisor", icon: "⭐" },
+    { value: "operario",   label: "Operario",   icon: "⚙️" },
+    { value: "ventas",     label: "Ventas",     icon: "📊" },
+    { value: "romero",     label: "Romero",     icon: "👁️" },
+    { value: "calidad",    label: "Calidad",    icon: "🔬" }
+];
+
 let rolSeleccionado = null;
 
-// SELECCIÓN DE ROL
+// ─── REEMPLAZAR GRILLA POR SELECT ─────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const grid = document.querySelector('.roles-grid');
+    if (!grid) return;
+
+    // Crear select de rol
+    const select = document.createElement('select');
+    select.id = 'rolSelect';
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    placeholder.textContent = '-- Seleccioná un rol --';
+    select.appendChild(placeholder);
+
+    ROLES.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.value;
+        opt.textContent = `${r.icon}  ${r.label}`;
+        select.appendChild(opt);
+    });
+
+    select.addEventListener('change', function() {
+        seleccionarRol(this.value, null);
+    });
+
+    // Insertar antes del grid (que queda oculto por CSS)
+    grid.parentNode.insertBefore(select, grid);
+});
+
+// ─── SELECCIÓN DE ROL ──────────────────────────────────
 window.seleccionarRol = function(rol, elemento) {
     rolSeleccionado = rol;
 
-    // Marcar activo
-    document.querySelectorAll('.rol-btn').forEach(b => b.classList.remove('active'));
-    elemento.classList.add('active');
+    // Mantener compatibilidad con botones (por si acaso)
+    if (elemento) {
+        document.querySelectorAll('.rol-btn').forEach(b => b.classList.remove('active'));
+        elemento.classList.add('active');
+    }
 
     // Mostrar formulario
     document.getElementById('formBody').classList.add('visible');
@@ -60,18 +102,16 @@ window.seleccionarRol = function(rol, elemento) {
         supervisorSelect.value = '';
     }
 
-    // Habilitar botón
-    const btn = document.getElementById('btnIngresar');
-    btn.disabled = false;
-    btn.textContent = 'Iniciar Sesión';
+    document.getElementById('btnIngresar').disabled = false;
+    document.getElementById('btnIngresar').textContent = 'Iniciar Sesión';
 };
 
-// SUBMIT
+// ─── SUBMIT ────────────────────────────────────────────
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const inputUsername = document.getElementById('username').value.trim().toLowerCase();
-    const inputPassword = document.getElementById('password').value.trim();
+    const inputUsername  = document.getElementById('username').value.trim().toLowerCase();
+    const inputPassword  = document.getElementById('password').value.trim();
     const messageDisplay = document.getElementById('loginMessage');
 
     if (!rolSeleccionado) {
@@ -88,7 +128,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             return;
         }
         sessionStorage.setItem('supervisor', supervisor);
-        // Guardar supervisor en Firebase para que sea visible desde cualquier dispositivo
         const turno = getTurnoActual();
         db.ref(`historial/${getFechaHoy()}/supervisores/${turno}`).set(supervisor);
     }
