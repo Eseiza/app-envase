@@ -1,228 +1,147 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;1,400&family=Nunito:wght@400;600;700&display=swap');
 
-/*
-======================================
-  VARIABLES DE MARCA - ROMERO
-======================================
-*/
 :root {
-    --dorado: #c8960c;
+    --dorado:       #c8960c;
     --dorado-claro: #e8b84b;
-    --bordo: #7a1a0a;
-    --rojo: #b13009;
-    --crema: #fdf6ec;
-    --gris-claro: #f5f0e8;
-    --texto: #2a1a0a;
-    --texto-suave: #6b4c2a;
+    --bordo:        #7a1a0a;
+    --rojo:         #b13009;
+    --crema:        #fdf6ec;
+    --gris-claro:   #f5f0e8;
+    --texto:        #2a1a0a;
+    --texto-suave:  #6b4c2a;
+    --border:       #e8dcc8;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/*
-======================================
-  BASE
-======================================
-*/
 body {
-    font-family: 'Lato', Arial, sans-serif;
-    background-color: var(--crema);
-    margin: 0;
-    padding: 30px 20px;
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    background: #2a1a0a;
+    background-image: repeating-linear-gradient(
+        -45deg, transparent, transparent 60px,
+        rgba(200,150,12,0.025) 60px, rgba(200,150,12,0.025) 61px
+    );
+    padding: 24px 16px;
+    color: var(--texto);
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
 }
 
-/*
-======================================
-  HEADER
-======================================
-*/
+/* ─── LOGO ────────────────────────────────────────────── */
 .header-icon {
-    width: 160px;
-    height: auto;
+    height: 52px;
+    object-fit: contain;
     margin-bottom: 20px;
+    animation: fadeIn 0.6s ease both;
 }
 
-/*
-======================================
-  TÍTULO
-======================================
-*/
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* ─── TÍTULO ──────────────────────────────────────────── */
 h1 {
-    color: var(--texto);
+    font-family: 'Lora', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--crema);
     margin-bottom: 24px;
     text-align: center;
-    font-size: 2em;
-    border-bottom: 3px solid var(--rojo);
-    padding-bottom: 12px;
-    width: 100%;
-    max-width: 500px;
+    letter-spacing: 0.3px;
 }
 
-/*
-======================================
-  LISTA DE PEDIDOS
-======================================
-*/
+/* ─── LISTA ───────────────────────────────────────────── */
 #pedidosList {
     list-style: none;
-    padding: 0;
-    max-width: 500px;
     width: 100%;
-    margin-bottom: 24px;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+    animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 #pedidosList li {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    background-color: #fff;
-    border: 1px solid #e8dcc8;
-    border-left: 4px solid var(--dorado);
-    border-radius: 6px;
-    transition: box-shadow 0.2s;
-    word-break: break-word;
+    gap: 14px;
+    background: rgba(255,255,255,0.97);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-size: 15px;
+    color: var(--texto);
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 #pedidosList li:hover {
-    box-shadow: 0 2px 8px rgba(122, 26, 10, 0.1);
+    border-color: var(--dorado);
+    box-shadow: 0 4px 16px rgba(200,150,12,0.15);
 }
 
 #pedidosList li.completado {
-    border-left-color: #28a745;
-    background-color: #f0faf3;
+    background: #f0faf0;
+    border-color: #a8d8a0;
+    opacity: 0.75;
 }
 
 #pedidosList li.completado span {
     text-decoration: line-through;
-    color: #888;
-    font-style: italic;
-}
-
-/* Mensaje vacío */
-#pedidosList li.vacio {
-    border-left-color: var(--dorado-claro);
-    background-color: var(--gris-claro);
     color: var(--texto-suave);
-    justify-content: center;
-    font-style: italic;
 }
 
-/*
-======================================
-  CHECKBOX
-======================================
-*/
+#pedidosList li.vacio {
+    justify-content: center;
+    color: var(--texto-suave);
+    font-style: italic;
+    font-size: 14px;
+    background: rgba(255,255,255,0.6);
+    border-style: dashed;
+}
+
+/* ─── CHECKBOX ────────────────────────────────────────── */
 input[type="checkbox"] {
     width: 20px;
     height: 20px;
-    min-width: 20px;
-    accent-color: var(--dorado);
+    accent-color: var(--rojo);
     cursor: pointer;
+    flex-shrink: 0;
 }
 
-/*
-======================================
-  BOTÓN NAVEGACIÓN
-======================================
-*/
+/* ─── BOTÓN NAVEGACIÓN ────────────────────────────────── */
 .boton-navegacion {
-    display: block;
-    padding: 12px 24px;
-    background-color: var(--rojo);
-    color: white;
-    text-decoration: none;
-    border-radius: 4px;
-    cursor: pointer;
+    display: inline-block;
+    padding: 13px 28px;
+    background: var(--crema);
+    color: var(--rojo);
+    border: 2px solid var(--rojo);
+    border-radius: 10px;
+    font-family: 'Lora', serif;
     font-size: 15px;
-    font-weight: 700;
-    font-family: 'Lato', Arial, sans-serif;
-    letter-spacing: 0.4px;
-    transition: background-color 0.3s;
-    max-width: 500px;
-    width: 100%;
-    text-align: center;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: background 0.2s, color 0.2s, transform 0.15s, box-shadow 0.2s;
 }
 
 .boton-navegacion:hover {
-    background-color: var(--bordo);
+    background: var(--rojo);
+    color: var(--crema);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(177,48,9,0.3);
 }
 
-/*
-======================================
-  RESPONSIVE - MÓVIL
-======================================
-*/
-@media (max-width: 599px) {
-    body { padding: 20px 12px; }
-    .header-icon { width: 100px; }
-    h1 { font-size: 1.6em; }
-
-    #pedidosList li {
-        flex-wrap: wrap;
-        padding: 10px;
-    }
-
-    #pedidosList li span {
-        flex-grow: 1;
-        min-width: 0;
-    }
-}
-
-/*
-======================================
-  RESPONSIVE - TABLETA Y ESCRITORIO
-======================================
-*/
-@media (min-width: 600px) {
-    body { padding: 40px; }
-    .header-icon { width: 130px; }
-    h1 { font-size: 2.2em; }
-}
-
-@media (min-width: 1000px) {
-    .header-icon { width: 160px; }
-}
-
-/*
-======================================
-  RESPONSIVE MEJORADO - MÓVIL
-======================================
-*/
+/* ─── RESPONSIVE ──────────────────────────────────────── */
 @media (max-width: 480px) {
-    body { padding: 16px 10px; }
-    .header-icon { width: 90px; }
-    h1 { font-size: 1.4em; }
-
-    #pedidosList li {
-        flex-wrap: wrap;
-        padding: 12px 10px;
-        gap: 10px;
-    }
-
-    #pedidosList li span {
-        font-size: 14px;
-        flex: 1;
-        min-width: 0;
-    }
-
-    input[type="checkbox"] {
-        width: 24px;
-        height: 24px;
-        min-width: 24px;
-    }
-
-    .boton-navegacion {
-        font-size: 15px;
-        padding: 13px;
-    }
-}
-
-@media (max-width: 360px) {
-    body { padding: 12px 8px; }
-    h1 { font-size: 1.2em; }
+    h1 { font-size: 18px; }
+    #pedidosList li { font-size: 14px; padding: 13px 14px; }
 }
