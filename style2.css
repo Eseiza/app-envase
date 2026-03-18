@@ -10,7 +10,6 @@
     --texto:        #2a1a0a;
     --texto-suave:  #6b4c2a;
     --border:       #e8dcc8;
-    --shadow:       0 8px 40px rgba(42,26,10,0.10);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,7 +26,6 @@ body {
     color: var(--texto);
 }
 
-/* ─── CONTAINER ───────────────────────────────────────── */
 .container {
     max-width: 860px;
     margin: 0 auto;
@@ -44,7 +42,6 @@ body {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── HEADER ──────────────────────────────────────────── */
 .app-header {
     background: var(--gris-claro);
     border-bottom: 1px solid var(--border);
@@ -54,7 +51,12 @@ body {
     justify-content: space-between;
 }
 
-.header-icon { height: 42px; object-fit: contain; }
+/* ─── LOGO OSCURO ─────────────────────────────────────── */
+.header-icon {
+    height: 42px;
+    object-fit: contain;
+    filter: brightness(0) saturate(100%) invert(12%) sepia(40%) saturate(800%) hue-rotate(10deg) brightness(60%);
+}
 
 h1 {
     font-family: 'Lora', serif;
@@ -75,12 +77,7 @@ h2 {
     gap: 10px;
 }
 
-h2::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-}
+h2::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
 h3 {
     font-size: 13px;
@@ -93,7 +90,6 @@ h3 {
 
 hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
 
-/* ─── SUPERVISOR BADGE ────────────────────────────────── */
 .supervisor-badge {
     display: flex;
     align-items: center;
@@ -111,12 +107,8 @@ hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
 
 .supervisor-icon { font-size: 18px; }
 
-/* ─── SECCIONES ───────────────────────────────────────── */
-section {
-    padding: 20px 28px;
-}
+section { padding: 20px 28px; }
 
-/* ─── FORM AGREGAR TAREA ──────────────────────────────── */
 .add-task-form {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -171,16 +163,7 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(200,150,12,0.15);
 }
 
-/* ─── BOTONES ─────────────────────────────────────────── */
-button {
-    cursor: pointer;
-    font-family: 'Nunito', sans-serif;
-    font-weight: 700;
-    border: none;
-    border-radius: 8px;
-    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-}
-
+button { cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 700; border: none; border-radius: 8px; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; }
 button:active { transform: translateY(0) !important; }
 
 #add-task-btn {
@@ -188,14 +171,9 @@ button:active { transform: translateY(0) !important; }
     background: var(--rojo);
     color: #fff;
     font-size: 14px;
-    letter-spacing: 0.3px;
 }
 
-#add-task-btn:hover {
-    background: var(--bordo);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(122,26,10,0.3);
-}
+#add-task-btn:hover { background: var(--bordo); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(122,26,10,0.3); }
 
 .btn-reporte {
     display: block;
@@ -213,20 +191,9 @@ button:active { transform: translateY(0) !important; }
     letter-spacing: 0.3px;
 }
 
-.btn-reporte:hover {
-    background: var(--rojo);
-    color: var(--crema);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(177,48,9,0.3);
-}
+.btn-reporte:hover { background: var(--rojo); color: var(--crema); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(177,48,9,0.3); }
 
-/* ─── LISTA DE TAREAS ─────────────────────────────────── */
-.task-list-container {
-    background: var(--gris-claro);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px;
-}
+.task-list-container { background: var(--gris-claro); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
 
 ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 
@@ -246,39 +213,11 @@ li {
 
 li:hover { border-color: var(--dorado); }
 
-li button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    padding: 4px;
-    border-radius: 4px;
-    transition: background 0.15s;
-}
-
+li button { background: transparent; border: none; cursor: pointer; font-size: 14px; padding: 4px; border-radius: 4px; transition: background 0.15s; }
 li button:hover { background: #ffe0e0; }
 
-/* ─── GRÁFICO ─────────────────────────────────────────── */
-#graficoStock {
-    max-height: 280px;
-    margin-top: 16px;
-}
+#graficoStock { max-height: 280px; margin-top: 16px; }
 
-/* ─── CERRAR SESIÓN ───────────────────────────────────── */
-.btn-cerrar {
-    padding: 8px 18px;
-    background: transparent;
-    color: var(--texto-suave);
-    border: 1px solid var(--border) !important;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
-
-.btn-cerrar:hover { background: var(--gris-claro); }
-
-/* ─── RESPONSIVE ──────────────────────────────────────── */
 @media (max-width: 600px) {
     h1 { font-size: 18px; padding: 16px 18px 0; }
     section { padding: 16px 18px; }
