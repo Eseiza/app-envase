@@ -1,351 +1,288 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;1,400&family=Nunito:wght@400;600;700&display=swap');
 
-/*
-======================================
-  VARIABLES DE MARCA - ROMERO
-======================================
-*/
 :root {
-    --dorado: #c8960c;
+    --dorado:       #c8960c;
     --dorado-claro: #e8b84b;
-    --bordo: #7a1a0a;
-    --rojo: #b13009;
-    --crema: #fdf6ec;
-    --gris-claro: #f5f0e8;
-    --texto: #2a1a0a;
-    --texto-suave: #6b4c2a;
+    --bordo:        #7a1a0a;
+    --rojo:         #b13009;
+    --crema:        #fdf6ec;
+    --gris-claro:   #f5f0e8;
+    --texto:        #2a1a0a;
+    --texto-suave:  #6b4c2a;
+    --border:       #e8dcc8;
+    --shadow:       0 8px 40px rgba(42,26,10,0.10);
 }
 
-/*
-======================================
-  BASE
-======================================
-*/
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-    font-family: 'Lato', Arial, sans-serif;
-    background-color: var(--crema);
-    margin: 0;
-    padding: 20px 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    font-family: 'Nunito', sans-serif;
     min-height: 100vh;
-}
-
-.container {
-    background-color: #ffffff;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 6px 20px rgba(122, 26, 10, 0.12);
-    width: 95%;
-    max-width: 1000px;
-    box-sizing: border-box;
-    border-top: 4px solid var(--dorado);
-}
-
-/*
-======================================
-  HEADER
-======================================
-*/
-.app-header {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.header-icon {
-    width: 220px;
-    height: auto;
-    display: block;
-    margin: 0 auto 10px;
-    filter: invert(100%);
-}
-
-/*
-======================================
-  TIPOGRAFÍA
-======================================
-*/
-h1 {
+    background: #2a1a0a;
+    background-image: repeating-linear-gradient(
+        -45deg, transparent, transparent 60px,
+        rgba(200,150,12,0.025) 60px, rgba(200,150,12,0.025) 61px
+    );
+    padding: 24px 16px;
     color: var(--texto);
-    text-align: center;
-    border-bottom: 3px solid var(--rojo);
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-    font-size: 2em;
-    letter-spacing: 1px;
+}
+
+/* ─── CONTAINER ───────────────────────────────────────── */
+.container {
+    max-width: 860px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.98);
+    border-radius: 20px;
+    border-top: 4px solid var(--dorado);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    overflow: hidden;
+    animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── HEADER ──────────────────────────────────────────── */
+.app-header {
+    background: var(--gris-claro);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-icon { height: 42px; object-fit: contain; }
+
+h1 {
+    font-family: 'Lora', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--texto);
+    padding: 20px 28px 0;
 }
 
 h2 {
-    color: var(--texto);
-    margin-top: 25px;
-    margin-bottom: 20px;
-    font-size: 1.5em;
-    border-left: 5px solid var(--dorado);
-    padding-left: 10px;
+    font-family: 'Lora', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--texto-suave);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+h2::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
 }
 
 h3 {
+    font-size: 13px;
+    font-weight: 700;
     color: var(--texto-suave);
-    margin-top: 15px;
-    font-size: 1.2em;
-    border-bottom: 1px dashed var(--dorado-claro);
-    padding-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
 }
 
-hr {
-    border: 0;
-    height: 1px;
-    background-image: linear-gradient(to right, rgba(0,0,0,0), var(--dorado-claro), rgba(0,0,0,0));
-    margin: 30px 0;
-}
+hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
 
-/*
-======================================
-  BADGE SUPERVISOR
-======================================
-*/
+/* ─── SUPERVISOR BADGE ────────────────────────────────── */
 .supervisor-badge {
     display: flex;
     align-items: center;
     gap: 10px;
-    background-color: var(--gris-claro);
-    border: 1px solid var(--dorado-claro);
-    border-left: 5px solid var(--dorado);
-    border-radius: 4px;
+    background: var(--gris-claro);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--dorado);
+    border-radius: 8px;
     padding: 10px 16px;
-    margin-bottom: 25px;
-    font-size: 15px;
+    margin: 16px 28px;
+    font-size: 14px;
+    font-weight: 600;
     color: var(--texto-suave);
 }
 
-.supervisor-badge strong {
-    color: var(--bordo);
-    font-size: 15px;
+.supervisor-icon { font-size: 18px; }
+
+/* ─── SECCIONES ───────────────────────────────────────── */
+section {
+    padding: 20px 28px;
 }
 
-.supervisor-icon {
-    font-size: 18px;
-}
-
-/*
-======================================
-  FORMULARIO
-======================================
-*/
+/* ─── FORM AGREGAR TAREA ──────────────────────────────── */
 .add-task-form {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 10px;
+    background: var(--gris-claro);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
     margin-bottom: 20px;
-    align-items: stretch;
-    padding: 15px;
-    background-color: var(--gris-claro);
-    border-radius: 5px;
-    border: 1px solid var(--dorado-claro);
-    flex-wrap: wrap;
 }
 
-.add-task-form select,
-.add-task-form input[type="number"] {
-    padding: 10px;
-    border: 1px solid var(--dorado-claro);
-    border-radius: 4px;
-    font-size: 15px;
-    flex-grow: 1;
-    min-width: 120px;
-    background-color: #fff;
+input[type="number"],
+input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e0d0b0;
+    border-radius: 8px;
+    background: #fff;
     color: var(--texto);
-    box-sizing: border-box;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.add-task-form select:focus,
-.add-task-form input:focus {
+input:focus {
     outline: none;
     border-color: var(--dorado);
-    box-shadow: 0 0 0 2px rgba(200, 150, 12, 0.2);
+    box-shadow: 0 0 0 3px rgba(200,150,12,0.15);
 }
 
-.add-task-form select:disabled {
-    background-color: #ede8df;
-    color: #bbb;
-    cursor: not-allowed;
-    border-color: #ddd;
-}
-
-.add-task-form button {
-    padding: 10px 18px;
-    background-color: var(--dorado);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: bold;
-    transition: background-color 0.3s;
-    flex-shrink: 0;
-}
-
-.add-task-form button:hover {
-    background-color: var(--dorado-claro);
-}
-
-/*
-======================================
-  LISTAS
-======================================
-*/
-.task-list-container {
-    padding: 10px 0;
-}
-
-#taskList,
-#sobrantesList {
-    list-style: none;
-    padding: 0;
-}
-
-#taskList li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    border: 1px solid #e8dcc8;
-    background-color: #fff;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    border-left: 4px solid var(--dorado);
-    word-break: break-word;
-    color: var(--texto);
-}
-
-#sobrantesList li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    background-color: #fff8ee;
-    border: 1px solid var(--dorado-claro);
-    border-left: 5px solid var(--rojo);
-    margin-bottom: 8px;
-    border-radius: 4px;
-    color: var(--texto);
-}
-
-.tarea-completada {
-    background-color: #d4edda !important;
-    border-left: 5px solid #28a745 !important;
-    opacity: 0.85;
-}
-
-/*
-======================================
-  BOTÓN REPORTE
-======================================
-*/
-.btn-reporte {
+select {
     width: 100%;
-    padding: 12px;
-    background-color: var(--rojo);
-    color: white;
-    border: none;
-    border-radius: 4px;
+    padding: 10px 14px;
+    border: 1.5px solid #e0d0b0;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--texto);
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23c8960c' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 20px;
-    transition: background-color 0.3s;
-    letter-spacing: 0.5px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--dorado);
+    box-shadow: 0 0 0 3px rgba(200,150,12,0.15);
+}
+
+/* ─── BOTONES ─────────────────────────────────────────── */
+button {
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+button:active { transform: translateY(0) !important; }
+
+#add-task-btn {
+    padding: 10px 20px;
+    background: var(--rojo);
+    color: #fff;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+}
+
+#add-task-btn:hover {
+    background: var(--bordo);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(122,26,10,0.3);
+}
+
+.btn-reporte {
+    display: block;
+    width: calc(100% - 56px);
+    margin: 0 28px 28px;
+    padding: 14px;
+    background: var(--crema);
+    color: var(--rojo);
+    border: 2px solid var(--rojo);
+    border-radius: 10px;
+    font-family: 'Lora', serif;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 0.3px;
 }
 
 .btn-reporte:hover {
-    background-color: var(--bordo);
+    background: var(--rojo);
+    color: var(--crema);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(177,48,9,0.3);
 }
 
-/*
-======================================
-  RESPONSIVE - MÓVIL (hasta 599px)
-======================================
-*/
-@media (max-width: 599px) {
-    .container { padding: 15px; width: 100%; }
-    .header-icon { width: 100px; }
-    .add-task-form { flex-direction: column; gap: 15px; }
-    .add-task-form select,
-    .add-task-form input[type="number"],
-    .add-task-form button { width: 100%; flex-grow: 0; flex-shrink: 0; }
-    #taskList li, #sobrantesList li { flex-direction: column; align-items: flex-start; padding: 10px; }
-    .supervisor-badge { font-size: 13px; }
+/* ─── LISTA DE TAREAS ─────────────────────────────────── */
+.task-list-container {
+    background: var(--gris-claro);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
 }
 
-/*
-======================================
-  RESPONSIVE - TABLETA (600px+)
-======================================
-*/
-@media (min-width: 600px) {
-    .container { padding: 30px; width: 80%; }
-    .header-icon { width: 160px; }
+ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+
+li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--texto);
+    gap: 10px;
+    transition: border-color 0.2s;
 }
 
-/*
-======================================
-  RESPONSIVE - ESCRITORIO (1000px+)
-======================================
-*/
-@media (min-width: 1000px) {
-    .container { padding: 40px; width: 100%; max-width: 1000px; }
-    .header-icon { width: 220px; }
+li:hover { border-color: var(--dorado); }
+
+li button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.15s;
 }
 
-/*
-======================================
-  RESPONSIVE MEJORADO - MÓVIL
-======================================
-*/
-@media (max-width: 480px) {
-    .container { padding: 14px; }
-    .header-icon { width: 80px; }
+li button:hover { background: #ffe0e0; }
 
-    h1 { font-size: 1.4em; padding-bottom: 10px; }
-    h2 { font-size: 1.2em; }
-
-    .supervisor-badge { font-size: 12px; padding: 8px 12px; }
-
-    .add-task-form {
-        flex-direction: column;
-        gap: 10px;
-        padding: 12px;
-    }
-
-    .add-task-form select,
-    .add-task-form input[type="number"] {
-        font-size: 16px;
-        padding: 12px;
-        min-width: 0;
-        width: 100%;
-    }
-
-    .add-task-form button {
-        width: 100%;
-        padding: 13px;
-        font-size: 16px;
-    }
-
-    #taskList li, #sobrantesList li {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-        padding: 10px;
-    }
-
-    .btn-reporte {
-        font-size: 15px;
-        padding: 13px;
-    }
+/* ─── GRÁFICO ─────────────────────────────────────────── */
+#graficoStock {
+    max-height: 280px;
+    margin-top: 16px;
 }
 
-@media (max-width: 360px) {
-    .container { padding: 10px; }
-    h1 { font-size: 1.2em; }
+/* ─── CERRAR SESIÓN ───────────────────────────────────── */
+.btn-cerrar {
+    padding: 8px 18px;
+    background: transparent;
+    color: var(--texto-suave);
+    border: 1px solid var(--border) !important;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.btn-cerrar:hover { background: var(--gris-claro); }
+
+/* ─── RESPONSIVE ──────────────────────────────────────── */
+@media (max-width: 600px) {
+    h1 { font-size: 18px; padding: 16px 18px 0; }
+    section { padding: 16px 18px; }
+    .add-task-form { grid-template-columns: 1fr 1fr; }
+    .supervisor-badge { margin: 12px 18px; }
+    .btn-reporte { width: calc(100% - 36px); margin: 0 18px 20px; }
 }
