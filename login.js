@@ -28,20 +28,20 @@ function getTurnoActual() {
 // ─── USUARIOS ─────────────────────────────────────────
 const USUARIOS = [
     { usuario: "admin",      contrasena: "admin.2026",      rol: "admin",      redirige: "./admin.html"   },
-    { usuario: "supervisor", contrasena: "supervisor.2026", rol: "supervisor", redirige: "./admin.html"   },
+    { usuario: "calidad",    contrasena: "calidad.2026",    rol: "calidad",    redirige: "./reporte.html" },
     { usuario: "operario",   contrasena: "operario.2026",   rol: "operario",   redirige: "./lista.html"   },
-    { usuario: "ventas",     contrasena: "ventas.2026",     rol: "ventas",     redirige: "./reporte.html" },
     { usuario: "romero",     contrasena: "romero.2026",     rol: "romero",     redirige: "./reporte.html" },
-    { usuario: "calidad",    contrasena: "calidad.2026",    rol: "calidad",    redirige: "./reporte.html" }
+    { usuario: "supervisor", contrasena: "supervisor.2026", rol: "supervisor", redirige: "./admin.html"   },
+    { usuario: "ventas",     contrasena: "ventas.2026",     rol: "ventas",     redirige: "./reporte.html" }
 ];
 
 const ROLES = [
     { value: "admin",      label: "Admin",      icon: "🔑" },
-    { value: "supervisor", label: "Supervisor", icon: "⭐" },
+    { value: "calidad",    label: "Calidad",    icon: "🔬" },
     { value: "operario",   label: "Operario",   icon: "⚙️" },
-    { value: "ventas",     label: "Ventas",     icon: "📊" },
     { value: "romero",     label: "Romero",     icon: "👁️" },
-    { value: "calidad",    label: "Calidad",    icon: "🔬" }
+    { value: "supervisor", label: "Supervisor", icon: "⭐" },
+    { value: "ventas",     label: "Ventas",     icon: "📊" }
 ];
 
 let rolSeleccionado = null;
