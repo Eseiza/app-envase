@@ -52,10 +52,10 @@ body {
     justify-content: space-between;
 }
 
+/* ─── LOGO CON COLORES REALES ─────────────────────────────────────── */
 .header-icon {
     height: 42px;
     object-fit: contain;
-    filter: brightness(0) saturate(100%) invert(12%) sepia(40%) saturate(800%) hue-rotate(10deg) brightness(60%);
 }
 
 .boton-volver {
