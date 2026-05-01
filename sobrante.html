@@ -11,13 +11,11 @@
         <header class="app-header">
             <img src="https://www.romeropanificados.com.ar/wp-content/uploads/2023/01/Recurso-9.png"
                  alt="Romero Panificados" class="header-icon">
+            <a href="lista.html" class="boton-volver">← Volver a Lista</a>
         </header>
-
         <h1>Control de Producción</h1>
-
         <section id="ingrese-los-restantes">
             <h2>Ingresar Producción</h2>
-
             <div class="form-grid">
                 <div class="form-group">
                     <label>Marca</label>
@@ -27,58 +25,46 @@
                         <option value="roxy">The Roxy</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label>Línea</label>
                     <select id="sel-linea" disabled onchange="actualizarProducto()">
                         <option value="" disabled selected>-- Línea --</option>
                     </select>
                 </div>
-
                 <div class="form-group full">
                     <label>Producto</label>
                     <select id="sel-producto" disabled onchange="actualizarInfo()">
                         <option value="" disabled selected>-- Producto --</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label>Filas completas</label>
                     <input type="number" id="inp-filas" min="0" placeholder="Cant. de filas" oninput="calcularTotal()" disabled>
                 </div>
-
                 <div class="form-group">
                     <label>Bandejas sueltas</label>
                     <input type="number" id="inp-bandejas" min="0" max="13" placeholder="Bandejas sin completar fila" oninput="calcularTotal()" disabled>
                 </div>
-
                 <div class="form-group full">
                     <label>Paquetes sueltos</label>
                     <input type="number" id="inp-incompletos" min="0" placeholder="Paq. de bandeja incompleta" oninput="calcularTotal()" disabled>
                 </div>
             </div>
-
-            <!-- Info bandeja -->
             <div class="bandeja-info" id="bandeja-info">
                 🍞 <span id="bandeja-texto"></span>
             </div>
-
-            <!-- Total calculado -->
             <div class="total-box" id="total-box">
                 <span class="total-label">Total de paquetes</span>
                 <span class="total-numero" id="total-numero">0</span>
                 <span class="total-detalle" id="total-detalle"></span>
             </div>
-
             <button id="guardar-sobrante-btn" disabled>Guardar</button>
         </section>
-
         <div id="lista-sobrantes-admin" class="task-list-container">
             <h2>Producción Registrada</h2>
             <ul id="taskList"></ul>
         </div>
     </div>
-
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="sobrante.js"></script>
