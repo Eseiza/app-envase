@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;1,400&family=Nunito:wght@400;600;700&display=swap');
-
 :root {
     --dorado:       #c8960c;
     --dorado-claro: #e8b84b;
@@ -11,9 +10,7 @@
     --texto-suave:  #6b4c2a;
     --border:       #e8dcc8;
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
 body {
     font-family: 'Nunito', sans-serif;
     min-height: 100vh;
@@ -28,21 +25,18 @@ body {
     flex-direction: column;
     align-items: center;
 }
-
-/* ─── LOGO OSCURO ─────────────────────────────────────── */
+/* ─── LOGO EN DORADO ─────────────────────────────────────── */
 .header-icon {
     height: 52px;
     object-fit: contain;
     margin-bottom: 20px;
     animation: fadeIn 0.6s ease both;
-    filter: brightness(0) saturate(100%) invert(12%) sepia(40%) saturate(800%) hue-rotate(10deg) brightness(60%);
+    filter: brightness(0) saturate(100%) invert(58%) sepia(72%) saturate(600%) hue-rotate(10deg) brightness(98%);
 }
-
 @keyframes fadeIn {
     from { opacity: 0; transform: scale(0.95); }
     to   { opacity: 1; transform: scale(1); }
 }
-
 h1 {
     font-family: 'Lora', serif;
     font-size: 22px;
@@ -51,7 +45,6 @@ h1 {
     margin-bottom: 24px;
     text-align: center;
 }
-
 #pedidosList {
     list-style: none;
     width: 100%;
@@ -62,12 +55,10 @@ h1 {
     margin-bottom: 28px;
     animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
 }
-
 @keyframes slideUp {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
 }
-
 #pedidosList li {
     display: flex;
     align-items: center;
@@ -80,12 +71,9 @@ h1 {
     color: var(--texto);
     transition: border-color 0.2s, box-shadow 0.2s;
 }
-
 #pedidosList li:hover { border-color: var(--dorado); box-shadow: 0 4px 16px rgba(200,150,12,0.15); }
-
 #pedidosList li.completado { background: #f0faf0; border-color: #a8d8a0; opacity: 0.75; }
 #pedidosList li.completado span { text-decoration: line-through; color: var(--texto-suave); }
-
 #pedidosList li.vacio {
     justify-content: center;
     color: var(--texto-suave);
@@ -94,9 +82,7 @@ h1 {
     background: rgba(255,255,255,0.6);
     border-style: dashed;
 }
-
 input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--rojo); cursor: pointer; flex-shrink: 0; }
-
 .boton-navegacion {
     display: inline-block;
     padding: 13px 28px;
@@ -111,9 +97,7 @@ input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--rojo); c
     letter-spacing: 0.3px;
     transition: background 0.2s, color 0.2s, transform 0.15s, box-shadow 0.2s;
 }
-
 .boton-navegacion:hover { background: var(--rojo); color: var(--crema); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(177,48,9,0.3); }
-
 @media (max-width: 480px) {
     h1 { font-size: 18px; }
     #pedidosList li { font-size: 14px; padding: 13px 14px; }
