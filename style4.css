@@ -42,13 +42,43 @@ body {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-.app-header { background: var(--gris-claro); border-bottom: 1px solid var(--border); padding: 18px 28px; }
+/* ─── HEADER CON LOGO + BOTÓN ────────────────────────────── */
+.app-header {
+    background: var(--gris-claro);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
-/* ─── LOGO OSCURO ─────────────────────────────────────── */
 .header-icon {
     height: 42px;
     object-fit: contain;
     filter: brightness(0) saturate(100%) invert(12%) sepia(40%) saturate(800%) hue-rotate(10deg) brightness(60%);
+}
+
+.boton-volver {
+    display: inline-block;
+    padding: 9px 20px;
+    background: var(--crema);
+    color: var(--rojo);
+    border: 2px solid var(--rojo);
+    border-radius: 10px;
+    font-family: 'Lora', serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: background 0.2s, color 0.2s, transform 0.15s, box-shadow 0.2s;
+    white-space: nowrap;
+}
+
+.boton-volver:hover {
+    background: var(--rojo);
+    color: var(--crema);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(177,48,9,0.3);
 }
 
 h1 { font-family: 'Lora', serif; font-size: 22px; font-weight: 600; color: var(--texto); padding: 20px 28px 0; }
@@ -200,4 +230,6 @@ li.vacio { justify-content: center; color: var(--texto-suave); font-style: itali
     h1 { font-size: 18px; padding: 16px 18px 0; }
     section, .task-list-container { padding: 16px 18px; }
     .form-grid { grid-template-columns: 1fr 1fr; }
+    .app-header { padding: 14px 18px; }
+    .boton-volver { font-size: 13px; padding: 8px 14px; }
 }
