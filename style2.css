@@ -51,7 +51,6 @@ body {
     justify-content: space-between;
 }
 
-/* ─── LOGO OSCURO ─────────────────────────────────────── */
 .header-icon {
     height: 42px;
     object-fit: contain;
@@ -118,6 +117,7 @@ section { padding: 20px 28px; }
     border-radius: 12px;
     padding: 18px;
     margin-bottom: 20px;
+    align-items: center;
 }
 
 input[type="number"],
@@ -163,7 +163,58 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(200,150,12,0.15);
 }
 
-button { cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 700; border: none; border-radius: 8px; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; }
+/* ─── CHECKBOX VUELTA COMPLETA ─────────────────────────── */
+.label-completa {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--texto-suave);
+    cursor: pointer;
+    background: #fff;
+    border: 1.5px solid #e0d0b0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: border-color 0.2s, background 0.2s;
+    white-space: nowrap;
+}
+
+.label-completa:hover {
+    border-color: var(--dorado);
+    background: var(--crema);
+}
+
+.label-completa input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--dorado);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Badge en la lista de tareas */
+.badge-completa {
+    display: inline-block;
+    background: #eaf7ee;
+    color: #2d7a45;
+    border: 1px solid #a8ddb8;
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+}
+
+/* ─── BOTONES ──────────────────────────────────────────── */
+button {
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
 button:active { transform: translateY(0) !important; }
 
 #add-task-btn {
@@ -173,7 +224,11 @@ button:active { transform: translateY(0) !important; }
     font-size: 14px;
 }
 
-#add-task-btn:hover { background: var(--bordo); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(122,26,10,0.3); }
+#add-task-btn:hover {
+    background: var(--bordo);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(122,26,10,0.3);
+}
 
 .btn-reporte {
     display: block;
@@ -191,9 +246,20 @@ button:active { transform: translateY(0) !important; }
     letter-spacing: 0.3px;
 }
 
-.btn-reporte:hover { background: var(--rojo); color: var(--crema); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(177,48,9,0.3); }
+.btn-reporte:hover {
+    background: var(--rojo);
+    color: var(--crema);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(177,48,9,0.3);
+}
 
-.task-list-container { background: var(--gris-claro); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+/* ─── LISTAS ───────────────────────────────────────────── */
+.task-list-container {
+    background: var(--gris-claro);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+}
 
 ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 
@@ -213,11 +279,20 @@ li {
 
 li:hover { border-color: var(--dorado); }
 
-li button { background: transparent; border: none; cursor: pointer; font-size: 14px; padding: 4px; border-radius: 4px; transition: background 0.15s; }
+li button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.15s;
+}
 li button:hover { background: #ffe0e0; }
 
 #graficoStock { max-height: 280px; margin-top: 16px; }
 
+/* ─── RESPONSIVE ───────────────────────────────────────── */
 @media (max-width: 600px) {
     h1 { font-size: 18px; padding: 16px 18px 0; }
     section { padding: 16px 18px; }
