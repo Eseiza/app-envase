@@ -14,6 +14,7 @@ const firebaseConfig = {
 
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const db = firebase.database();
+
 const getFechaHoy = () => {
     const hoy = new Date();
     return `${hoy.getDate()}-${hoy.getMonth() + 1}-${hoy.getFullYear()}`;
@@ -21,7 +22,7 @@ const getFechaHoy = () => {
 
 let miGrafico;
 
-// ✅ NUEVO: Mostrar el supervisor de turno
+// Mostrar el supervisor de turno
 const supervisor = sessionStorage.getItem('supervisor');
 const supervisorEl = document.getElementById('supervisor-nombre');
 if (supervisor && supervisorEl) {
@@ -30,7 +31,9 @@ if (supervisor && supervisorEl) {
     supervisorEl.textContent = 'No asignado';
 }
 
-// PRODUCTOS POR CATEGORÍA
+// ======================================
+//  PRODUCTOS
+// ======================================
 const productosPorCategoria = {
     bolleria: ["Pancho", "Super", "Hamburguesa", "Max"],
     pan: ["Lactal Familiar", "Lactal Chico", "Salvado Familiar", "Salvado Chico", "Integral", "Multicereal"]
@@ -46,12 +49,28 @@ const categoriaLabels = {
     pan: "Pan"
 };
 
-const selectMarca = document.getElementById('task-marca');
+const selectMarca    = document.getElementById('task-marca');
 const selectCategoria = document.getElementById('task-categoria');
-const selectProducto = document.getElementById('task-category');
+const selectProducto  = document.getElementById('task-category');
+const checkCompleta   = document.getElementById('vueltaCompleta');
+const inputBandejas   = document.getElementById('taskTitle');
 
-// MARCA → LÍNEA
-selectMarca.addEventListener('change', function() {
+// ======================================
+//  CHECKBOX VUELTA COMPLETA
+// ======================================
+checkCompleta.addEventListener('change', function () {
+    if (this.checked) {
+        inputBandejas.style.display = 'none';
+        inputBandejas.value = '';
+    } else {
+        inputBandejas.style.display = '';
+    }
+});
+
+// ======================================
+//  MARCA → LÍNEA
+// ======================================
+selectMarca.addEventListener('change', function () {
     const categorias = categoriasPorMarca[this.value] || [];
 
     selectCategoria.innerHTML = '<option value="" disabled selected>-- Línea --</option>';
@@ -63,13 +82,14 @@ selectMarca.addEventListener('change', function() {
     });
     selectCategoria.disabled = false;
 
-    // Resetear producto
     selectProducto.innerHTML = '<option value="" disabled selected>-- Producto --</option>';
     selectProducto.disabled = true;
 });
 
-// CATEGORÍA → PRODUCTO
-selectCategoria.addEventListener('change', function() {
+// ======================================
+//  CATEGORÍA → PRODUCTO
+// ======================================
+selectCategoria.addEventListener('change', function () {
     const productos = productosPorCategoria[this.value] || [];
 
     selectProducto.innerHTML = '<option value="" disabled selected>-- Selecciona un Producto --</option>';
@@ -82,51 +102,74 @@ selectCategoria.addEventListener('change', function() {
     selectProducto.disabled = false;
 });
 
-// AGREGAR ORDEN
-document.getElementById('add-task-btn').onclick = function() {
-    const marca = selectMarca.options[selectMarca.selectedIndex].text;
+// ======================================
+//  AGREGAR ORDEN
+// ======================================
+document.getElementById('add-task-btn').onclick = function () {
+    const marca     = selectMarca.options[selectMarca.selectedIndex].text;
     const categoria = selectCategoria.options[selectCategoria.selectedIndex].text;
-    const producto = selectProducto.options[selectProducto.selectedIndex].text;
-    const cantidad = document.getElementById('taskTitle').value;
-    const vuelta = document.getElementById('taskVuelta').value;
+    const producto  = selectProducto.options[selectProducto.selectedIndex].text;
+    const vuelta    = document.getElementById('taskVuelta').value;
+    const completa  = checkCompleta.checked;
+    const cantidad  = inputBandejas.value;
 
-    if (!vuelta || selectMarca.value === "" || selectCategoria.value === "" || selectProducto.value === "" || !cantidad) {
+    if (!vuelta || selectMarca.value === "" || selectCategoria.value === "" || selectProducto.value === "") {
         return alert("Faltan datos de la orden");
+    }
+    if (!completa && !cantidad) {
+        return alert("Ingresá la cantidad de bandejas o marcá 'Vuelta completa'");
     }
 
     db.ref(`historial/${getFechaHoy()}/tareas`).push({
-        marca, categoria, producto, cantidad, vuelta, completado: false
+        marca,
+        categoria,
+        producto,
+        cantidad:       completa ? '—' : cantidad,
+        vueltaCompleta: completa,
+        vuelta,
+        completado: false
     });
 
     // Reset form
-    document.getElementById('taskTitle').value = "";
-    document.getElementById('taskVuelta').value = "";
-    selectMarca.value = "";
-    selectCategoria.innerHTML = '<option value="" disabled selected>-- Línea --</option>';
-    selectCategoria.disabled = true;
-    selectProducto.innerHTML = '<option value="" disabled selected>-- Producto --</option>';
-    selectProducto.disabled = true;
+    inputBandejas.value          = '';
+    inputBandejas.style.display  = '';
+    document.getElementById('taskVuelta').value = '';
+    checkCompleta.checked        = false;
+    selectMarca.value            = '';
+    selectCategoria.innerHTML    = '<option value="" disabled selected>-- Línea --</option>';
+    selectCategoria.disabled     = true;
+    selectProducto.innerHTML     = '<option value="" disabled selected>-- Producto --</option>';
+    selectProducto.disabled      = true;
 };
 
-// ACTUALIZACIÓN EN TIEMPO REAL
+// ======================================
+//  ACTUALIZACIÓN EN TIEMPO REAL
+// ======================================
 db.ref(`historial/${getFechaHoy()}`).on('value', (snapshot) => {
     const data = snapshot.val() || { tareas: {}, sobrantes: {} };
-    
-    // Lista de Pedidos
+
+    // Lista de Tareas
     const listaT = document.getElementById('taskList');
     listaT.innerHTML = "";
     if (data.tareas) {
         Object.keys(data.tareas).forEach(id => {
             const t = data.tareas[id];
-            listaT.innerHTML += `<li>${t.vuelta}º Vuelta — [${t.marca}] ${t.producto}: ${t.cantidad} bandejas ${t.completado ? '✅' : '⏳'} 
-                                 <button class="no-print" onclick="borrarTarea('${id}')">❌</button></li>`;
+            const cantidadTexto = t.vueltaCompleta
+                ? '<em class="badge-completa">✔ Vuelta completa</em>'
+                : `${t.cantidad} bandejas`;
+
+            listaT.innerHTML += `
+                <li>
+                    <span>${t.vuelta}º Vuelta — [${t.marca}] ${t.producto}: ${cantidadTexto} ${t.completado ? '✅' : '⏳'}</span>
+                    <button class="no-print" onclick="borrarTarea('${id}')">❌</button>
+                </li>`;
         });
     }
 
-    // Reporte de Stock y Gráfico
+    // Control de Producción
     const listaS = document.getElementById('sobrantesList');
     listaS.innerHTML = "";
-    const labels = [];
+    const labels  = [];
     const valores = [];
 
     if (data.sobrantes) {
@@ -134,19 +177,26 @@ db.ref(`historial/${getFechaHoy()}`).on('value', (snapshot) => {
             const total = s.total || 0;
             labels.push(s.producto);
             valores.push(total);
-            listaS.innerHTML += `<li><strong>${s.producto}</strong>: <b>${total.toLocaleString()} paq.</b> — ${s.marca || ''} ${s.linea || ''} — a las ${s.hora || '?'}</li>`;
+            listaS.innerHTML += `
+                <li>
+                    <strong>${s.producto}</strong>: <b>${total.toLocaleString()} paq.</b>
+                    — ${s.marca || ''} ${s.linea || ''} — a las ${s.hora || '?'}
+                </li>`;
         });
         dibujarGrafico(labels, valores);
     }
 });
 
+// ======================================
+//  GRÁFICO
+// ======================================
 function dibujarGrafico(labels, valores) {
     const ctx = document.getElementById('graficoStock').getContext('2d');
     if (miGrafico) miGrafico.destroy();
     miGrafico = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels,
             datasets: [{
                 label: 'Unidades Producidas',
                 data: valores,
@@ -159,7 +209,6 @@ function dibujarGrafico(labels, valores) {
     });
 }
 
-window.borrarTarea = (id) => { if(confirm("¿Eliminar orden?")) db.ref(`historial/${getFechaHoy()}/tareas/${id}`).remove(); };
-window.cerrarSesion = () => { sessionStorage.clear(); window.location.href="index.html"; };
+window.borrarTarea  = (id) => { if (confirm("¿Eliminar orden?")) db.ref(`historial/${getFechaHoy()}/tareas/${id}`).remove(); };
+window.cerrarSesion = () => { sessionStorage.clear(); window.location.href = "index.html"; };
 window.descargarReporte = () => { window.print(); };
-            
