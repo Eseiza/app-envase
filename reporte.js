@@ -38,19 +38,31 @@ function getFechaParaTurno(turno) {
 }
 
 // ======================================
-//  INIT
+//  VARIABLES GLOBALES
+//  (declaradas aquí arriba para evitar
+//   el ReferenceError antes de init)
 // ======================================
 let chartInstance = null;
+let calMes, calAnio, fechaSeleccionada = null;
 
-const hoy = (() => { const h = new Date(); return `${h.getDate()}-${h.getMonth() + 1}-${h.getFullYear()}`; })();
+const CAL_MES_INICIO  = 2;    // Marzo (0-indexado)
+const CAL_ANIO_INICIO = 2026;
+
+// ======================================
+//  INIT
+// ======================================
+const hoy = (() => {
+    const h = new Date();
+    return `${h.getDate()}-${h.getMonth() + 1}-${h.getFullYear()}`;
+})();
+
 document.getElementById('fechaReporte').innerText = "Fecha: " + hoy;
 
-// Función para cargar supervisor desde Firebase según fecha y turno
 function cargarSupervisorFirebase(fecha, turno) {
     db.ref(`historial/${fecha}/supervisores/${turno}`).once('value', snap => {
         const sup = snap.val();
-        // Si no hay en Firebase, intentar sessionStorage como fallback
-        document.getElementById('supervisorNombre').innerText = sup || sessionStorage.getItem('supervisor') || '—';
+        document.getElementById('supervisorNombre').innerText =
+            sup || sessionStorage.getItem('supervisor') || '—';
     });
 }
 
@@ -69,7 +81,7 @@ if (['admin', 'calidad', 'romero'].includes(rol)) {
     iniciarCalendario();
 }
 
-// Ocultar gráfico para supervisor, ventas y romero
+// Ocultar gráfico para supervisor y ventas
 if (rol === 'supervisor' || rol === 'ventas') {
     const chartSection = document.querySelector('.chart-section');
     if (chartSection) chartSection.style.display = 'none';
@@ -80,38 +92,33 @@ const btnImprimir = document.getElementById('btn-imprimir');
 const btnVolver   = document.getElementById('btn-volver');
 
 if (rol === 'admin') {
-    // Admin: imprimir + volver al panel
     btnImprimir.style.display = 'block';
     btnVolver.textContent = '← Volver al Panel';
     btnVolver.onclick = () => window.location.href = 'admin.html';
 
 } else if (rol === 'supervisor') {
-    // Supervisor: imprimir + volver al panel
     btnImprimir.style.display = 'block';
     btnVolver.textContent = '← Volver al Panel';
     btnVolver.onclick = () => window.location.href = 'admin.html';
 
 } else if (rol === 'ventas') {
-    // Ventas: SIN imprimir, solo cerrar sesión
     btnImprimir.style.display = 'none';
     btnVolver.textContent = '🚪 Cerrar Sesión';
     btnVolver.onclick = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
 
 } else if (rol === 'romero') {
-    // Romero: igual que Calidad, con gráfico + imprimir + cerrar sesión
     btnImprimir.style.display = 'block';
     btnVolver.textContent = '🚪 Cerrar Sesión';
     btnVolver.onclick = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
 
 } else if (rol === 'calidad') {
-    // Calidad: imprimir + cerrar sesión
     btnImprimir.style.display = 'block';
     btnVolver.textContent = '🚪 Cerrar Sesión';
     btnVolver.onclick = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
 }
 
 // ======================================
-//  CARGAR TURNO
+//  CARGAR TURNO (fecha de hoy)
 // ======================================
 function cargarTurno(turno) {
     document.querySelectorAll('.btn-turno').forEach(b => b.classList.remove('active'));
@@ -123,63 +130,92 @@ function cargarTurno(turno) {
     const fecha = getFechaParaTurno(turno);
     const { inicio, fin } = TURNOS[turno];
 
-    // Cargar supervisor del turno desde Firebase
     cargarSupervisorFirebase(fecha, turno);
 
     db.ref(`historial/${fecha}/sobrantes`).once('value', (snapshot) => {
-        const data = snapshot.val();
-        const tbody = document.getElementById('planillaBody');
-        const labels = [];
-        const valores = [];
-        let totalGeneral = 0;
-
-        tbody.innerHTML = '';
-
-        if (!data) {
-            tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay datos para este turno.</td></tr>';
-            document.getElementById('totalGeneral').innerText = '—';
-            renderGrafico([], []);
-            return;
-        }
-
-        // Filtrar por horario del turno
-        const registros = Object.values(data).filter(s => {
-            if (!s.hora) return false;
-            const h = parseInt(s.hora.split(':')[0], 10);
-            if (isNaN(h)) return false;
-            if (turno === 'noche') return h >= 22 || h < 5;
-            return h >= inicio && h < fin;
-        });
-
-        if (registros.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay registros en este turno.</td></tr>';
-            document.getElementById('totalGeneral').innerText = '—';
-            renderGrafico([], []);
-            return;
-        }
-
-        registros.forEach(s => {
-            const total = s.total || 0;
-            totalGeneral += total;
-            labels.push(s.producto);
-            valores.push(total);
-
-            tbody.innerHTML += `
-                <tr>
-                    <td>${s.marca || '—'}</td>
-                    <td>${s.linea || '—'}</td>
-                    <td><strong>${s.producto}</strong></td>
-                    <td>${s.filas ?? '—'}</td>
-                    <td>${s.bandejas ?? '—'}</td>
-                    <td>${s.incompletos ?? '—'}</td>
-                    <td class="total-celda">${total.toLocaleString()}</td>
-                    <td>${s.hora || '—'}</td>
-                </tr>`;
-        });
-
-        document.getElementById('totalGeneral').innerText = totalGeneral.toLocaleString();
-        renderGrafico(labels, valores, totalGeneral);
+        renderPlanilla(snapshot.val(), turno, inicio, fin);
     });
+}
+
+// ======================================
+//  CARGAR TURNO (fecha específica)
+// ======================================
+function cargarTurnoPorFecha(turno, fecha) {
+    document.querySelectorAll('.btn-turno').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(`btn-${turno}`);
+    if (btn) btn.classList.add('active');
+    document.getElementById('turnoLabel').innerText = TURNOS[turno].label;
+
+    const { inicio, fin } = TURNOS[turno];
+
+    cargarSupervisorFirebase(fecha, turno);
+
+    db.ref(`historial/${fecha}/sobrantes`).once('value', (snapshot) => {
+        renderPlanilla(snapshot.val(), turno, inicio, fin);
+    });
+}
+
+// ======================================
+//  RENDER PLANILLA (función compartida)
+// ======================================
+function renderPlanilla(data, turno, inicio, fin) {
+    const tbody = document.getElementById('planillaBody');
+    const labels  = [];
+    const valores = [];
+    let totalGeneral = 0;
+
+    tbody.innerHTML = '';
+
+    if (!data) {
+        tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay datos para este turno.</td></tr>';
+        document.getElementById('totalGeneral').innerText = '—';
+        renderGrafico([], []);
+        return;
+    }
+
+    const registros = Object.values(data).filter(s => {
+        if (!s.hora) return false;
+        const h = parseInt(s.hora.split(':')[0], 10);
+        if (isNaN(h)) return false;
+        if (turno === 'noche') return h >= 22 || h < 5;
+        return h >= inicio && h < fin;
+    });
+
+    if (registros.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay registros en este turno.</td></tr>';
+        document.getElementById('totalGeneral').innerText = '—';
+        renderGrafico([], []);
+        return;
+    }
+
+    registros.forEach(s => {
+        const total = s.total || 0;
+        totalGeneral += total;
+        labels.push(s.producto);
+        valores.push(total);
+
+        // Mostrar bandejas o "Vuelta completa" según corresponda
+        const bandejas   = s.vueltaCompleta
+            ? '<em class="badge-completa-reporte">✔ Vuelta completa</em>'
+            : (s.bandejas ?? '—');
+        const incompletos = s.vueltaCompleta ? '—' : (s.incompletos ?? '—');
+        const filas       = s.vueltaCompleta ? '—' : (s.filas ?? '—');
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${s.marca || '—'}</td>
+                <td>${s.linea || '—'}</td>
+                <td><strong>${s.producto}</strong></td>
+                <td>${filas}</td>
+                <td>${bandejas}</td>
+                <td>${incompletos}</td>
+                <td class="total-celda">${total.toLocaleString()}</td>
+                <td>${s.hora || '—'}</td>
+            </tr>`;
+    });
+
+    document.getElementById('totalGeneral').innerText = totalGeneral.toLocaleString();
+    renderGrafico(labels, valores, totalGeneral);
 }
 
 // ======================================
@@ -231,15 +267,9 @@ function renderGrafico(labels, valores, total) {
     });
 }
 
-
 // ======================================
-//  CALENDARIO HISTORIAL
+//  CALENDARIO
 // ======================================
-let calMes, calAnio, fechaSeleccionada = null;
-
-const CAL_MES_INICIO  = 2;    // Marzo (0-indexado)
-const CAL_ANIO_INICIO = 2026;
-
 function iniciarCalendario() {
     const hoy = new Date();
     calMes  = hoy.getMonth();
@@ -254,10 +284,10 @@ function cambiarMes(dir) {
     if (nuevoMes > 11) { nuevoMes = 0;  nuevoAnio++; }
     if (nuevoMes < 0)  { nuevoMes = 11; nuevoAnio--; }
 
-    // No permitir ir antes de marzo 2026
+    // No permitir antes de marzo 2026
     if (nuevoAnio < CAL_ANIO_INICIO || (nuevoAnio === CAL_ANIO_INICIO && nuevoMes < CAL_MES_INICIO)) return;
 
-    // No permitir ir más allá del mes actual
+    // No permitir más allá del mes actual
     const hoy = new Date();
     if (nuevoAnio > hoy.getFullYear() || (nuevoAnio === hoy.getFullYear() && nuevoMes > hoy.getMonth())) return;
 
@@ -273,9 +303,9 @@ function renderCalendario() {
     const grid = document.getElementById('calGrid');
     grid.innerHTML = '';
 
-    const primerDia = new Date(calAnio, calMes, 1).getDay();
-    const diasEnMes = new Date(calAnio, calMes + 1, 0).getDate();
-    const hoy = new Date();
+    const primerDia  = new Date(calAnio, calMes, 1).getDay();
+    const diasEnMes  = new Date(calAnio, calMes + 1, 0).getDate();
+    const hoy        = new Date();
 
     // Espacios vacíos
     for (let i = 0; i < primerDia; i++) {
@@ -284,18 +314,17 @@ function renderCalendario() {
         grid.appendChild(vacio);
     }
 
-    // Días del mes
+    // Días
     for (let d = 1; d <= diasEnMes; d++) {
-        const cell = document.createElement('div');
+        const cell     = document.createElement('div');
         cell.className = 'cal-dia';
 
         const fechaStr = `${d}-${calMes + 1}-${calAnio}`;
         const esHoy    = d === hoy.getDate() && calMes === hoy.getMonth() && calAnio === hoy.getFullYear();
         const esFutura = new Date(calAnio, calMes, d) > hoy;
 
-        // Número del día
         const numEl = document.createElement('div');
-        numEl.className = 'dia-num';
+        numEl.className  = 'dia-num';
         numEl.textContent = d;
         cell.appendChild(numEl);
 
@@ -305,7 +334,6 @@ function renderCalendario() {
 
         if (!esFutura) {
             cell.onclick = () => seleccionarFecha(fechaStr, cell, d);
-            // Verificar si hay datos en Firebase para ese día
             db.ref(`historial/${fechaStr}/sobrantes`).once('value', snap => {
                 if (snap.exists()) {
                     const punto = document.createElement('span');
@@ -320,94 +348,25 @@ function renderCalendario() {
 }
 
 function seleccionarFecha(fecha, cell, d) {
-    // Quitar selección anterior
     document.querySelectorAll('.cal-dia.seleccionado').forEach(c => c.classList.remove('seleccionado'));
     cell.classList.add('seleccionado');
     fechaSeleccionada = fecha;
 
-    // Actualizar fecha mostrada en el header
     document.getElementById('fechaReporte').innerText = `Fecha: ${fecha.replace(/-/g, '/')}`;
 
-    // Mostrar info de fecha seleccionada
     const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-    const info = document.getElementById('fechaInfo');
+    const info  = document.getElementById('fechaInfo');
     if (info) {
         info.classList.add('visible');
         document.getElementById('fechaInfoTexto').textContent = `${d} de ${meses[calMes]} de ${calAnio}`;
     }
 
-    // Recargar turno activo con la fecha seleccionada
     const turnoActivo = document.querySelector('.btn-turno.active');
     const turno = turnoActivo ? turnoActivo.id.replace('btn-', '') : 'manana';
     cargarTurnoPorFecha(turno, fecha);
 }
 
-// Versión de cargarTurno que acepta una fecha específica
-function cargarTurnoPorFecha(turno, fecha) {
-    document.querySelectorAll('.btn-turno').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById(`btn-${turno}`);
-    if (btn) btn.classList.add('active');
-    document.getElementById('turnoLabel').innerText = TURNOS[turno].label;
-
-    const { inicio, fin } = TURNOS[turno];
-
-    // Cargar supervisor del turno desde Firebase
-    cargarSupervisorFirebase(fecha, turno);
-
-    db.ref(`historial/${fecha}/sobrantes`).once('value', (snapshot) => {
-        const data = snapshot.val();
-        const tbody = document.getElementById('planillaBody');
-        const labels = [];
-        const valores = [];
-        let totalGeneral = 0;
-        tbody.innerHTML = '';
-
-        if (!data) {
-            tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay datos para este turno.</td></tr>';
-            document.getElementById('totalGeneral').innerText = '—';
-            renderGrafico([], []);
-            return;
-        }
-
-        const registros = Object.values(data).filter(s => {
-            if (!s.hora) return false;
-            const h = parseInt(s.hora.split(':')[0], 10);
-            if (isNaN(h)) return false;
-            if (turno === 'noche') return h >= 22 || h < 5;
-            return h >= inicio && h < fin;
-        });
-
-        if (registros.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay registros en este turno.</td></tr>';
-            document.getElementById('totalGeneral').innerText = '—';
-            renderGrafico([], []);
-            return;
-        }
-
-        registros.forEach(s => {
-            const total = s.total || 0;
-            totalGeneral += total;
-            labels.push(s.producto);
-            valores.push(total);
-            tbody.innerHTML += `
-                <tr>
-                    <td>${s.marca || '—'}</td>
-                    <td>${s.linea || '—'}</td>
-                    <td><strong>${s.producto}</strong></td>
-                    <td>${s.filas ?? '—'}</td>
-                    <td>${s.bandejas ?? '—'}</td>
-                    <td>${s.incompletos ?? '—'}</td>
-                    <td class="total-celda">${total.toLocaleString()}</td>
-                    <td>${s.hora || '—'}</td>
-                </tr>`;
-        });
-
-        document.getElementById('totalGeneral').innerText = totalGeneral.toLocaleString();
-        renderGrafico(labels, valores, totalGeneral);
-    });
-}
-
-// Sobrescribir los botones de turno para usar fecha seleccionada si hay una
+// Botones de turno respetan fecha seleccionada
 document.querySelectorAll('.btn-turno').forEach(btn => {
     btn.addEventListener('click', () => {
         const turno = btn.id.replace('btn-', '');
