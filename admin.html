@@ -6,18 +6,14 @@
     <title>Panel de Administración Principal</title>
     <link rel="stylesheet" href="style2.css">
 </head>
-
 <body>
-
     <div class="container">
         <header class="app-header">
             <img src="https://www.romeropanificados.com.ar/wp-content/uploads/2023/01/Recurso-9.png" 
                  alt="Icono de Caja de Reporte" class="header-icon">
         </header>
-
         <h1>Panel de Administración</h1>
 
-        <!-- ✅ NUEVO: Badge del supervisor de turno -->
         <div class="supervisor-badge">
             <span class="supervisor-icon">⭐</span>
             <span>Supervisor de turno: <strong id="supervisor-nombre">Cargando...</strong></span>
@@ -38,10 +34,14 @@
                 <select id="task-category" disabled>
                     <option value="" disabled selected>-- Producto --</option>
                 </select>
+
+                <label class="label-completa">
+                    <input type="checkbox" id="vueltaCompleta"> Vuelta completa
+                </label>
+
                 <input type="number" id="taskTitle" placeholder="Bandejas..." min="1">
                 <button id="add-task-btn">Agregar</button>
             </div>
-
             <div class="task-list-container">
                 <h3>Lista de Tareas Agregadas</h3>
                 <ul id="taskList"></ul>
@@ -56,7 +56,7 @@
                 <ul id="sobrantesList"></ul>
             </div>
         </section>
-        
+
         <button onclick="window.location.href='reporte.html'" class="btn-reporte">
             📊 Ver Gráfico y Generar PDF
         </button>
@@ -65,6 +65,5 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="admin.js"></script>
-
 </body>
 </html>
