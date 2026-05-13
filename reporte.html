@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte de Producción - Romero Panificados</title>
     <link rel="stylesheet" href="style5.css">
+    <!-- Firebase PRIMERO -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <!-- Chart.js después -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -38,7 +42,7 @@
                 </div>
             </div>
 
-            <!-- PLANILLA PRIMERO -->
+            <!-- PLANILLA -->
             <div class="detalle-section">
                 <p class="section-title">📋 Planilla de Control de Producción</p>
                 <table class="planilla">
@@ -67,7 +71,7 @@
                 </table>
             </div>
 
-            <!-- GRÁFICO DONUT ABAJO -->
+            <!-- GRÁFICO DONUT -->
             <div class="chart-section">
                 <p class="section-title">📊 Gráfico de Producción</p>
                 <div class="chart-container">
@@ -80,14 +84,12 @@
                 <p class="section-title">📅 Historial por Fecha</p>
                 <div class="calendario-wrap">
 
-                    <!-- Cabecera mes -->
                     <div class="cal-header">
                         <button class="cal-nav-btn" onclick="cambiarMes(-1)">&#8592;</button>
                         <span id="calTitulo" class="cal-titulo"></span>
                         <button class="cal-nav-btn" onclick="cambiarMes(1)">&#8594;</button>
                     </div>
 
-                    <!-- Días de la semana -->
                     <div class="cal-semana">
                         <div class="cal-semana-dia">Dom</div>
                         <div class="cal-semana-dia">Lun</div>
@@ -98,10 +100,8 @@
                         <div class="cal-semana-dia">Sáb</div>
                     </div>
 
-                    <!-- Grid días -->
                     <div class="cal-grid" id="calGrid"></div>
 
-                    <!-- Leyenda -->
                     <div class="cal-leyenda">
                         <div class="leyenda-item"><div class="leyenda-hoy">•</div> Hoy</div>
                         <div class="leyenda-item"><div class="leyenda-sel"></div> Seleccionado</div>
@@ -109,7 +109,6 @@
                     </div>
                 </div>
 
-                <!-- Info fecha seleccionada -->
                 <div class="fecha-seleccionada-info" id="fechaInfo">
                     Mostrando datos del <strong id="fechaInfoTexto"></strong>
                 </div>
@@ -124,8 +123,6 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="reporte.js"></script>
 </body>
 </html>
