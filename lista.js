@@ -11,6 +11,7 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
+
 const db = firebase.database();
 
 const getFechaHoy = () => {
@@ -38,13 +39,18 @@ db.ref(`historial/${getFechaHoy()}/tareas`).on('value', (snapshot) => {
         const li = document.createElement('li');
         if (t.completado) li.classList.add('completado');
 
+        // Mostrar "Vuelta completa" o la cantidad de bandejas
+        const cantidadTexto = t.vueltaCompleta
+            ? '<span class="badge-vuelta-completa">✔ Vuelta completa</span>'
+            : `${t.cantidad} bandejas`;
+
         li.innerHTML = `
             <input type="checkbox" ${t.completado ? 'checked' : ''}
                    onchange="toggleTarea('${id}', ${t.completado})">
             <span>
-                ${t.marca ? `[${t.marca}]` : ''} 
-                ${t.vuelta ? `Vuelta ${t.vuelta} —` : ''} 
-                ${t.producto}: ${t.cantidad} bandejas
+                ${t.marca ? `[${t.marca}]` : ''}
+                ${t.vuelta ? `Vuelta ${t.vuelta} —` : ''}
+                ${t.producto}: ${cantidadTexto}
             </span>
         `;
         contenedor.appendChild(li);
