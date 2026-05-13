@@ -42,6 +42,7 @@ body {
     to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ─── HEADER ──────────────────────────────────────────── */
 .reporte-header {
     display: flex;
     align-items: center;
@@ -51,7 +52,6 @@ body {
     padding: 18px 28px;
 }
 
-/* ─── LOGO OSCURO ─────────────────────────────────────── */
 .reporte-header img {
     height: 44px;
     object-fit: contain;
@@ -75,6 +75,7 @@ body {
     letter-spacing: 0.5px;
 }
 
+/* ─── BODY ────────────────────────────────────────────── */
 .reporte-body { padding: 24px 28px 32px; display: flex; flex-direction: column; gap: 24px; }
 
 .supervisor-badge {
@@ -107,6 +108,7 @@ body {
 
 .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
+/* ─── TURNOS ──────────────────────────────────────────── */
 .turno-btns { display: flex; gap: 10px; flex-wrap: wrap; }
 
 .btn-turno {
@@ -131,6 +133,7 @@ body {
 .btn-turno.active { background: var(--texto); color: var(--crema); border-color: var(--texto); box-shadow: 0 4px 12px rgba(42,26,10,0.25); }
 .btn-turno.active small { color: var(--dorado-claro); opacity: 1; }
 
+/* ─── PLANILLA ────────────────────────────────────────── */
 .planilla { width: 100%; border-collapse: collapse; font-size: 13px; }
 .planilla thead tr { background: var(--texto); color: var(--crema); }
 .planilla thead th { padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; }
@@ -143,6 +146,20 @@ body {
 .total-valor, .total-celda { font-family: 'Lora', serif; font-size: 16px; font-weight: 600; color: var(--bordo); }
 .vacio { text-align: center; padding: 32px !important; color: var(--texto-suave); font-style: italic; }
 
+/* Badge vuelta completa en la planilla del reporte */
+.badge-completa-reporte {
+    display: inline-block;
+    background: #eaf7ee;
+    color: #2d7a45;
+    border: 1px solid #a8ddb8;
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 700;
+}
+
+/* ─── GRÁFICO ─────────────────────────────────────────── */
 .chart-container {
     background: var(--gris-claro);
     border: 1px solid var(--border);
@@ -155,8 +172,23 @@ body {
 }
 
 /* ─── CALENDARIO ──────────────────────────────────────── */
-.calendario-wrap { background: var(--gris-claro); border: 1px solid var(--border); border-radius: 12px; padding: 20px; max-width: 420px; }
-.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.calendario-wrap {
+    background: var(--gris-claro);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    /* Ancho fijo para que las 7 columnas siempre quepan */
+    width: 100%;
+    max-width: 460px;
+}
+
+.cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
 .cal-titulo { font-family: 'Lora', serif; font-size: 16px; font-weight: 600; color: var(--texto); }
 
 .cal-nav-btn {
@@ -173,12 +205,34 @@ body {
 }
 
 .cal-nav-btn:hover { border-color: var(--dorado); color: var(--texto); }
-.cal-semana { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 6px; }
-.cal-semana-dia { text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--texto-suave); padding: 4px 0; }
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+
+/* Cabecera días de la semana */
+.cal-semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 4px;
+}
+
+.cal-semana-dia {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--texto-suave);
+    padding: 4px 0;
+}
+
+/* Grid de días — tamaño fijo por celda para evitar desborde */
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+}
 
 .cal-dia {
-    aspect-ratio: 1;
+    /* Altura fija en lugar de aspect-ratio para evitar desborde */
+    height: 44px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -188,35 +242,70 @@ body {
     position: relative;
     transition: all 0.15s;
     border: 1.5px solid transparent;
+    min-width: 0; /* evita que el contenido fuerce el ancho */
 }
 
 .cal-dia:not(.vacio):not(.futura):hover { background: #fef9ee; border-color: var(--dorado); }
-.cal-dia.vacio { cursor: default; }
+.cal-dia.vacio  { cursor: default; }
 .cal-dia.futura { opacity: 0.3; cursor: default; }
-.cal-dia.hoy { background: var(--gris-claro); border-color: var(--dorado); }
+.cal-dia.hoy    { background: var(--gris-claro); border-color: var(--dorado); }
 .cal-dia.seleccionado { background: var(--texto); border-color: var(--texto); }
 .cal-dia.seleccionado .dia-num { color: var(--crema); }
-.dia-num { font-size: 13px; font-weight: 700; color: var(--texto); }
-.punto-dato { width: 5px; height: 5px; border-radius: 50%; background: var(--rojo); position: absolute; bottom: 4px; }
 
+.dia-num { font-size: 13px; font-weight: 700; color: var(--texto); }
+
+.punto-dato {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--rojo);
+    position: absolute;
+    bottom: 4px;
+}
+
+/* Leyenda */
 .cal-leyenda { display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
 .leyenda-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--texto-suave); font-weight: 600; }
-.leyenda-hoy { color: var(--dorado); font-size: 18px; line-height: 1; }
-.leyenda-sel { width: 12px; height: 12px; border-radius: 3px; background: var(--texto); }
+.leyenda-hoy   { color: var(--dorado); font-size: 18px; line-height: 1; }
+.leyenda-sel   { width: 12px; height: 12px; border-radius: 3px; background: var(--texto); }
 .leyenda-punto { width: 8px; height: 8px; border-radius: 50%; background: var(--rojo); }
 
-.fecha-seleccionada-info { display: none; margin-top: 14px; padding: 10px 16px; background: var(--gris-claro); border: 1px solid var(--border); border-left: 4px solid var(--dorado); border-radius: 8px; font-size: 13px; color: var(--texto-suave); font-weight: 600; }
+/* Info fecha seleccionada */
+.fecha-seleccionada-info {
+    display: none;
+    margin-top: 14px;
+    padding: 10px 16px;
+    background: var(--gris-claro);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--dorado);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--texto-suave);
+    font-weight: 600;
+}
 .fecha-seleccionada-info.visible { display: block; }
 
+/* ─── BOTONES REPORTE ─────────────────────────────────── */
 .reporte-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
-.btn { padding: 12px 22px; border-radius: 10px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; letter-spacing: 0.3px; }
+.btn {
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+}
 
 .btn-imprimir { background: var(--crema); color: var(--rojo); border: 2px solid var(--rojo) !important; font-family: 'Lora', serif; }
 .btn-imprimir:hover { background: var(--rojo); color: var(--crema); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(177,48,9,0.3); }
 .btn-volver { background: var(--gris-claro); color: var(--texto-suave); border: 1.5px solid var(--border) !important; }
 .btn-volver:hover { background: var(--border); color: var(--texto); transform: translateY(-1px); }
 
+/* ─── PRINT ───────────────────────────────────────────── */
 @media print {
     body { background: white; padding: 0; }
     .container { box-shadow: none; border-radius: 0; border-top: none; }
@@ -226,11 +315,15 @@ body {
     .planilla thead tr { background: #2a1a0a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
+/* ─── RESPONSIVE ──────────────────────────────────────── */
 @media (max-width: 600px) {
     .reporte-header { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px 18px; }
     .reporte-body { padding: 18px 18px 24px; }
     .planilla { font-size: 11px; }
-    .planilla thead th, .planilla tbody td, .planilla tfoot td { padding: 8px 8px; }
+    .planilla thead th, .planilla tbody td, .planilla tfoot td { padding: 8px 6px; }
     .turno-btns { flex-direction: column; }
     .btn-turno { min-width: unset; }
+    .calendario-wrap { max-width: 100%; }
+    .cal-dia { height: 36px; }
+    .dia-num { font-size: 12px; }
 }
