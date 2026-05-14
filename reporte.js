@@ -39,14 +39,16 @@ function getFechaParaTurno(turno) {
 
 // ======================================
 //  VARIABLES GLOBALES
-//  (declaradas aquí arriba para evitar
-//   el ReferenceError antes de init)
 // ======================================
-let chartInstance = null;
+let chartInstance   = null;
 let calMes, calAnio, fechaSeleccionada = null;
 
-const CAL_MES_INICIO  = 2;    // Marzo (0-indexado)
+const CAL_MES_INICIO  = 2;
 const CAL_ANIO_INICIO = 2026;
+
+// Turno y fecha activos (para Drive)
+let turnoActivo  = getTurnoActual();
+let fechaActiva  = getFechaParaTurno(turnoActivo);
 
 // ======================================
 //  INIT
@@ -66,33 +68,34 @@ function cargarSupervisorFirebase(fecha, turno) {
     });
 }
 
-const turnoActual = getTurnoActual();
-const btnActual = document.getElementById(`btn-${turnoActual}`);
+const turnoInicial = getTurnoActual();
+const btnActual = document.getElementById(`btn-${turnoInicial}`);
 if (btnActual) btnActual.classList.add('active');
 
-cargarTurno(turnoActual);
+cargarTurno(turnoInicial);
 
-// Personalizar según rol
+// ======================================
+//  ROL — botones y permisos
+// ======================================
 const rol = sessionStorage.getItem('rol');
 
-// Mostrar calendario solo para admin, calidad y romero
 if (['admin', 'calidad', 'romero'].includes(rol)) {
     document.getElementById('calendarioSection').style.display = 'block';
     iniciarCalendario();
 }
 
-// Ocultar gráfico para supervisor y ventas
 if (rol === 'supervisor' || rol === 'ventas') {
     const chartSection = document.querySelector('.chart-section');
     if (chartSection) chartSection.style.display = 'none';
 }
 
-// Configurar botones según rol
 const btnImprimir = document.getElementById('btn-imprimir');
+const btnDrive    = document.getElementById('btn-drive');
 const btnVolver   = document.getElementById('btn-volver');
 
 if (rol === 'admin') {
     btnImprimir.style.display = 'block';
+    btnDrive.style.display    = 'block';
     btnVolver.textContent = '← Volver al Panel';
     btnVolver.onclick = () => window.location.href = 'admin.html';
 
@@ -102,7 +105,6 @@ if (rol === 'admin') {
     btnVolver.onclick = () => window.location.href = 'admin.html';
 
 } else if (rol === 'ventas') {
-    btnImprimir.style.display = 'none';
     btnVolver.textContent = '🚪 Cerrar Sesión';
     btnVolver.onclick = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
 
@@ -113,27 +115,27 @@ if (rol === 'admin') {
 
 } else if (rol === 'calidad') {
     btnImprimir.style.display = 'block';
+    btnDrive.style.display    = 'block';
     btnVolver.textContent = '🚪 Cerrar Sesión';
     btnVolver.onclick = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
 }
 
 // ======================================
-//  CARGAR TURNO (fecha de hoy)
+//  CARGAR TURNO (hoy)
 // ======================================
 function cargarTurno(turno) {
+    turnoActivo = turno;
+    fechaActiva = getFechaParaTurno(turno);
+
     document.querySelectorAll('.btn-turno').forEach(b => b.classList.remove('active'));
     const btn = document.getElementById(`btn-${turno}`);
     if (btn) btn.classList.add('active');
-
     document.getElementById('turnoLabel').innerText = TURNOS[turno].label;
 
-    const fecha = getFechaParaTurno(turno);
-    const { inicio, fin } = TURNOS[turno];
+    cargarSupervisorFirebase(fechaActiva, turno);
 
-    cargarSupervisorFirebase(fecha, turno);
-
-    db.ref(`historial/${fecha}/sobrantes`).once('value', (snapshot) => {
-        renderPlanilla(snapshot.val(), turno, inicio, fin);
+    db.ref(`historial/${fechaActiva}/sobrantes`).once('value', (snapshot) => {
+        renderPlanilla(snapshot.val(), turno, TURNOS[turno].inicio, TURNOS[turno].fin);
     });
 }
 
@@ -141,25 +143,26 @@ function cargarTurno(turno) {
 //  CARGAR TURNO (fecha específica)
 // ======================================
 function cargarTurnoPorFecha(turno, fecha) {
+    turnoActivo = turno;
+    fechaActiva = fecha;
+
     document.querySelectorAll('.btn-turno').forEach(b => b.classList.remove('active'));
     const btn = document.getElementById(`btn-${turno}`);
     if (btn) btn.classList.add('active');
     document.getElementById('turnoLabel').innerText = TURNOS[turno].label;
 
-    const { inicio, fin } = TURNOS[turno];
-
     cargarSupervisorFirebase(fecha, turno);
 
     db.ref(`historial/${fecha}/sobrantes`).once('value', (snapshot) => {
-        renderPlanilla(snapshot.val(), turno, inicio, fin);
+        renderPlanilla(snapshot.val(), turno, TURNOS[turno].inicio, TURNOS[turno].fin);
     });
 }
 
 // ======================================
-//  RENDER PLANILLA (función compartida)
+//  RENDER PLANILLA
 // ======================================
 function renderPlanilla(data, turno, inicio, fin) {
-    const tbody = document.getElementById('planillaBody');
+    const tbody  = document.getElementById('planillaBody');
     const labels  = [];
     const valores = [];
     let totalGeneral = 0;
@@ -194,8 +197,7 @@ function renderPlanilla(data, turno, inicio, fin) {
         labels.push(s.producto);
         valores.push(total);
 
-        // Mostrar bandejas o "Vuelta completa" según corresponda
-        const bandejas   = s.vueltaCompleta
+        const bandejas    = s.vueltaCompleta
             ? '<em class="badge-completa-reporte">✔ Vuelta completa</em>'
             : (s.bandejas ?? '—');
         const incompletos = s.vueltaCompleta ? '—' : (s.incompletos ?? '—');
@@ -222,11 +224,7 @@ function renderPlanilla(data, turno, inicio, fin) {
 //  GRÁFICO DONUT
 // ======================================
 function renderGrafico(labels, valores, total) {
-    if (chartInstance) {
-        chartInstance.destroy();
-        chartInstance = null;
-    }
-
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
     if (labels.length === 0) return;
 
     chartInstance = new Chart(document.getElementById('graficoStock'), {
@@ -235,7 +233,7 @@ function renderGrafico(labels, valores, total) {
             labels,
             datasets: [{
                 data: valores,
-                backgroundColor: ['#c8960c', '#7a1a0a', '#e8b84b', '#b13009', '#6b4c2a', '#d4a017', '#a0522d', '#c46210'],
+                backgroundColor: ['#c8960c','#7a1a0a','#e8b84b','#b13009','#6b4c2a','#d4a017','#a0522d','#c46210'],
                 borderColor: '#fff',
                 borderWidth: 3,
                 hoverOffset: 10
@@ -246,13 +244,7 @@ function renderGrafico(labels, valores, total) {
             plugins: {
                 legend: {
                     position: 'right',
-                    labels: {
-                        color: '#2a1a0a',
-                        font: { family: 'Lato', size: 13 },
-                        padding: 16,
-                        usePointStyle: true,
-                        pointStyleWidth: 12
-                    }
+                    labels: { color: '#2a1a0a', font: { family: 'Lato', size: 13 }, padding: 16, usePointStyle: true, pointStyleWidth: 12 }
                 },
                 tooltip: {
                     callbacks: {
@@ -280,17 +272,11 @@ function iniciarCalendario() {
 function cambiarMes(dir) {
     let nuevoMes  = calMes + dir;
     let nuevoAnio = calAnio;
-
     if (nuevoMes > 11) { nuevoMes = 0;  nuevoAnio++; }
     if (nuevoMes < 0)  { nuevoMes = 11; nuevoAnio--; }
-
-    // No permitir antes de marzo 2026
     if (nuevoAnio < CAL_ANIO_INICIO || (nuevoAnio === CAL_ANIO_INICIO && nuevoMes < CAL_MES_INICIO)) return;
-
-    // No permitir más allá del mes actual
     const hoy = new Date();
     if (nuevoAnio > hoy.getFullYear() || (nuevoAnio === hoy.getFullYear() && nuevoMes > hoy.getMonth())) return;
-
     calMes  = nuevoMes;
     calAnio = nuevoAnio;
     renderCalendario();
@@ -300,31 +286,27 @@ function renderCalendario() {
     const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     document.getElementById('calTitulo').textContent = `${meses[calMes]} ${calAnio}`;
 
-    const grid = document.getElementById('calGrid');
-    grid.innerHTML = '';
+    const grid      = document.getElementById('calGrid');
+    grid.innerHTML  = '';
+    const primerDia = new Date(calAnio, calMes, 1).getDay();
+    const diasEnMes = new Date(calAnio, calMes + 1, 0).getDate();
+    const hoy       = new Date();
 
-    const primerDia  = new Date(calAnio, calMes, 1).getDay();
-    const diasEnMes  = new Date(calAnio, calMes + 1, 0).getDate();
-    const hoy        = new Date();
-
-    // Espacios vacíos
     for (let i = 0; i < primerDia; i++) {
-        const vacio = document.createElement('div');
-        vacio.className = 'cal-dia vacio';
-        grid.appendChild(vacio);
+        const v = document.createElement('div');
+        v.className = 'cal-dia vacio';
+        grid.appendChild(v);
     }
 
-    // Días
     for (let d = 1; d <= diasEnMes; d++) {
         const cell     = document.createElement('div');
         cell.className = 'cal-dia';
-
         const fechaStr = `${d}-${calMes + 1}-${calAnio}`;
         const esHoy    = d === hoy.getDate() && calMes === hoy.getMonth() && calAnio === hoy.getFullYear();
         const esFutura = new Date(calAnio, calMes, d) > hoy;
 
         const numEl = document.createElement('div');
-        numEl.className  = 'dia-num';
+        numEl.className   = 'dia-num';
         numEl.textContent = d;
         cell.appendChild(numEl);
 
@@ -342,7 +324,6 @@ function renderCalendario() {
                 }
             });
         }
-
         grid.appendChild(cell);
     }
 }
@@ -361,17 +342,231 @@ function seleccionarFecha(fecha, cell, d) {
         document.getElementById('fechaInfoTexto').textContent = `${d} de ${meses[calMes]} de ${calAnio}`;
     }
 
-    const turnoActivo = document.querySelector('.btn-turno.active');
-    const turno = turnoActivo ? turnoActivo.id.replace('btn-', '') : 'manana';
+    const turnoActv = document.querySelector('.btn-turno.active');
+    const turno = turnoActv ? turnoActv.id.replace('btn-', '') : 'manana';
     cargarTurnoPorFecha(turno, fecha);
 }
 
-// Botones de turno respetan fecha seleccionada
 document.querySelectorAll('.btn-turno').forEach(btn => {
     btn.addEventListener('click', () => {
         const turno = btn.id.replace('btn-', '');
-        if (fechaSeleccionada) {
-            cargarTurnoPorFecha(turno, fechaSeleccionada);
-        }
+        if (fechaSeleccionada) cargarTurnoPorFecha(turno, fechaSeleccionada);
     });
 });
+
+// ======================================
+//  GOOGLE DRIVE
+// ======================================
+const GOOGLE_CLIENT_ID = '49698744393-spo4nq0naa9fbahm628h4c4v3vpc0d4e.apps.googleusercontent.com';
+const GOOGLE_API_KEY   = 'AIzaSyDyxsOnSb7KXLuUcbpwdECzYqTLi98Fpmw';
+const FOLDER_RAIZ_ID   = '1mlZ9hZNZ24c0gi7PwMGeOsUVOmI7sMtk';
+const SCOPES           = 'https://www.googleapis.com/auth/drive.file';
+
+let tokenClient;
+let gapiInited     = false;
+let gisInited      = false;
+let driveAutorizado = false;
+
+function gapiLoaded() {
+    gapi.load('client', async () => {
+        await gapi.client.init({
+            apiKey: GOOGLE_API_KEY,
+            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+        });
+        gapiInited = true;
+    });
+}
+
+function gisLoaded() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: SCOPES,
+        callback: (resp) => {
+            if (!resp.error) {
+                driveAutorizado = true;
+                // Continuar con el guardado luego de autorizar
+                ejecutarGuardadoDrive();
+            } else {
+                mostrarEstadoDrive('❌ Autorización cancelada.', 'error');
+            }
+        },
+    });
+    gisInited = true;
+}
+
+function mostrarEstadoDrive(mensaje, tipo) {
+    const el = document.getElementById('drive-status');
+    el.style.display = 'block';
+    el.textContent   = mensaje;
+    el.className     = `drive-status no-print drive-status-${tipo}`;
+    if (tipo === 'ok') setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+// Botón Drive — pide autorización si no la tiene, luego guarda
+window.guardarEnDrive = function () {
+    if (!gapiInited || !gisInited) {
+        mostrarEstadoDrive('⏳ Inicializando Google Drive, intentá en unos segundos...', 'info');
+        return;
+    }
+    if (!driveAutorizado) {
+        tokenClient.requestAccessToken({ prompt: 'consent' });
+    } else {
+        ejecutarGuardadoDrive();
+    }
+};
+
+async function ejecutarGuardadoDrive() {
+    const btnDrive = document.getElementById('btn-drive');
+    btnDrive.disabled    = true;
+    btnDrive.textContent = '☁️ Guardando...';
+    mostrarEstadoDrive('⏳ Guardando en Drive...', 'info');
+
+    try {
+        const snap      = await db.ref(`historial/${fechaActiva}/sobrantes`).once('value');
+        const sobrantes = snap.val();
+
+        const snapSup   = await db.ref(`historial/${fechaActiva}/supervisores/${turnoActivo}`).once('value');
+        const supervisor = snapSup.val() || sessionStorage.getItem('supervisor') || '—';
+
+        if (!sobrantes) {
+            mostrarEstadoDrive('⚠️ No hay datos para guardar en este turno.', 'error');
+            btnDrive.disabled    = false;
+            btnDrive.textContent = '☁️ Guardar en Drive';
+            return;
+        }
+
+        const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        const partes     = fechaActiva.split('-');
+        const nombreMes  = meses[parseInt(partes[1]) - 1];
+        const anio       = partes[2];
+        const turnoLabel = TURNOS[turnoActivo].label;
+        const nombreArchivo = `${turnoLabel} - ${fechaActiva}`;
+
+        // Estructura de carpetas: Raíz / Año / Mes / Fecha
+        const carpetaAnio  = await obtenerOCrearCarpeta(anio,        FOLDER_RAIZ_ID);
+        const carpetaMes   = await obtenerOCrearCarpeta(nombreMes,   carpetaAnio);
+        const carpetaFecha = await obtenerOCrearCarpeta(fechaActiva, carpetaMes);
+
+        const htmlContent = generarHTMLPlanilla(turnoActivo, fechaActiva, sobrantes, supervisor);
+        const blob  = new Blob([htmlContent], { type: 'text/html' });
+        const token = gapi.client.getToken().access_token;
+
+        const archivoExistente = await buscarArchivo(nombreArchivo, carpetaFecha);
+
+        if (archivoExistente) {
+            await fetch(`https://www.googleapis.com/upload/drive/v3/files/${archivoExistente}?uploadType=media`, {
+                method: 'PATCH',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'text/html' },
+                body: blob
+            });
+        } else {
+            const formData = new FormData();
+            formData.append('metadata', new Blob([JSON.stringify({
+                name: nombreArchivo,
+                parents: [carpetaFecha],
+                mimeType: 'application/vnd.google-apps.document'
+            })], { type: 'application/json' }));
+            formData.append('file', blob);
+
+            await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&convert=true', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData
+            });
+        }
+
+        mostrarEstadoDrive(`✅ Guardado en Drive: ${anio} / ${nombreMes} / ${fechaActiva} / ${nombreArchivo}`, 'ok');
+
+    } catch (err) {
+        console.error('Error Drive:', err);
+        mostrarEstadoDrive('❌ Error al guardar en Drive. Revisá la consola.', 'error');
+    } finally {
+        btnDrive.disabled    = false;
+        btnDrive.textContent = '☁️ Guardar en Drive';
+    }
+}
+
+// ── Helpers Drive ──────────────────────────────────────
+async function obtenerOCrearCarpeta(nombre, parentId) {
+    const res = await gapi.client.drive.files.list({
+        q: `name='${nombre}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`,
+        fields: 'files(id)',
+    });
+    if (res.result.files.length > 0) return res.result.files[0].id;
+
+    const crear = await gapi.client.drive.files.create({
+        resource: { name: nombre, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] },
+        fields: 'id',
+    });
+    return crear.result.id;
+}
+
+async function buscarArchivo(nombre, carpetaId) {
+    const res = await gapi.client.drive.files.list({
+        q: `name='${nombre}' and '${carpetaId}' in parents and trashed=false`,
+        fields: 'files(id)',
+    });
+    return res.result.files.length > 0 ? res.result.files[0].id : null;
+}
+
+function generarHTMLPlanilla(turno, fecha, sobrantes, supervisorNombre) {
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const partes = fecha.split('-');
+    const fechaLegible = `${partes[0]} de ${meses[parseInt(partes[1]) - 1]} de ${partes[2]}`;
+    const turnoLabel   = TURNOS[turno].label;
+    const { inicio, fin } = TURNOS[turno];
+
+    const registros = Object.values(sobrantes).filter(s => {
+        if (!s.hora) return false;
+        const h = parseInt(s.hora.split(':')[0], 10);
+        if (turno === 'noche') return h >= 22 || h < 5;
+        return h >= inicio && h < fin;
+    });
+
+    let totalGeneral = 0;
+    const filas = registros.map(s => {
+        totalGeneral += s.total || 0;
+        const bandejasTexto = s.vueltaCompleta ? '✔ Vuelta completa' : (s.bandejas ?? '—');
+        return `<tr>
+            <td>${s.marca||'—'}</td><td>${s.linea||'—'}</td>
+            <td><strong>${s.producto}</strong></td>
+            <td>${s.vueltaCompleta ? '—' : (s.filas ?? '—')}</td>
+            <td>${bandejasTexto}</td>
+            <td>${s.vueltaCompleta ? '—' : (s.incompletos ?? '—')}</td>
+            <td><strong>${(s.total||0).toLocaleString()}</strong></td>
+            <td>${s.hora||'—'}</td>
+        </tr>`;
+    }).join('');
+
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <style>
+        body{font-family:Arial,sans-serif;padding:30px;color:#2a1a0a}
+        h1{font-size:20px;border-bottom:3px solid #c8960c;padding-bottom:8px;margin-bottom:6px}
+        .meta{font-size:13px;color:#6b4c2a;margin-bottom:12px}
+        .sup{background:#f5f0e8;border-left:4px solid #c8960c;padding:8px 12px;margin-bottom:20px;font-size:14px}
+        table{width:100%;border-collapse:collapse;font-size:13px}
+        thead tr{background:#2a1a0a;color:white}
+        th{padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase}
+        tbody tr:nth-child(even){background:#f5f0e8}
+        td{padding:8px 10px;border-bottom:1px solid #e8dcc8}
+        tfoot tr{background:#f5f0e8;border-top:2px solid #c8960c}
+        tfoot td{padding:8px 10px;font-weight:bold}
+        .tv{font-size:16px;color:#7a1a0a}
+    </style></head><body>
+    <h1>Planilla de Control de Producción</h1>
+    <div class="meta">${fechaLegible} — ${turnoLabel}</div>
+    <div class="sup">⭐ Supervisor: <strong>${supervisorNombre}</strong></div>
+    <table>
+        <thead><tr>
+            <th>Marca</th><th>Línea</th><th>Producto</th>
+            <th>Filas</th><th>Band.</th><th>Paq. sueltos</th>
+            <th>Total paq.</th><th>Hora</th>
+        </tr></thead>
+        <tbody>${filas}</tbody>
+        <tfoot><tr>
+            <td colspan="6" style="text-align:right">TOTAL GENERAL</td>
+            <td class="tv">${totalGeneral.toLocaleString()}</td><td></td>
+        </tr></tfoot>
+    </table>
+    </body></html>`;
+}
