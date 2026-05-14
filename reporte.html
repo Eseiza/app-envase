@@ -8,8 +8,11 @@
     <!-- Firebase PRIMERO -->
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-    <!-- Chart.js después -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Drive -->
+    <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </head>
 <body>
     <div class="container">
@@ -83,13 +86,11 @@
             <div class="calendario-section no-print" id="calendarioSection" style="display:none;">
                 <p class="section-title">📅 Historial por Fecha</p>
                 <div class="calendario-wrap">
-
                     <div class="cal-header">
                         <button class="cal-nav-btn" onclick="cambiarMes(-1)">&#8592;</button>
                         <span id="calTitulo" class="cal-titulo"></span>
                         <button class="cal-nav-btn" onclick="cambiarMes(1)">&#8594;</button>
                     </div>
-
                     <div class="cal-semana">
                         <div class="cal-semana-dia">Dom</div>
                         <div class="cal-semana-dia">Lun</div>
@@ -99,16 +100,13 @@
                         <div class="cal-semana-dia">Vie</div>
                         <div class="cal-semana-dia">Sáb</div>
                     </div>
-
                     <div class="cal-grid" id="calGrid"></div>
-
                     <div class="cal-leyenda">
                         <div class="leyenda-item"><div class="leyenda-hoy">•</div> Hoy</div>
                         <div class="leyenda-item"><div class="leyenda-sel"></div> Seleccionado</div>
                         <div class="leyenda-item"><div class="leyenda-punto"></div> Con registros</div>
                     </div>
                 </div>
-
                 <div class="fecha-seleccionada-info" id="fechaInfo">
                     Mostrando datos del <strong id="fechaInfoTexto"></strong>
                 </div>
@@ -116,9 +114,13 @@
 
             <!-- BOTONES -->
             <div class="reporte-actions no-print">
-                <button id="btn-imprimir" onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir / Guardar PDF</button>
-                <button id="btn-volver" onclick="window.location.href='admin.html'" class="btn btn-volver">← Volver al Panel</button>
+                <button id="btn-imprimir" onclick="window.print()"    class="btn btn-imprimir" style="display:none;">🖨️ Imprimir / Guardar PDF</button>
+                <button id="btn-drive"    onclick="guardarEnDrive()"  class="btn btn-drive"    style="display:none;">☁️ Guardar en Drive</button>
+                <button id="btn-volver"                                class="btn btn-volver">← Volver al Panel</button>
             </div>
+
+            <!-- Mensaje de estado Drive -->
+            <div id="drive-status" class="drive-status no-print" style="display:none;"></div>
 
         </div>
     </div>
