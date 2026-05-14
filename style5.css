@@ -146,7 +146,7 @@ body {
 .total-valor, .total-celda { font-family: 'Lora', serif; font-size: 16px; font-weight: 600; color: var(--bordo); }
 .vacio { text-align: center; padding: 32px !important; color: var(--texto-suave); font-style: italic; }
 
-/* Badge vuelta completa en la planilla del reporte */
+/* Badge vuelta completa en planilla */
 .badge-completa-reporte {
     display: inline-block;
     background: #eaf7ee;
@@ -177,18 +177,11 @@ body {
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 20px;
-    /* Ancho fijo para que las 7 columnas siempre quepan */
     width: 100%;
     max-width: 460px;
 }
 
-.cal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-}
-
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .cal-titulo { font-family: 'Lora', serif; font-size: 16px; font-weight: 600; color: var(--texto); }
 
 .cal-nav-btn {
@@ -203,35 +196,14 @@ body {
     font-weight: 700;
     transition: all 0.2s;
 }
-
 .cal-nav-btn:hover { border-color: var(--dorado); color: var(--texto); }
 
-/* Cabecera días de la semana */
-.cal-semana {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    margin-bottom: 4px;
-}
+.cal-semana { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 4px; }
+.cal-semana-dia { text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--texto-suave); padding: 4px 0; }
 
-.cal-semana-dia {
-    text-align: center;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    color: var(--texto-suave);
-    padding: 4px 0;
-}
-
-/* Grid de días — tamaño fijo por celda para evitar desborde */
-.cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 3px;
-}
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
 
 .cal-dia {
-    /* Altura fija en lugar de aspect-ratio para evitar desborde */
     height: 44px;
     display: flex;
     flex-direction: column;
@@ -242,7 +214,7 @@ body {
     position: relative;
     transition: all 0.15s;
     border: 1.5px solid transparent;
-    min-width: 0; /* evita que el contenido fuerce el ancho */
+    min-width: 0;
 }
 
 .cal-dia:not(.vacio):not(.futura):hover { background: #fef9ee; border-color: var(--dorado); }
@@ -254,23 +226,14 @@ body {
 
 .dia-num { font-size: 13px; font-weight: 700; color: var(--texto); }
 
-.punto-dato {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--rojo);
-    position: absolute;
-    bottom: 4px;
-}
+.punto-dato { width: 5px; height: 5px; border-radius: 50%; background: var(--rojo); position: absolute; bottom: 4px; }
 
-/* Leyenda */
 .cal-leyenda { display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
 .leyenda-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--texto-suave); font-weight: 600; }
 .leyenda-hoy   { color: var(--dorado); font-size: 18px; line-height: 1; }
 .leyenda-sel   { width: 12px; height: 12px; border-radius: 3px; background: var(--texto); }
 .leyenda-punto { width: 8px; height: 8px; border-radius: 50%; background: var(--rojo); }
 
-/* Info fecha seleccionada */
 .fecha-seleccionada-info {
     display: none;
     margin-top: 14px;
@@ -285,7 +248,7 @@ body {
 }
 .fecha-seleccionada-info.visible { display: block; }
 
-/* ─── BOTONES REPORTE ─────────────────────────────────── */
+/* ─── BOTONES ─────────────────────────────────────────── */
 .reporte-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
 .btn {
@@ -302,8 +265,25 @@ body {
 
 .btn-imprimir { background: var(--crema); color: var(--rojo); border: 2px solid var(--rojo) !important; font-family: 'Lora', serif; }
 .btn-imprimir:hover { background: var(--rojo); color: var(--crema); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(177,48,9,0.3); }
+
+.btn-drive { background: #e8f0fe; color: #1a56db; border: 2px solid #1a56db !important; }
+.btn-drive:hover { background: #1a56db; color: #fff; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,86,219,0.3); }
+.btn-drive:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
 .btn-volver { background: var(--gris-claro); color: var(--texto-suave); border: 1.5px solid var(--border) !important; }
 .btn-volver:hover { background: var(--border); color: var(--texto); transform: translateY(-1px); }
+
+/* ─── MENSAJE ESTADO DRIVE ────────────────────────────── */
+.drive-status {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: -12px;
+}
+.drive-status-info  { background: #e8f0fe; color: #1a56db; border: 1px solid #93b4f5; }
+.drive-status-ok    { background: #eaf7ee; color: #2d7a45; border: 1px solid #a8ddb8; }
+.drive-status-error { background: #fdecea; color: #b13009; border: 1px solid #f5a89a; }
 
 /* ─── PRINT ───────────────────────────────────────────── */
 @media print {
@@ -326,4 +306,6 @@ body {
     .calendario-wrap { max-width: 100%; }
     .cal-dia { height: 36px; }
     .dia-num { font-size: 12px; }
+    .reporte-actions { flex-direction: column; }
+    .btn { width: 100%; text-align: center; }
 }
