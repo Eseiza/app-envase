@@ -10,9 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Drive -->
-    <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-    <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </head>
 <body>
     <div class="container">
@@ -114,17 +111,21 @@
 
             <!-- BOTONES -->
             <div class="reporte-actions no-print">
-                <button id="btn-imprimir" onclick="window.print()"    class="btn btn-imprimir" style="display:none;">🖨️ Imprimir / Guardar PDF</button>
-                <button id="btn-drive"    onclick="guardarEnDrive()"  class="btn btn-drive"    style="display:none;">☁️ Guardar en Drive</button>
-                <button id="btn-volver"                                class="btn btn-volver">← Volver al Panel</button>
+                <button id="btn-imprimir" onclick="window.print()"   class="btn btn-imprimir" style="display:none;">🖨️ Imprimir / Guardar PDF</button>
+                <button id="btn-drive"    onclick="guardarEnDrive()" class="btn btn-drive"    style="display:none;">☁️ Guardar en Drive</button>
+                <button id="btn-volver"                               class="btn btn-volver">← Volver al Panel</button>
             </div>
 
-            <!-- Mensaje de estado Drive -->
+            <!-- Mensaje estado Drive -->
             <div id="drive-status" class="drive-status no-print" style="display:none;"></div>
 
         </div>
     </div>
 
+    <!-- reporte.js PRIMERO — define gapiLoaded y gisLoaded -->
     <script src="reporte.js"></script>
+    <!-- Google Drive DESPUÉS — así las funciones ya existen cuando los scripts las llaman -->
+    <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
