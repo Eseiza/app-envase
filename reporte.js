@@ -27,6 +27,13 @@ function getTurnoActual() {
     return 'noche';
 }
 
+// ──────────────────────────────────────────────────────
+//  getFechaParaTurno: para el turno noche, si estamos
+//  en madrugada (00-04) los datos están en la fecha
+//  del día anterior (cuando empezó el turno noche).
+//  Si el usuario elige ver el turno noche desde el
+//  calendario, se usa la fecha seleccionada directamente.
+// ──────────────────────────────────────────────────────
 function getFechaParaTurno(turno) {
     const ahora = new Date();
     if (turno === 'noche' && ahora.getHours() < 5) {
@@ -40,15 +47,14 @@ function getFechaParaTurno(turno) {
 // ======================================
 //  VARIABLES GLOBALES
 // ======================================
-let chartInstance   = null;
+let chartInstance  = null;
 let calMes, calAnio, fechaSeleccionada = null;
 
 const CAL_MES_INICIO  = 2;
 const CAL_ANIO_INICIO = 2026;
 
-// Turno y fecha activos (para Drive)
-let turnoActivo  = getTurnoActual();
-let fechaActiva  = getFechaParaTurno(turnoActivo);
+let turnoActivo = getTurnoActual();
+let fechaActiva = getFechaParaTurno(turnoActivo);
 
 // ======================================
 //  INIT
@@ -75,7 +81,7 @@ if (btnActual) btnActual.classList.add('active');
 cargarTurno(turnoInicial);
 
 // ======================================
-//  ROL — botones y permisos
+//  ROL
 // ======================================
 const rol = sessionStorage.getItem('rol');
 
@@ -140,7 +146,7 @@ function cargarTurno(turno) {
 }
 
 // ======================================
-//  CARGAR TURNO (fecha específica)
+//  CARGAR TURNO (fecha específica del calendario)
 // ======================================
 function cargarTurnoPorFecha(turno, fecha) {
     turnoActivo = turno;
@@ -162,7 +168,7 @@ function cargarTurnoPorFecha(turno, fecha) {
 //  RENDER PLANILLA
 // ======================================
 function renderPlanilla(data, turno, inicio, fin) {
-    const tbody  = document.getElementById('planillaBody');
+    const tbody   = document.getElementById('planillaBody');
     const labels  = [];
     const valores = [];
     let totalGeneral = 0;
@@ -363,11 +369,12 @@ const FOLDER_RAIZ_ID   = '1mlZ9hZNZ24c0gi7PwMGeOsUVOmI7sMtk';
 const SCOPES           = 'https://www.googleapis.com/auth/drive.file';
 
 let tokenClient;
-let gapiInited     = false;
-let gisInited      = false;
+let gapiInited      = false;
+let gisInited       = false;
 let driveAutorizado = false;
 
-function gapiLoaded() {
+// Estas funciones son llamadas por los scripts de Google via onload
+window.gapiLoaded = function () {
     gapi.load('client', async () => {
         await gapi.client.init({
             apiKey: GOOGLE_API_KEY,
@@ -375,16 +382,15 @@ function gapiLoaded() {
         });
         gapiInited = true;
     });
-}
+};
 
-function gisLoaded() {
+window.gisLoaded = function () {
     tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: GOOGLE_CLIENT_ID,
         scope: SCOPES,
         callback: (resp) => {
             if (!resp.error) {
                 driveAutorizado = true;
-                // Continuar con el guardado luego de autorizar
                 ejecutarGuardadoDrive();
             } else {
                 mostrarEstadoDrive('❌ Autorización cancelada.', 'error');
@@ -392,7 +398,7 @@ function gisLoaded() {
         },
     });
     gisInited = true;
-}
+};
 
 function mostrarEstadoDrive(mensaje, tipo) {
     const el = document.getElementById('drive-status');
@@ -402,7 +408,6 @@ function mostrarEstadoDrive(mensaje, tipo) {
     if (tipo === 'ok') setTimeout(() => { el.style.display = 'none'; }, 5000);
 }
 
-// Botón Drive — pide autorización si no la tiene, luego guarda
 window.guardarEnDrive = function () {
     if (!gapiInited || !gisInited) {
         mostrarEstadoDrive('⏳ Inicializando Google Drive, intentá en unos segundos...', 'info');
@@ -416,33 +421,32 @@ window.guardarEnDrive = function () {
 };
 
 async function ejecutarGuardadoDrive() {
-    const btnDrive = document.getElementById('btn-drive');
-    btnDrive.disabled    = true;
-    btnDrive.textContent = '☁️ Guardando...';
+    const btn = document.getElementById('btn-drive');
+    btn.disabled    = true;
+    btn.textContent = '☁️ Guardando...';
     mostrarEstadoDrive('⏳ Guardando en Drive...', 'info');
 
     try {
         const snap      = await db.ref(`historial/${fechaActiva}/sobrantes`).once('value');
         const sobrantes = snap.val();
 
-        const snapSup   = await db.ref(`historial/${fechaActiva}/supervisores/${turnoActivo}`).once('value');
+        const snapSup    = await db.ref(`historial/${fechaActiva}/supervisores/${turnoActivo}`).once('value');
         const supervisor = snapSup.val() || sessionStorage.getItem('supervisor') || '—';
 
         if (!sobrantes) {
             mostrarEstadoDrive('⚠️ No hay datos para guardar en este turno.', 'error');
-            btnDrive.disabled    = false;
-            btnDrive.textContent = '☁️ Guardar en Drive';
+            btn.disabled    = false;
+            btn.textContent = '☁️ Guardar en Drive';
             return;
         }
 
-        const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        const meses      = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
         const partes     = fechaActiva.split('-');
         const nombreMes  = meses[parseInt(partes[1]) - 1];
         const anio       = partes[2];
         const turnoLabel = TURNOS[turnoActivo].label;
         const nombreArchivo = `${turnoLabel} - ${fechaActiva}`;
 
-        // Estructura de carpetas: Raíz / Año / Mes / Fecha
         const carpetaAnio  = await obtenerOCrearCarpeta(anio,        FOLDER_RAIZ_ID);
         const carpetaMes   = await obtenerOCrearCarpeta(nombreMes,   carpetaAnio);
         const carpetaFecha = await obtenerOCrearCarpeta(fechaActiva, carpetaMes);
@@ -475,18 +479,17 @@ async function ejecutarGuardadoDrive() {
             });
         }
 
-        mostrarEstadoDrive(`✅ Guardado en Drive: ${anio} / ${nombreMes} / ${fechaActiva} / ${nombreArchivo}`, 'ok');
+        mostrarEstadoDrive(`✅ Guardado: ${anio} / ${nombreMes} / ${fechaActiva} / ${nombreArchivo}`, 'ok');
 
     } catch (err) {
         console.error('Error Drive:', err);
         mostrarEstadoDrive('❌ Error al guardar en Drive. Revisá la consola.', 'error');
     } finally {
-        btnDrive.disabled    = false;
-        btnDrive.textContent = '☁️ Guardar en Drive';
+        btn.disabled    = false;
+        btn.textContent = '☁️ Guardar en Drive';
     }
 }
 
-// ── Helpers Drive ──────────────────────────────────────
 async function obtenerOCrearCarpeta(nombre, parentId) {
     const res = await gapi.client.drive.files.list({
         q: `name='${nombre}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`,
