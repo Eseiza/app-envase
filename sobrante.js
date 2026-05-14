@@ -11,10 +11,24 @@ const firebaseConfig = {
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const db = firebase.database();
 
-const getFechaHoy = () => {
-    const hoy = new Date();
-    return `${hoy.getDate()}-${hoy.getMonth() + 1}-${hoy.getFullYear()}`;
+// ──────────────────────────────────────────────────────
+//  FECHA: si es entre 00:00 y 04:59 pertenece al turno
+//  noche del día anterior → guardamos con fecha de ayer
+// ──────────────────────────────────────────────────────
+const getFechaParaGuardar = () => {
+    const ahora = new Date();
+    const hora  = ahora.getHours();
+    // Madrugada: el turno noche empezó ayer
+    if (hora < 5) {
+        const ayer = new Date(ahora);
+        ayer.setDate(ayer.getDate() - 1);
+        return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
+    }
+    return `${ahora.getDate()}-${ahora.getMonth() + 1}-${ahora.getFullYear()}`;
 };
+
+// Para leer la lista en tiempo real usamos la misma lógica
+const getFechaLista = getFechaParaGuardar;
 
 const BANDEJAS_POR_FILA = 14;
 
@@ -59,7 +73,7 @@ const PRODUCTOS = {
 // ======================================
 window.actualizarLinea = function () {
     const marca = document.getElementById('sel-marca').value;
-    const selLinea = document.getElementById('sel-linea');
+    const selLinea    = document.getElementById('sel-linea');
     const selProducto = document.getElementById('sel-producto');
 
     selLinea.innerHTML = '<option value="" disabled selected>-- Línea --</option>';
@@ -69,7 +83,7 @@ window.actualizarLinea = function () {
     selLinea.disabled = false;
 
     selProducto.innerHTML = '<option value="" disabled selected>-- Producto --</option>';
-    selProducto.disabled = true;
+    selProducto.disabled  = true;
     resetInputs();
 };
 
@@ -93,10 +107,10 @@ window.actualizarProducto = function () {
 //  PRODUCTO → INFO
 // ======================================
 window.actualizarInfo = function () {
-    const marca = document.getElementById('sel-marca').value;
-    const linea = document.getElementById('sel-linea').value;
+    const marca    = document.getElementById('sel-marca').value;
+    const linea    = document.getElementById('sel-linea').value;
     const producto = document.getElementById('sel-producto').value;
-    const paq = PRODUCTOS[marca][linea].productos[producto].paq;
+    const paq      = PRODUCTOS[marca][linea].productos[producto].paq;
 
     document.getElementById('bandeja-texto').innerHTML =
         `<strong>${producto}</strong> — ${paq} paquetes por bandeja × ${BANDEJAS_POR_FILA} bandejas por fila = <strong>${paq * BANDEJAS_POR_FILA} paq/fila</strong>`;
@@ -104,7 +118,7 @@ window.actualizarInfo = function () {
 
     ['inp-filas', 'inp-bandejas', 'inp-incompletos'].forEach(id => {
         document.getElementById(id).disabled = false;
-        document.getElementById(id).value = '';
+        document.getElementById(id).value    = '';
     });
     document.getElementById('total-box').classList.remove('visible');
     document.getElementById('guardar-sobrante-btn').disabled = true;
@@ -114,14 +128,14 @@ window.actualizarInfo = function () {
 //  CALCULAR TOTAL
 // ======================================
 window.calcularTotal = function () {
-    const marca = document.getElementById('sel-marca').value;
-    const linea = document.getElementById('sel-linea').value;
+    const marca    = document.getElementById('sel-marca').value;
+    const linea    = document.getElementById('sel-linea').value;
     const producto = document.getElementById('sel-producto').value;
     if (!marca || !linea || !producto) return;
 
-    const paq        = PRODUCTOS[marca][linea].productos[producto].paq;
-    const filas      = parseInt(document.getElementById('inp-filas').value)      || 0;
-    const bandejas   = parseInt(document.getElementById('inp-bandejas').value)   || 0;
+    const paq         = PRODUCTOS[marca][linea].productos[producto].paq;
+    const filas       = parseInt(document.getElementById('inp-filas').value)       || 0;
+    const bandejas    = parseInt(document.getElementById('inp-bandejas').value)    || 0;
     const incompletos = parseInt(document.getElementById('inp-incompletos').value) || 0;
     const total = (filas * BANDEJAS_POR_FILA * paq) + (bandejas * paq) + incompletos;
 
@@ -133,14 +147,14 @@ window.calcularTotal = function () {
 };
 
 // ======================================
-//  RESET INPUTS
+//  RESET
 // ======================================
 function resetInputs() {
     document.getElementById('bandeja-info').classList.remove('visible');
     document.getElementById('total-box').classList.remove('visible');
     ['inp-filas', 'inp-bandejas', 'inp-incompletos'].forEach(id => {
         document.getElementById(id).disabled = true;
-        document.getElementById(id).value = '';
+        document.getElementById(id).value    = '';
     });
     document.getElementById('guardar-sobrante-btn').disabled = true;
 }
@@ -149,16 +163,16 @@ function resetInputs() {
 //  GUARDAR EN FIREBASE
 // ======================================
 document.getElementById('guardar-sobrante-btn').onclick = function () {
-    const marca      = document.getElementById('sel-marca');
-    const linea      = document.getElementById('sel-linea');
-    const producto   = document.getElementById('sel-producto').value;
-    const paq        = PRODUCTOS[marca.value][linea.value].productos[producto].paq;
-    const filas      = parseInt(document.getElementById('inp-filas').value)       || 0;
-    const bandejas   = parseInt(document.getElementById('inp-bandejas').value)    || 0;
+    const marca       = document.getElementById('sel-marca');
+    const linea       = document.getElementById('sel-linea');
+    const producto    = document.getElementById('sel-producto').value;
+    const paq         = PRODUCTOS[marca.value][linea.value].productos[producto].paq;
+    const filas       = parseInt(document.getElementById('inp-filas').value)       || 0;
+    const bandejas    = parseInt(document.getElementById('inp-bandejas').value)    || 0;
     const incompletos = parseInt(document.getElementById('inp-incompletos').value) || 0;
-    const total      = (filas * BANDEJAS_POR_FILA * paq) + (bandejas * paq) + incompletos;
-    const marcaLabel = marca.value === 'romero' ? 'Romero' : 'The Roxy';
-    const lineaLabel = PRODUCTOS[marca.value][linea.value].label;
+    const total       = (filas * BANDEJAS_POR_FILA * paq) + (bandejas * paq) + incompletos;
+    const marcaLabel  = marca.value === 'romero' ? 'Romero' : 'The Roxy';
+    const lineaLabel  = PRODUCTOS[marca.value][linea.value].label;
 
     const supervisorActual = sessionStorage.getItem('supervisor') || 'No asignado';
     const horaActual = new Date().toLocaleTimeString('es-AR', {
@@ -169,9 +183,12 @@ document.getElementById('guardar-sobrante-btn').onclick = function () {
     let turnoActual = 'noche';
     if (horaNum >= 5  && horaNum < 13) turnoActual = 'manana';
     else if (horaNum >= 13 && horaNum < 22) turnoActual = 'tarde';
+    // Entre 00:00 y 04:59 → sigue siendo turno noche
 
-    // Guardar en Firebase
-    db.ref(`historial/${getFechaHoy()}/sobrantes`).push({
+    // ✅ Fecha correcta según turno
+    const fechaGuardar = getFechaParaGuardar();
+
+    db.ref(`historial/${fechaGuardar}/sobrantes`).push({
         marca: marcaLabel,
         linea: lineaLabel,
         producto,
@@ -186,10 +203,10 @@ document.getElementById('guardar-sobrante-btn').onclick = function () {
     });
 
     // Guardar supervisor del turno
-    db.ref(`historial/${getFechaHoy()}/supervisores/${turnoActual}`).set(supervisorActual);
+    db.ref(`historial/${fechaGuardar}/supervisores/${turnoActual}`).set(supervisorActual);
 
     // Reset form
-    document.getElementById('sel-marca').value = '';
+    document.getElementById('sel-marca').value      = '';
     document.getElementById('sel-linea').innerHTML  = '<option value="" disabled selected>-- Línea --</option>';
     document.getElementById('sel-linea').disabled   = true;
     document.getElementById('sel-producto').innerHTML = '<option value="" disabled selected>-- Producto --</option>';
@@ -200,7 +217,7 @@ document.getElementById('guardar-sobrante-btn').onclick = function () {
 // ======================================
 //  ESCUCHAR EN TIEMPO REAL
 // ======================================
-db.ref(`historial/${getFechaHoy()}/sobrantes`).on('value', (snapshot) => {
+db.ref(`historial/${getFechaLista()}/sobrantes`).on('value', (snapshot) => {
     const data  = snapshot.val();
     const lista = document.getElementById('taskList');
     lista.innerHTML = "";
@@ -218,8 +235,8 @@ db.ref(`historial/${getFechaHoy()}/sobrantes`).on('value', (snapshot) => {
                     <span>${s.producto}</span>
                     <span class="item-detalle">
                         ${s.filas} filas × ${BANDEJAS_POR_FILA} × ${s.paqPorBandeja} paq
-                        +  ${s.bandejas} bandejas × ${s.paqPorBandeja}
-                        +  ${s.incompletos} sueltos — ${s.hora}
+                        + ${s.bandejas} bandejas × ${s.paqPorBandeja}
+                        + ${s.incompletos} sueltos — ${s.hora}
                     </span>
                 </div>
                 <div class="item-right">
@@ -235,6 +252,6 @@ db.ref(`historial/${getFechaHoy()}/sobrantes`).on('value', (snapshot) => {
 // ======================================
 window.eliminar = (id) => {
     if (confirm("¿Eliminar este registro?")) {
-        db.ref(`historial/${getFechaHoy()}/sobrantes/${id}`).remove();
+        db.ref(`historial/${getFechaLista()}/sobrantes/${id}`).remove();
     }
 };
