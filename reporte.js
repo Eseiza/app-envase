@@ -27,13 +27,6 @@ function getTurnoActual() {
     return 'noche';
 }
 
-// ──────────────────────────────────────────────────────
-//  getFechaParaTurno: para el turno noche, si estamos
-//  en madrugada (00-04) los datos están en la fecha
-//  del día anterior (cuando empezó el turno noche).
-//  Si el usuario elige ver el turno noche desde el
-//  calendario, se usa la fecha seleccionada directamente.
-// ──────────────────────────────────────────────────────
 function getFechaParaTurno(turno) {
     const ahora = new Date();
     if (turno === 'noche' && ahora.getHours() < 5) {
@@ -146,7 +139,7 @@ function cargarTurno(turno) {
 }
 
 // ======================================
-//  CARGAR TURNO (fecha específica del calendario)
+//  CARGAR TURNO (fecha específica)
 // ======================================
 function cargarTurnoPorFecha(turno, fecha) {
     turnoActivo = turno;
@@ -169,8 +162,6 @@ function cargarTurnoPorFecha(turno, fecha) {
 // ======================================
 function renderPlanilla(data, turno, inicio, fin) {
     const tbody   = document.getElementById('planillaBody');
-    const labels  = [];
-    const valores = [];
     let totalGeneral = 0;
 
     tbody.innerHTML = '';
@@ -197,11 +188,19 @@ function renderPlanilla(data, turno, inicio, fin) {
         return;
     }
 
+    // Acumular totales por producto para el gráfico
+    const totalesPorProducto = {};
+
     registros.forEach(s => {
         const total = s.total || 0;
         totalGeneral += total;
-        labels.push(s.producto);
-        valores.push(total);
+
+        // Agrupar para el gráfico
+        if (totalesPorProducto[s.producto]) {
+            totalesPorProducto[s.producto] += total;
+        } else {
+            totalesPorProducto[s.producto] = total;
+        }
 
         const bandejas    = s.vueltaCompleta
             ? '<em class="badge-completa-reporte">✔ Vuelta completa</em>'
@@ -223,6 +222,10 @@ function renderPlanilla(data, turno, inicio, fin) {
     });
 
     document.getElementById('totalGeneral').innerText = totalGeneral.toLocaleString();
+
+    // Gráfico con productos agrupados
+    const labels  = Object.keys(totalesPorProducto);
+    const valores = Object.values(totalesPorProducto);
     renderGrafico(labels, valores, totalGeneral);
 }
 
@@ -250,7 +253,13 @@ function renderGrafico(labels, valores, total) {
             plugins: {
                 legend: {
                     position: 'right',
-                    labels: { color: '#2a1a0a', font: { family: 'Lato', size: 13 }, padding: 16, usePointStyle: true, pointStyleWidth: 12 }
+                    labels: {
+                        color: '#2a1a0a',
+                        font: { family: 'Lato', size: 13 },
+                        padding: 16,
+                        usePointStyle: true,
+                        pointStyleWidth: 12
+                    }
                 },
                 tooltip: {
                     callbacks: {
@@ -373,7 +382,6 @@ let gapiInited      = false;
 let gisInited       = false;
 let driveAutorizado = false;
 
-// Estas funciones son llamadas por los scripts de Google via onload
 window.gapiLoaded = function () {
     gapi.load('client', async () => {
         await gapi.client.init({
