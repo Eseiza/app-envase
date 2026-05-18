@@ -11,15 +11,27 @@ const firebaseConfig = {
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const db = firebase.database();
 
-// ──────────────────────────────────────────────────────
-//  FECHA: si es entre 00:00 y 04:59 pertenece al turno
-//  noche del día anterior → guardamos con fecha de ayer
-// ──────────────────────────────────────────────────────
+// ======================================
+//  TURNO Y FECHA SEGÚN HORARIOS
+//  Mañana: 08:31 - 16:30
+//  Tarde:  16:31 - 00:30
+//  Noche:  00:31 - 08:30
+// ======================================
+function getTurnoActual() {
+    const ahora = new Date();
+    const min   = ahora.getHours() * 60 + ahora.getMinutes();
+    if (min >= 511 && min <= 990)  return 'manana'; // 08:31 - 16:30
+    if (min >= 991 || min <= 30)   return 'tarde';  // 16:31 - 00:30
+    return 'noche';                                  // 00:31 - 08:30
+}
+
+// Si estamos en turno noche (00:31-08:30), los datos se guardan
+// con la fecha del día anterior (cuando empezó el turno)
 const getFechaParaGuardar = () => {
     const ahora = new Date();
-    const hora  = ahora.getHours();
-    // Madrugada: el turno noche empezó ayer
-    if (hora < 5) {
+    const min   = ahora.getHours() * 60 + ahora.getMinutes();
+    if (min >= 31 && min <= 510) {
+        // Madrugada turno noche → fecha de ayer
         const ayer = new Date(ahora);
         ayer.setDate(ayer.getDate() - 1);
         return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
@@ -27,7 +39,6 @@ const getFechaParaGuardar = () => {
     return `${ahora.getDate()}-${ahora.getMonth() + 1}-${ahora.getFullYear()}`;
 };
 
-// Para leer la lista en tiempo real usamos la misma lógica
 const getFechaLista = getFechaParaGuardar;
 
 const BANDEJAS_POR_FILA = 14;
@@ -72,7 +83,7 @@ const PRODUCTOS = {
 //  MARCA → LÍNEA
 // ======================================
 window.actualizarLinea = function () {
-    const marca = document.getElementById('sel-marca').value;
+    const marca       = document.getElementById('sel-marca').value;
     const selLinea    = document.getElementById('sel-linea');
     const selProducto = document.getElementById('sel-producto');
 
@@ -91,8 +102,8 @@ window.actualizarLinea = function () {
 //  LÍNEA → PRODUCTO
 // ======================================
 window.actualizarProducto = function () {
-    const marca = document.getElementById('sel-marca').value;
-    const linea = document.getElementById('sel-linea').value;
+    const marca       = document.getElementById('sel-marca').value;
+    const linea       = document.getElementById('sel-linea').value;
     const selProducto = document.getElementById('sel-producto');
 
     selProducto.innerHTML = '<option value="" disabled selected>-- Producto --</option>';
@@ -179,13 +190,7 @@ document.getElementById('guardar-sobrante-btn').onclick = function () {
         hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
     });
 
-    const horaNum = new Date().getHours();
-    let turnoActual = 'noche';
-    if (horaNum >= 5  && horaNum < 13) turnoActual = 'manana';
-    else if (horaNum >= 13 && horaNum < 22) turnoActual = 'tarde';
-    // Entre 00:00 y 04:59 → sigue siendo turno noche
-
-    // ✅ Fecha correcta según turno
+    const turnoActual  = getTurnoActual();
     const fechaGuardar = getFechaParaGuardar();
 
     db.ref(`historial/${fechaGuardar}/sobrantes`).push({
@@ -202,7 +207,6 @@ document.getElementById('guardar-sobrante-btn').onclick = function () {
         hora: horaActual
     });
 
-    // Guardar supervisor del turno
     db.ref(`historial/${fechaGuardar}/supervisores/${turnoActual}`).set(supervisorActual);
 
     // Reset form
