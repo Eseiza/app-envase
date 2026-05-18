@@ -13,28 +13,56 @@ const db = firebase.database();
 
 // ======================================
 //  TURNOS
+//  Mañana: 08:31 - 16:30
+//  Tarde:  16:31 - 00:30
+//  Noche:  00:31 - 08:30
+//  Los límites se expresan en minutos desde medianoche
 // ======================================
 const TURNOS = {
-    manana: { label: 'Turno Mañana',  inicio: 5,  fin: 13 },
-    tarde:  { label: 'Turno Tarde',   inicio: 13, fin: 22 },
-    noche:  { label: 'Turno Noche',   inicio: 22, fin: 5  }
+    manana: { label: 'Turno Mañana', inicioMin: 511,  finMin: 990  }, // 08:31 - 16:30
+    tarde:  { label: 'Turno Tarde',  inicioMin: 991,  finMin: 1470 }, // 16:31 - 00:30 (1470 = 24:30 = 30 min del día siguiente)
+    noche:  { label: 'Turno Noche',  inicioMin: 31,   finMin: 510  }  // 00:31 - 08:30
 };
 
+// Convierte "HH:MM:SS" o "HH:MM" a minutos desde medianoche
+function horaAMinutos(horaStr) {
+    if (!horaStr) return null;
+    const partes = horaStr.split(':');
+    const h = parseInt(partes[0], 10);
+    const m = parseInt(partes[1], 10) || 0;
+    if (isNaN(h)) return null;
+    return h * 60 + m;
+}
+
 function getTurnoActual() {
-    const hora = new Date().getHours();
-    if (hora >= 5  && hora < 13) return 'manana';
-    if (hora >= 13 && hora < 22) return 'tarde';
-    return 'noche';
+    const ahora = new Date();
+    const min   = ahora.getHours() * 60 + ahora.getMinutes();
+    if (min >= 511  && min <= 990)  return 'manana'; // 08:31 - 16:30
+    if (min >= 991  && min <= 1439) return 'tarde';  // 16:31 - 23:59
+    if (min >= 0    && min <= 30)   return 'tarde';  // 00:00 - 00:30 (sigue siendo tarde)
+    return 'noche';                                   // 00:31 - 08:30
 }
 
 function getFechaParaTurno(turno) {
     const ahora = new Date();
-    if (turno === 'noche' && ahora.getHours() < 5) {
+    const min   = ahora.getHours() * 60 + ahora.getMinutes();
+    // Turno noche: registros entre 00:31 y 08:30 pertenecen al día anterior
+    if (turno === 'noche' && min >= 31 && min <= 510) {
         const ayer = new Date(ahora);
         ayer.setDate(ayer.getDate() - 1);
         return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
     }
     return `${ahora.getDate()}-${ahora.getMonth() + 1}-${ahora.getFullYear()}`;
+}
+
+// Filtra si un registro pertenece al turno según su hora
+function perteneceAlTurno(horaStr, turno) {
+    const min = horaAMinutos(horaStr);
+    if (min === null) return false;
+    if (turno === 'manana') return min >= 511 && min <= 990;
+    if (turno === 'tarde')  return (min >= 991 && min <= 1439) || (min >= 0 && min <= 30);
+    if (turno === 'noche')  return min >= 31 && min <= 510;
+    return false;
 }
 
 // ======================================
@@ -134,7 +162,7 @@ function cargarTurno(turno) {
     cargarSupervisorFirebase(fechaActiva, turno);
 
     db.ref(`historial/${fechaActiva}/sobrantes`).once('value', (snapshot) => {
-        renderPlanilla(snapshot.val(), turno, TURNOS[turno].inicio, TURNOS[turno].fin);
+        renderPlanilla(snapshot.val(), turno);
     });
 }
 
@@ -153,15 +181,15 @@ function cargarTurnoPorFecha(turno, fecha) {
     cargarSupervisorFirebase(fecha, turno);
 
     db.ref(`historial/${fecha}/sobrantes`).once('value', (snapshot) => {
-        renderPlanilla(snapshot.val(), turno, TURNOS[turno].inicio, TURNOS[turno].fin);
+        renderPlanilla(snapshot.val(), turno);
     });
 }
 
 // ======================================
 //  RENDER PLANILLA
 // ======================================
-function renderPlanilla(data, turno, inicio, fin) {
-    const tbody   = document.getElementById('planillaBody');
+function renderPlanilla(data, turno) {
+    const tbody = document.getElementById('planillaBody');
     let totalGeneral = 0;
 
     tbody.innerHTML = '';
@@ -173,13 +201,7 @@ function renderPlanilla(data, turno, inicio, fin) {
         return;
     }
 
-    const registros = Object.values(data).filter(s => {
-        if (!s.hora) return false;
-        const h = parseInt(s.hora.split(':')[0], 10);
-        if (isNaN(h)) return false;
-        if (turno === 'noche') return h >= 22 || h < 5;
-        return h >= inicio && h < fin;
-    });
+    const registros = Object.values(data).filter(s => perteneceAlTurno(s.hora, turno));
 
     if (registros.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay registros en este turno.</td></tr>';
@@ -188,7 +210,6 @@ function renderPlanilla(data, turno, inicio, fin) {
         return;
     }
 
-    // Acumular totales por producto para el gráfico
     const totalesPorProducto = {};
 
     registros.forEach(s => {
@@ -196,11 +217,7 @@ function renderPlanilla(data, turno, inicio, fin) {
         totalGeneral += total;
 
         // Agrupar para el gráfico
-        if (totalesPorProducto[s.producto]) {
-            totalesPorProducto[s.producto] += total;
-        } else {
-            totalesPorProducto[s.producto] = total;
-        }
+        totalesPorProducto[s.producto] = (totalesPorProducto[s.producto] || 0) + total;
 
         const bandejas    = s.vueltaCompleta
             ? '<em class="badge-completa-reporte">✔ Vuelta completa</em>'
@@ -222,11 +239,7 @@ function renderPlanilla(data, turno, inicio, fin) {
     });
 
     document.getElementById('totalGeneral').innerText = totalGeneral.toLocaleString();
-
-    // Gráfico con productos agrupados
-    const labels  = Object.keys(totalesPorProducto);
-    const valores = Object.values(totalesPorProducto);
-    renderGrafico(labels, valores, totalGeneral);
+    renderGrafico(Object.keys(totalesPorProducto), Object.values(totalesPorProducto), totalGeneral);
 }
 
 // ======================================
@@ -448,11 +461,11 @@ async function ejecutarGuardadoDrive() {
             return;
         }
 
-        const meses      = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-        const partes     = fechaActiva.split('-');
-        const nombreMes  = meses[parseInt(partes[1]) - 1];
-        const anio       = partes[2];
-        const turnoLabel = TURNOS[turnoActivo].label;
+        const meses         = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        const partes        = fechaActiva.split('-');
+        const nombreMes     = meses[parseInt(partes[1]) - 1];
+        const anio          = partes[2];
+        const turnoLabel    = TURNOS[turnoActivo].label;
         const nombreArchivo = `${turnoLabel} - ${fechaActiva}`;
 
         const carpetaAnio  = await obtenerOCrearCarpeta(anio,        FOLDER_RAIZ_ID);
@@ -504,7 +517,6 @@ async function obtenerOCrearCarpeta(nombre, parentId) {
         fields: 'files(id)',
     });
     if (res.result.files.length > 0) return res.result.files[0].id;
-
     const crear = await gapi.client.drive.files.create({
         resource: { name: nombre, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] },
         fields: 'id',
@@ -525,14 +537,8 @@ function generarHTMLPlanilla(turno, fecha, sobrantes, supervisorNombre) {
     const partes = fecha.split('-');
     const fechaLegible = `${partes[0]} de ${meses[parseInt(partes[1]) - 1]} de ${partes[2]}`;
     const turnoLabel   = TURNOS[turno].label;
-    const { inicio, fin } = TURNOS[turno];
 
-    const registros = Object.values(sobrantes).filter(s => {
-        if (!s.hora) return false;
-        const h = parseInt(s.hora.split(':')[0], 10);
-        if (turno === 'noche') return h >= 22 || h < 5;
-        return h >= inicio && h < fin;
-    });
+    const registros = Object.values(sobrantes).filter(s => perteneceAlTurno(s.hora, turno));
 
     let totalGeneral = 0;
     const filas = registros.map(s => {
