@@ -13,16 +13,30 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-const getFechaHoy = () => {
-    const hoy = new Date();
-    return `${hoy.getDate()}-${hoy.getMonth() + 1}-${hoy.getFullYear()}`;
-};
-
+// ======================================
+//  TURNO Y FECHA — horarios actualizados
+//  Mañana: 08:31 - 16:30
+//  Tarde:  16:31 - 00:30
+//  Noche:  00:31 - 08:30 (fecha del día anterior)
+// ======================================
 function getTurnoActual() {
-    const h = new Date().getHours();
-    if (h >= 5  && h < 13) return 'manana';
-    if (h >= 13 && h < 22) return 'tarde';
-    return 'noche';
+    const ahora = new Date();
+    const min   = ahora.getHours() * 60 + ahora.getMinutes();
+    if (min >= 511 && min <= 990)  return 'manana'; // 08:31 - 16:30
+    if (min >= 991 || min <= 30)   return 'tarde';  // 16:31 - 00:30
+    return 'noche';                                  // 00:31 - 08:30
+}
+
+function getFechaParaTurno() {
+    const ahora = new Date();
+    const min   = ahora.getHours() * 60 + ahora.getMinutes();
+    // Turno noche de madrugada → pertenece al día anterior
+    if (min >= 31 && min <= 510) {
+        const ayer = new Date(ahora);
+        ayer.setDate(ayer.getDate() - 1);
+        return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
+    }
+    return `${ahora.getDate()}-${ahora.getMonth() + 1}-${ahora.getFullYear()}`;
 }
 
 // ─── USUARIOS ─────────────────────────────────────────
@@ -51,12 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const grid = document.querySelector('.roles-grid');
     if (!grid) return;
 
-    // Crear select de rol
     const select = document.createElement('select');
     select.id = 'rolSelect';
 
     const placeholder = document.createElement('option');
-    placeholder.value = '';
+    placeholder.value    = '';
     placeholder.disabled = true;
     placeholder.selected = true;
     placeholder.textContent = '-- Seleccioná un rol --';
@@ -64,50 +77,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ROLES.forEach(r => {
         const opt = document.createElement('option');
-        opt.value = r.value;
+        opt.value       = r.value;
         opt.textContent = `${r.icon}  ${r.label}`;
         select.appendChild(opt);
     });
 
-    select.addEventListener('change', function() {
+    select.addEventListener('change', function () {
         seleccionarRol(this.value, null);
     });
 
-    // Insertar antes del grid (que queda oculto por CSS)
     grid.parentNode.insertBefore(select, grid);
 });
 
 // ─── SELECCIÓN DE ROL ──────────────────────────────────
-window.seleccionarRol = function(rol, elemento) {
+window.seleccionarRol = function (rol, elemento) {
     rolSeleccionado = rol;
 
-    // Mantener compatibilidad con botones (por si acaso)
     if (elemento) {
         document.querySelectorAll('.rol-btn').forEach(b => b.classList.remove('active'));
         elemento.classList.add('active');
     }
 
-    // Mostrar formulario
     document.getElementById('formBody').classList.add('visible');
 
-    // Mostrar/ocultar supervisor
-    const supervisorGroup = document.getElementById('supervisorGroup');
+    const supervisorGroup  = document.getElementById('supervisorGroup');
     const supervisorSelect = document.getElementById('supervisor');
+
     if (rol === 'supervisor') {
         supervisorGroup.classList.add('visible');
         supervisorSelect.required = true;
     } else {
         supervisorGroup.classList.remove('visible');
         supervisorSelect.required = false;
-        supervisorSelect.value = '';
+        supervisorSelect.value    = '';
     }
 
-    document.getElementById('btnIngresar').disabled = false;
+    document.getElementById('btnIngresar').disabled    = false;
     document.getElementById('btnIngresar').textContent = 'Iniciar Sesión';
 };
 
 // ─── SUBMIT ────────────────────────────────────────────
-document.getElementById('loginForm').addEventListener('submit', function(event) {
+document.getElementById('loginForm').addEventListener('submit', function (event) {
     event.preventDefault();
 
     const inputUsername  = document.getElementById('username').value.trim().toLowerCase();
@@ -127,15 +137,19 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             messageDisplay.style.color = "red";
             return;
         }
+
         sessionStorage.setItem('supervisor', supervisor);
+
+        // ✅ Turno y fecha correctos según horarios actualizados
         const turno = getTurnoActual();
-        db.ref(`historial/${getFechaHoy()}/supervisores/${turno}`).set(supervisor);
+        const fecha = getFechaParaTurno();
+        db.ref(`historial/${fecha}/supervisores/${turno}`).set(supervisor);
     }
 
     const usuarioEncontrado = USUARIOS.find(u =>
-        u.usuario === inputUsername &&
+        u.usuario    === inputUsername &&
         u.contrasena === inputPassword &&
-        u.rol === rolSeleccionado
+        u.rol        === rolSeleccionado
     );
 
     if (usuarioEncontrado) {
