@@ -300,3 +300,112 @@ li button:hover { background: #ffe0e0; }
     .supervisor-badge { margin: 12px 18px; }
     .btn-reporte { width: calc(100% - 36px); margin: 0 18px 20px; }
 }
+
+/* ─── MODAL CRUD ───────────────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(42,26,10,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+}
+
+.modal-box {
+    background: #fff;
+    border-radius: 16px;
+    border-top: 4px solid var(--dorado);
+    padding: 28px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: slideUp 0.25s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.modal-box h3 {
+    font-family: 'Lora', serif;
+    font-size: 17px;
+    color: var(--texto);
+    margin-bottom: 20px;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-form label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: -4px;
+}
+
+.modal-form input,
+.modal-form select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid #e0d0b0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    color: var(--texto);
+    background: #fff;
+}
+
+.modal-form input:focus,
+.modal-form select:focus {
+    outline: none;
+    border-color: var(--dorado);
+    box-shadow: 0 0 0 3px rgba(200,150,12,0.15);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-modal-guardar {
+    flex: 1;
+    padding: 11px;
+    background: var(--rojo);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-modal-guardar:hover { background: var(--bordo); }
+
+.btn-modal-cancelar {
+    flex: 1;
+    padding: 11px;
+    background: var(--gris-claro);
+    color: var(--texto-suave);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-editar {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+.btn-editar:hover { background: #fff8e0; }
