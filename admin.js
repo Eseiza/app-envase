@@ -49,7 +49,7 @@ const categoriaLabels = {
     pan: "Pan"
 };
 
-const selectMarca    = document.getElementById('task-marca');
+const selectMarca     = document.getElementById('task-marca');
 const selectCategoria = document.getElementById('task-categoria');
 const selectProducto  = document.getElementById('task-category');
 const checkCompleta   = document.getElementById('vueltaCompleta');
@@ -72,7 +72,6 @@ checkCompleta.addEventListener('change', function () {
 // ======================================
 selectMarca.addEventListener('change', function () {
     const categorias = categoriasPorMarca[this.value] || [];
-
     selectCategoria.innerHTML = '<option value="" disabled selected>-- Línea --</option>';
     categorias.forEach(c => {
         const opt = document.createElement('option');
@@ -81,7 +80,6 @@ selectMarca.addEventListener('change', function () {
         selectCategoria.appendChild(opt);
     });
     selectCategoria.disabled = false;
-
     selectProducto.innerHTML = '<option value="" disabled selected>-- Producto --</option>';
     selectProducto.disabled = true;
 });
@@ -91,7 +89,6 @@ selectMarca.addEventListener('change', function () {
 // ======================================
 selectCategoria.addEventListener('change', function () {
     const productos = productosPorCategoria[this.value] || [];
-
     selectProducto.innerHTML = '<option value="" disabled selected>-- Selecciona un Producto --</option>';
     productos.forEach(p => {
         const opt = document.createElement('option');
@@ -121,25 +118,108 @@ document.getElementById('add-task-btn').onclick = function () {
     }
 
     db.ref(`historial/${getFechaHoy()}/tareas`).push({
-        marca,
-        categoria,
-        producto,
-        cantidad:       completa ? '—' : cantidad,
+        marca, categoria, producto,
+        cantidad: completa ? '—' : cantidad,
         vueltaCompleta: completa,
         vuelta,
         completado: false
     });
 
     // Reset form
-    inputBandejas.value          = '';
-    inputBandejas.style.display  = '';
+    inputBandejas.value         = '';
+    inputBandejas.style.display = '';
     document.getElementById('taskVuelta').value = '';
-    checkCompleta.checked        = false;
-    selectMarca.value            = '';
-    selectCategoria.innerHTML    = '<option value="" disabled selected>-- Línea --</option>';
-    selectCategoria.disabled     = true;
-    selectProducto.innerHTML     = '<option value="" disabled selected>-- Producto --</option>';
-    selectProducto.disabled      = true;
+    checkCompleta.checked    = false;
+    selectMarca.value        = '';
+    selectCategoria.innerHTML = '<option value="" disabled selected>-- Línea --</option>';
+    selectCategoria.disabled  = true;
+    selectProducto.innerHTML  = '<option value="" disabled selected>-- Producto --</option>';
+    selectProducto.disabled   = true;
+};
+
+// ======================================
+//  MODAL DE EDICIÓN DE TAREA
+// ======================================
+function abrirModalTarea(id, t) {
+    // Crear modal
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'modal-tarea';
+
+    const marcaOpts = ['The Roxy', 'Romero'].map(m =>
+        `<option ${t.marca === m ? 'selected' : ''}>${m}</option>`).join('');
+
+    const lineaOpts = ['Bollería', 'Pan'].map(l =>
+        `<option ${t.categoria === l ? 'selected' : ''}>${l}</option>`).join('');
+
+    const productoOpts = [...productosPorCategoria.bolleria, ...productosPorCategoria.pan].map(p =>
+        `<option ${t.producto === p ? 'selected' : ''}>${p}</option>`).join('');
+
+    overlay.innerHTML = `
+        <div class="modal-box">
+            <h3>✏️ Editar Tarea</h3>
+            <div class="modal-form">
+                <label>N° Vuelta</label>
+                <input type="number" id="edit-vuelta" value="${t.vuelta}" min="1">
+
+                <label>Marca</label>
+                <select id="edit-marca">${marcaOpts}</select>
+
+                <label>Línea</label>
+                <select id="edit-linea">${lineaOpts}</select>
+
+                <label>Producto</label>
+                <select id="edit-producto">${productoOpts}</select>
+
+                <label class="label-completa">
+                    <input type="checkbox" id="edit-completa" ${t.vueltaCompleta ? 'checked' : ''}> Vuelta completa
+                </label>
+
+                <div id="edit-bandejas-wrap">
+                    <label>Bandejas</label>
+                    <input type="number" id="edit-bandejas" value="${t.vueltaCompleta ? '' : t.cantidad}" min="1" ${t.vueltaCompleta ? 'style="display:none"' : ''}>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-modal-guardar" onclick="guardarTarea('${id}')">💾 Guardar</button>
+                <button class="btn-modal-cancelar" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>`;
+
+    document.body.appendChild(overlay);
+
+    // Toggle bandejas al marcar vuelta completa
+    document.getElementById('edit-completa').addEventListener('change', function () {
+        document.getElementById('edit-bandejas').style.display = this.checked ? 'none' : '';
+    });
+}
+
+window.guardarTarea = function (id) {
+    const vuelta   = document.getElementById('edit-vuelta').value;
+    const marca    = document.getElementById('edit-marca').value;
+    const linea    = document.getElementById('edit-linea').value;
+    const producto = document.getElementById('edit-producto').value;
+    const completa = document.getElementById('edit-completa').checked;
+    const cantidad = document.getElementById('edit-bandejas').value;
+
+    if (!vuelta || !marca || !linea || !producto) return alert("Faltan datos");
+    if (!completa && !cantidad) return alert("Ingresá la cantidad de bandejas o marcá 'Vuelta completa'");
+
+    db.ref(`historial/${getFechaHoy()}/tareas/${id}`).update({
+        vuelta,
+        marca,
+        categoria: linea,
+        producto,
+        vueltaCompleta: completa,
+        cantidad: completa ? '—' : cantidad
+    });
+
+    cerrarModal();
+};
+
+window.cerrarModal = function () {
+    const m = document.getElementById('modal-tarea') || document.getElementById('modal-sobrante');
+    if (m) m.remove();
 };
 
 // ======================================
@@ -161,7 +241,10 @@ db.ref(`historial/${getFechaHoy()}`).on('value', (snapshot) => {
             listaT.innerHTML += `
                 <li>
                     <span>${t.vuelta}º Vuelta — [${t.marca}] ${t.producto}: ${cantidadTexto} ${t.completado ? '✅' : '⏳'}</span>
-                    <button class="no-print" onclick="borrarTarea('${id}')">❌</button>
+                    <div style="display:flex;gap:6px">
+                        <button class="no-print btn-editar" onclick='abrirModalTarea("${id}", ${JSON.stringify(t)})'>✏️</button>
+                        <button class="no-print" onclick="borrarTarea('${id}')">❌</button>
+                    </div>
                 </li>`;
         });
     }
@@ -209,6 +292,7 @@ function dibujarGrafico(labels, valores) {
     });
 }
 
-window.borrarTarea  = (id) => { if (confirm("¿Eliminar orden?")) db.ref(`historial/${getFechaHoy()}/tareas/${id}`).remove(); };
-window.cerrarSesion = () => { sessionStorage.clear(); window.location.href = "index.html"; };
+window.borrarTarea      = (id) => { if (confirm("¿Eliminar orden?")) db.ref(`historial/${getFechaHoy()}/tareas/${id}`).remove(); };
+window.cerrarSesion     = () => { sessionStorage.clear(); window.location.href = "index.html"; };
 window.descargarReporte = () => { window.print(); };
+window.abrirModalTarea  = abrirModalTarea;
