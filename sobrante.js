@@ -69,6 +69,12 @@ const PRODUCTOS = {
                 "Super":       { paq: 16 },
                 "Max":         { paq: 16 }
             }
+        },
+        pan: {
+            label: "Pan de Molde",
+            productos: {
+                "Lactal Chico": { paq: 15 }
+            }
         }
     }
 };
