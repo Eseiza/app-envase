@@ -36,17 +36,19 @@ if (supervisor && supervisorEl) {
 // ======================================
 const productosPorCategoria = {
     bolleria: ["Pancho", "Super", "Hamburguesa", "Max"],
-    pan: ["Lactal Familiar", "Lactal Chico", "Salvado Familiar", "Salvado Chico", "Integral", "Multicereal"]
+    pan: ["Lactal Familiar", "Lactal Chico", "Salvado Familiar", "Salvado Chico", "Integral", "Multicereal"],
+    panTR: ["Lactal Chico"]
 };
 
 const categoriasPorMarca = {
-    roxy: ["bolleria"],
+    roxy: ["bolleria", "panTR"],
     romero: ["bolleria", "pan"]
 };
 
 const categoriaLabels = {
     bolleria: "Bollería",
-    pan: "Pan"
+    pan: "Pan",
+    panTR: "Pan"
 };
 
 const selectMarca     = document.getElementById('task-marca');
