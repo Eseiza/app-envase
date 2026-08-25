@@ -36,9 +36,18 @@
             <div class="turno-selector no-print">
                 <p class="section-title">🕐 Seleccionar Turno</p>
                 <div class="turno-btns">
-                    <button class="btn-turno" id="btn-manana" onclick="cargarTurno('manana')">Mañana<br><small>08:31 - 16:30</small></button>
-                    <button class="btn-turno" id="btn-tarde"  onclick="cargarTurno('tarde')">Tarde<br><small>16:31 - 00:30</small></button>
-                    <button class="btn-turno" id="btn-noche"  onclick="cargarTurno('noche')">Noche<br><small>00:31 - 08:30</small></button>
+                    <button class="btn-turno btn-filtro" data-tipo="turno" data-valor="manana" id="btn-manana" onclick="cargarFiltro('turno','manana')">Mañana<br><small>08:30 - 16:30</small></button>
+                    <button class="btn-turno btn-filtro" data-tipo="turno" data-valor="tarde"  id="btn-tarde"  onclick="cargarFiltro('turno','tarde')">Tarde<br><small>16:31 - 00:30</small></button>
+                    <button class="btn-turno btn-filtro" data-tipo="turno" data-valor="noche"  id="btn-noche"  onclick="cargarFiltro('turno','noche')">Noche<br><small>00:31 - 08:30</small></button>
+                </div>
+            </div>
+
+            <!-- SELECTOR DE LÍNEA (mismo día, sin dividir por turno) -->
+            <div class="turno-selector no-print">
+                <p class="section-title">🍞 Ver por Línea (todo el día, sin turnos)</p>
+                <div class="turno-btns">
+                    <button class="btn-turno btn-filtro" data-tipo="linea" data-valor="pan"      id="btn-linea-pan"      onclick="cargarFiltro('linea','pan')">Pan de Molde</button>
+                    <button class="btn-turno btn-filtro" data-tipo="linea" data-valor="bolleria" id="btn-linea-bolleria" onclick="cargarFiltro('linea','bolleria')">Bollería</button>
                 </div>
             </div>
 
