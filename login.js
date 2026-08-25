@@ -15,23 +15,23 @@ const db = firebase.database();
 
 // ======================================
 //  TURNO Y FECHA — horarios actualizados
-//  Mañana: 08:31 - 16:30
-//  Tarde:  16:31 - 00:30
-//  Noche:  00:31 - 08:30 (fecha del día anterior)
+//  Mañana: 08:30 - 16:30
+//  Tarde:  16:31 - 00:29
+//  Noche:  00:30 - 08:29 (fecha del día anterior)
 // ======================================
 function getTurnoActual() {
     const ahora = new Date();
     const min   = ahora.getHours() * 60 + ahora.getMinutes();
-    if (min >= 511 && min <= 990)  return 'manana'; // 08:31 - 16:30
-    if (min >= 991 || min <= 30)   return 'tarde';  // 16:31 - 00:30
-    return 'noche';                                  // 00:31 - 08:30
+    if (min >= 510 && min <= 990)  return 'manana'; // 08:30 - 16:30
+    if (min >= 991 || min <= 29)   return 'tarde';  // 16:31 - 00:29
+    return 'noche';                                  // 00:30 - 08:29
 }
 
 function getFechaParaTurno() {
     const ahora = new Date();
     const min   = ahora.getHours() * 60 + ahora.getMinutes();
     // Turno noche de madrugada → pertenece al día anterior
-    if (min >= 31 && min <= 510) {
+    if (min >= 0 && min <= 509) {
         const ayer = new Date(ahora);
         ayer.setDate(ayer.getDate() - 1);
         return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
