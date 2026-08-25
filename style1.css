@@ -1,378 +1,254 @@
-const firebaseConfig = {
-    apiKey: "AIzaSyAJgnFCKt_8TT4BpWrDwqy--Oep0raYA18",
-    authDomain: "romero-env.firebaseapp.com",
-    databaseURL: "https://romero-env-default-rtdb.firebaseio.com",
-    projectId: "romero-env",
-    storageBucket: "romero-env.firebasestorage.app",
-    messagingSenderId: "350498956335",
-    appId: "1:350498956335:web:901f91c4d7b983308252da"
-};
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;1,400&family=Nunito:wght@400;600;700&display=swap');
 
-if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-const db = firebase.database();
-
-// ======================================
-//  TURNO Y FECHA
-// ======================================
-function getTurnoActual() {
-    const ahora = new Date();
-    const min   = ahora.getHours() * 60 + ahora.getMinutes();
-    if (min >= 510 && min <= 990)  return 'manana'; // 08:30 - 16:30
-    if (min >= 991 || min <= 29)   return 'tarde';  // 16:31 - 00:29
-    return 'noche';                                  // 00:30 - 08:29
+:root {
+    --dorado:       #c8960c;
+    --dorado-claro: #e8b84b;
+    --bordo:        #7a1a0a;
+    --rojo:         #b13009;
+    --crema:        #fdf6ec;
+    --gris-claro:   #f5f0e8;
+    --texto:        #2a1a0a;
+    --texto-suave:  #6b4c2a;
 }
 
-const getFechaParaGuardar = () => {
-    const ahora = new Date();
-    const min   = ahora.getHours() * 60 + ahora.getMinutes();
-    if (min >= 0 && min <= 509) {
-        const ayer = new Date(ahora);
-        ayer.setDate(ayer.getDate() - 1);
-        return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
-    }
-    return `${ahora.getDate()}-${ahora.getMonth() + 1}-${ahora.getFullYear()}`;
-};
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-const getFechaLista = getFechaParaGuardar;
-
-const BANDEJAS_POR_FILA = 14;
-
-const PRODUCTOS = {
-    romero: {
-        bolleria: {
-            label: "Bollería",
-            productos: {
-                "Pancho":      { paq: 16 },
-                "Hamburguesa": { paq: 21 },
-                "Super":       { paq: 16 },
-                "Max":         { paq: 16 }
-            }
-        },
-        pan: {
-            label: "Pan de Molde",
-            productos: {
-                "Lactal Familiar":  { paq: 10 },
-                "Lactal Chico":     { paq: 15 },
-                "Salvado Familiar": { paq: 10 },
-                "Salvado Chico":    { paq: 15 },
-                "Integral":         { paq: 15 },
-                "Multicereal":      { paq: 15 }
-            }
-        }
-    },
-    roxy: {
-        bolleria: {
-            label: "Bollería",
-            productos: {
-                "Pancho":      { paq: 16 },
-                "Hamburguesa": { paq: 15 },
-                "Super":       { paq: 16 },
-                "Max":         { paq: 16 }
-            }
-        },
-        pan: {
-            label: "Pan de Molde",
-            productos: {
-                "Lactal Chico": { paq: 15 }
-            }
-        }
-    }
-};
-
-// ======================================
-//  MARCA → LÍNEA
-// ======================================
-window.actualizarLinea = function () {
-    const marca       = document.getElementById('sel-marca').value;
-    const selLinea    = document.getElementById('sel-linea');
-    const selProducto = document.getElementById('sel-producto');
-
-    selLinea.innerHTML = '<option value="" disabled selected>-- Línea --</option>';
-    Object.entries(PRODUCTOS[marca]).forEach(([key, val]) => {
-        selLinea.innerHTML += `<option value="${key}">${val.label}</option>`;
-    });
-    selLinea.disabled = false;
-    selProducto.innerHTML = '<option value="" disabled selected>-- Producto --</option>';
-    selProducto.disabled  = true;
-    resetInputs();
-};
-
-// ======================================
-//  LÍNEA → PRODUCTO
-// ======================================
-window.actualizarProducto = function () {
-    const marca       = document.getElementById('sel-marca').value;
-    const linea       = document.getElementById('sel-linea').value;
-    const selProducto = document.getElementById('sel-producto');
-
-    selProducto.innerHTML = '<option value="" disabled selected>-- Producto --</option>';
-    Object.keys(PRODUCTOS[marca][linea].productos).forEach(nombre => {
-        selProducto.innerHTML += `<option value="${nombre}">${nombre}</option>`;
-    });
-    selProducto.disabled = false;
-    resetInputs();
-};
-
-// ======================================
-//  PRODUCTO → INFO
-// ======================================
-window.actualizarInfo = function () {
-    const marca    = document.getElementById('sel-marca').value;
-    const linea    = document.getElementById('sel-linea').value;
-    const producto = document.getElementById('sel-producto').value;
-    const paq      = PRODUCTOS[marca][linea].productos[producto].paq;
-
-    document.getElementById('bandeja-texto').innerHTML =
-        `<strong>${producto}</strong> — ${paq} paquetes por bandeja × ${BANDEJAS_POR_FILA} bandejas por fila = <strong>${paq * BANDEJAS_POR_FILA} paq/fila</strong>`;
-    document.getElementById('bandeja-info').classList.add('visible');
-
-    ['inp-filas', 'inp-bandejas', 'inp-incompletos'].forEach(id => {
-        document.getElementById(id).disabled = false;
-        document.getElementById(id).value    = '';
-    });
-    document.getElementById('total-box').classList.remove('visible');
-    document.getElementById('guardar-sobrante-btn').disabled = true;
-};
-
-// ======================================
-//  CALCULAR TOTAL
-// ======================================
-window.calcularTotal = function () {
-    const marca    = document.getElementById('sel-marca').value;
-    const linea    = document.getElementById('sel-linea').value;
-    const producto = document.getElementById('sel-producto').value;
-    if (!marca || !linea || !producto) return;
-
-    const paq         = PRODUCTOS[marca][linea].productos[producto].paq;
-    const filas       = parseInt(document.getElementById('inp-filas').value)       || 0;
-    const bandejas    = parseInt(document.getElementById('inp-bandejas').value)    || 0;
-    const incompletos = parseInt(document.getElementById('inp-incompletos').value) || 0;
-    const total = (filas * BANDEJAS_POR_FILA * paq) + (bandejas * paq) + incompletos;
-
-    document.getElementById('total-numero').textContent = total.toLocaleString();
-    document.getElementById('total-detalle').textContent =
-        `${filas} filas × ${BANDEJAS_POR_FILA} × ${paq} paq  +  ${bandejas} bandejas × ${paq}  +  ${incompletos} sueltos`;
-    document.getElementById('total-box').classList.add('visible');
-    document.getElementById('guardar-sobrante-btn').disabled = (filas === 0 && bandejas === 0 && incompletos === 0);
-};
-
-// ======================================
-//  RESET
-// ======================================
-function resetInputs() {
-    document.getElementById('bandeja-info').classList.remove('visible');
-    document.getElementById('total-box').classList.remove('visible');
-    ['inp-filas', 'inp-bandejas', 'inp-incompletos'].forEach(id => {
-        document.getElementById(id).disabled = true;
-        document.getElementById(id).value    = '';
-    });
-    document.getElementById('guardar-sobrante-btn').disabled = true;
+body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow: hidden;
+    position: relative;
 }
 
-// ======================================
-//  GUARDAR EN FIREBASE
-// ======================================
-document.getElementById('guardar-sobrante-btn').onclick = function () {
-    const marca       = document.getElementById('sel-marca');
-    const linea       = document.getElementById('sel-linea');
-    const producto    = document.getElementById('sel-producto').value;
-    const paq         = PRODUCTOS[marca.value][linea.value].productos[producto].paq;
-    const filas       = parseInt(document.getElementById('inp-filas').value)       || 0;
-    const bandejas    = parseInt(document.getElementById('inp-bandejas').value)    || 0;
-    const incompletos = parseInt(document.getElementById('inp-incompletos').value) || 0;
-    const total       = (filas * BANDEJAS_POR_FILA * paq) + (bandejas * paq) + incompletos;
-    const marcaLabel  = marca.value === 'romero' ? 'Romero' : 'The Roxy';
-    const lineaLabel  = PRODUCTOS[marca.value][linea.value].label;
-
-    const supervisorActual = sessionStorage.getItem('supervisor') || 'No asignado';
-    const horaActual = new Date().toLocaleTimeString('es-AR', {
-        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-    });
-
-    const turnoActual  = getTurnoActual();
-    const fechaGuardar = getFechaParaGuardar();
-
-    db.ref(`historial/${fechaGuardar}/sobrantes`).push({
-        marca: marcaLabel, linea: lineaLabel, producto,
-        paqPorBandeja: paq, filas, bandejas, incompletos,
-        total, supervisor: supervisorActual,
-        turno: turnoActual, hora: horaActual
-    });
-
-    db.ref(`historial/${fechaGuardar}/supervisores/${turnoActual}`).set(supervisorActual);
-
-    // Reset form
-    document.getElementById('sel-marca').value      = '';
-    document.getElementById('sel-linea').innerHTML  = '<option value="" disabled selected>-- Línea --</option>';
-    document.getElementById('sel-linea').disabled   = true;
-    document.getElementById('sel-producto').innerHTML = '<option value="" disabled selected>-- Producto --</option>';
-    document.getElementById('sel-producto').disabled  = true;
-    resetInputs();
-};
-
-// ======================================
-//  MODAL EDICIÓN SOBRANTE
-// ======================================
-function abrirModalSobrante(id, s) {
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-    overlay.id = 'modal-sobrante';
-
-    // Armar opciones de marca
-    const marcaOpts = [
-        { val: 'romero', label: 'Romero' },
-        { val: 'roxy',   label: 'The Roxy' }
-    ].map(m => `<option value="${m.val}" ${s.marca === m.label ? 'selected' : ''}>${m.label}</option>`).join('');
-
-    // Armar opciones de línea según marca guardada
-    const marcaKey = s.marca === 'Romero' ? 'romero' : 'roxy';
-    const lineaOpts = Object.entries(PRODUCTOS[marcaKey]).map(([key, val]) =>
-        `<option value="${key}" ${s.linea === val.label ? 'selected' : ''}>${val.label}</option>`
-    ).join('');
-
-    // Armar opciones de producto
-    const lineaKey = Object.keys(PRODUCTOS[marcaKey]).find(k => PRODUCTOS[marcaKey][k].label === s.linea) || Object.keys(PRODUCTOS[marcaKey])[0];
-    const productoOpts = Object.keys(PRODUCTOS[marcaKey][lineaKey].productos).map(p =>
-        `<option ${s.producto === p ? 'selected' : ''}>${p}</option>`
-    ).join('');
-
-    overlay.innerHTML = `
-        <div class="modal-box">
-            <h3>✏️ Editar Producción</h3>
-            <div class="modal-form">
-                <label>Marca</label>
-                <select id="edit-s-marca" onchange="actualizarModalLinea()">${marcaOpts}</select>
-
-                <label>Línea</label>
-                <select id="edit-s-linea" onchange="actualizarModalProducto()">${lineaOpts}</select>
-
-                <label>Producto</label>
-                <select id="edit-s-producto" onchange="recalcularModalTotal()">${productoOpts}</select>
-
-                <label>Filas completas</label>
-                <input type="number" id="edit-s-filas" value="${s.filas || 0}" min="0" oninput="recalcularModalTotal()">
-
-                <label>Bandejas sueltas</label>
-                <input type="number" id="edit-s-bandejas" value="${s.bandejas || 0}" min="0" oninput="recalcularModalTotal()">
-
-                <label>Paquetes sueltos</label>
-                <input type="number" id="edit-s-incompletos" value="${s.incompletos || 0}" min="0" oninput="recalcularModalTotal()">
-
-                <div class="modal-total-box" id="modal-total-box">
-                    Total: <strong id="modal-total-num">—</strong> paq.
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-modal-guardar" onclick="guardarSobrante('${id}')">💾 Guardar</button>
-                <button class="btn-modal-cancelar" onclick="cerrarModal()">Cancelar</button>
-            </div>
-        </div>`;
-
-    document.body.appendChild(overlay);
-    recalcularModalTotal();
+/* ─── FONDO ───────────────────────────────────────────── */
+.bg-gradient {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #2a1a0a 0%, #3d2408 40%, #1a0d04 70%, #2a1a0a 100%);
+    z-index: 0;
+    animation: bgShift 12s ease-in-out infinite alternate;
 }
 
-window.actualizarModalLinea = function () {
-    const marcaKey = document.getElementById('edit-s-marca').value;
-    const selLinea = document.getElementById('edit-s-linea');
-    selLinea.innerHTML = '';
-    Object.entries(PRODUCTOS[marcaKey]).forEach(([key, val]) => {
-        selLinea.innerHTML += `<option value="${key}">${val.label}</option>`;
-    });
-    actualizarModalProducto();
-};
+@keyframes bgShift {
+    0%   { opacity: 0.85; }
+    100% { opacity: 1; }
+}
 
-window.actualizarModalProducto = function () {
-    const marcaKey  = document.getElementById('edit-s-marca').value;
-    const lineaKey  = document.getElementById('edit-s-linea').value;
-    const selProd   = document.getElementById('edit-s-producto');
-    selProd.innerHTML = '';
-    Object.keys(PRODUCTOS[marcaKey][lineaKey].productos).forEach(p => {
-        selProd.innerHTML += `<option>${p}</option>`;
-    });
-    recalcularModalTotal();
-};
+.bg-lines {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: repeating-linear-gradient(
+        -45deg, transparent, transparent 60px,
+        rgba(200,150,12,0.025) 60px, rgba(200,150,12,0.025) 61px
+    );
+}
 
-window.recalcularModalTotal = function () {
-    const marcaKey    = document.getElementById('edit-s-marca').value;
-    const lineaKey    = document.getElementById('edit-s-linea').value;
-    const producto    = document.getElementById('edit-s-producto').value;
-    if (!marcaKey || !lineaKey || !producto) return;
+/* ─── CARD ────────────────────────────────────────────── */
+.login-container {
+    position: relative;
+    z-index: 1;
+    background: rgba(255,255,255,0.98);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(200,150,12,0.2);
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    border-top: 4px solid var(--dorado);
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 
-    const paq         = PRODUCTOS[marcaKey][lineaKey].productos[producto]?.paq || 0;
-    const filas       = parseInt(document.getElementById('edit-s-filas').value)       || 0;
-    const bandejas    = parseInt(document.getElementById('edit-s-bandejas').value)    || 0;
-    const incompletos = parseInt(document.getElementById('edit-s-incompletos').value) || 0;
-    const total = (filas * BANDEJAS_POR_FILA * paq) + (bandejas * paq) + incompletos;
-    document.getElementById('modal-total-num').textContent = total.toLocaleString();
-};
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
 
-window.guardarSobrante = function (id) {
-    const marcaKey    = document.getElementById('edit-s-marca').value;
-    const lineaKey    = document.getElementById('edit-s-linea').value;
-    const producto    = document.getElementById('edit-s-producto').value;
-    const filas       = parseInt(document.getElementById('edit-s-filas').value)       || 0;
-    const bandejas    = parseInt(document.getElementById('edit-s-bandejas').value)    || 0;
-    const incompletos = parseInt(document.getElementById('edit-s-incompletos').value) || 0;
-    const paq         = PRODUCTOS[marcaKey][lineaKey].productos[producto]?.paq || 0;
-    const total       = (filas * BANDEJAS_POR_FILA * paq) + (bandejas * paq) + incompletos;
-    const marcaLabel  = marcaKey === 'romero' ? 'Romero' : 'The Roxy';
-    const lineaLabel  = PRODUCTOS[marcaKey][lineaKey].label;
+.header-icon {
+    max-width: 180px;
+    margin-bottom: 16px;
+    animation: fadeIn 0.8s ease 0.3s both;
+}
 
-    db.ref(`historial/${getFechaLista()}/sobrantes/${id}`).update({
-        marca: marcaLabel, linea: lineaLabel, producto,
-        paqPorBandeja: paq, filas, bandejas, incompletos, total
-    });
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
 
-    cerrarModal();
-};
+.divider {
+    border: none;
+    border-top: 1px solid var(--dorado-claro);
+    margin: 0 0 24px;
+}
 
-window.cerrarModal = function () {
-    const m = document.getElementById('modal-sobrante') || document.getElementById('modal-tarea');
-    if (m) m.remove();
-};
+/* ─── ROLES: ocultar grid, mostrar como select ────────── */
+.roles-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    text-align: left;
+}
 
-// ======================================
-//  ESCUCHAR EN TIEMPO REAL
-// ======================================
-db.ref(`historial/${getFechaLista()}/sobrantes`).on('value', (snapshot) => {
-    const data  = snapshot.val();
-    const lista = document.getElementById('taskList');
-    lista.innerHTML = "";
+.roles-grid {
+    display: none; /* ← OCULTO: reemplazado por select en login.js */
+}
 
-    if (!data) {
-        lista.innerHTML = '<li class="vacio">No hay producción registrada hoy.</li>';
-        return;
-    }
+/* Select de rol generado por JS */
+#rolSelect {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #e0d0b0;
+    border-radius: 8px;
+    background: var(--crema);
+    color: var(--texto);
+    font-size: 15px;
+    font-family: 'Nunito', sans-serif;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23c8960c' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
 
-    Object.entries(data).forEach(([id, s]) => {
-        lista.innerHTML += `
-            <li>
-                <div class="item-info">
-                    <span class="item-marca">${s.marca} — ${s.linea}</span>
-                    <span>${s.producto}</span>
-                    <span class="item-detalle">
-                        ${s.filas} filas × ${BANDEJAS_POR_FILA} × ${s.paqPorBandeja} paq
-                        + ${s.bandejas} bandejas × ${s.paqPorBandeja}
-                        + ${s.incompletos} sueltos — ${s.hora}
-                    </span>
-                </div>
-                <div class="item-right">
-                    <span class="item-total">${s.total.toLocaleString()} paq.</span>
-                    <button class="btn-editar" onclick='abrirModalSobrante("${id}", ${JSON.stringify(s)})'>✏️</button>
-                    <button class="btn-eliminar" onclick="eliminar('${id}')">❌</button>
-                </div>
-            </li>`;
-    });
-});
+#rolSelect:focus {
+    outline: none;
+    border-color: var(--dorado);
+    box-shadow: 0 0 0 3px rgba(200,150,12,0.15);
+}
 
-// ======================================
-//  ELIMINAR
-// ======================================
-window.eliminar = (id) => {
-    if (confirm("¿Eliminar este registro?")) {
-        db.ref(`historial/${getFechaLista()}/sobrantes/${id}`).remove();
-    }
-};
+/* ─── FORM ────────────────────────────────────────────── */
+.form-body {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    text-align: left;
+}
 
-window.abrirModalSobrante = abrirModalSobrante;
+.form-body.visible {
+    max-height: 500px;
+    opacity: 1;
+}
+
+.form-group { margin-bottom: 16px; }
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--texto-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #e0d0b0;
+    border-radius: 8px;
+    background: var(--crema);
+    color: var(--texto);
+    font-size: 15px;
+    font-family: 'Nunito', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--dorado);
+    box-shadow: 0 0 0 3px rgba(200,150,12,0.15);
+}
+
+/* ─── SUPERVISOR ──────────────────────────────────────── */
+.supervisor-group {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.supervisor-group.visible {
+    max-height: 100px;
+    opacity: 1;
+    margin-bottom: 16px;
+}
+
+select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #e0d0b0;
+    border-radius: 8px;
+    background: var(--crema);
+    color: var(--texto);
+    font-size: 15px;
+    font-family: 'Nunito', sans-serif;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23c8960c' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--dorado);
+    box-shadow: 0 0 0 3px rgba(200,150,12,0.15);
+}
+
+/* ─── BOTÓN LOGIN ─────────────────────────────────────── */
+button[type="submit"] {
+    width: 100%;
+    padding: 13px;
+    background: var(--crema);
+    color: var(--rojo);
+    border: 2px solid var(--rojo);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Lora', serif;
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+    transition: background 0.2s, color 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+button[type="submit"]:hover {
+    background: var(--rojo);
+    color: var(--crema);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(177,48,9,0.3);
+}
+
+button[type="submit"]:active { transform: translateY(0); }
+
+#loginMessage {
+    margin-top: 16px;
+    font-weight: 700;
+    font-size: 13px;
+    min-height: 20px;
+    font-family: 'Nunito', sans-serif;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────────── */
+@media (max-width: 480px) {
+    .login-container { padding: 24px 18px; border-radius: 14px; }
+    .header-icon { max-width: 130px; }
+    input[type="text"], input[type="password"], select { padding: 13px 12px; font-size: 16px; }
+    button[type="submit"] { padding: 14px; font-size: 16px; }
+}
