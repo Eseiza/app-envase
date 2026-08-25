@@ -13,15 +13,21 @@ const db = firebase.database();
 
 // ======================================
 //  TURNOS
-//  Mañana: 08:31 - 16:30
-//  Tarde:  16:31 - 00:30
-//  Noche:  00:31 - 08:30
+//  Mañana: 08:30 - 16:30
+//  Tarde:  16:31 - 00:29
+//  Noche:  00:30 - 08:29
 //  Los límites se expresan en minutos desde medianoche
 // ======================================
 const TURNOS = {
-    manana: { label: 'Turno Mañana', inicioMin: 511,  finMin: 990  }, // 08:31 - 16:30
-    tarde:  { label: 'Turno Tarde',  inicioMin: 991,  finMin: 1470 }, // 16:31 - 00:30 (1470 = 24:30 = 30 min del día siguiente)
-    noche:  { label: 'Turno Noche',  inicioMin: 31,   finMin: 510  }  // 00:31 - 08:30
+    manana: { label: 'Turno Mañana', inicioMin: 510,  finMin: 990  }, // 08:30 - 16:30
+    tarde:  { label: 'Turno Tarde',  inicioMin: 991,  finMin: 1469 }, // 16:31 - 00:29 (1469 = 24:29 = 29 min del día siguiente)
+    noche:  { label: 'Turno Noche',  inicioMin: 30,   finMin: 509  }  // 00:30 - 08:29
+};
+
+// Vista alternativa: mismo día completo, agrupado por línea en vez de por turno
+const LINEAS = {
+    pan:      { label: 'Pan de Molde' },
+    bolleria: { label: 'Bollería' }
 };
 
 // Convierte "HH:MM:SS" o "HH:MM" a minutos desde medianoche
@@ -37,17 +43,18 @@ function horaAMinutos(horaStr) {
 function getTurnoActual() {
     const ahora = new Date();
     const min   = ahora.getHours() * 60 + ahora.getMinutes();
-    if (min >= 511  && min <= 990)  return 'manana'; // 08:31 - 16:30
+    if (min >= 510  && min <= 990)  return 'manana'; // 08:30 - 16:30
     if (min >= 991  && min <= 1439) return 'tarde';  // 16:31 - 23:59
-    if (min >= 0    && min <= 30)   return 'tarde';  // 00:00 - 00:30 (sigue siendo tarde)
-    return 'noche';                                   // 00:31 - 08:30
+    if (min >= 0    && min <= 29)   return 'tarde';  // 00:00 - 00:29 (sigue siendo tarde)
+    return 'noche';                                   // 00:30 - 08:29
 }
 
 function getFechaParaTurno(turno) {
     const ahora = new Date();
     const min   = ahora.getHours() * 60 + ahora.getMinutes();
-    // Turno noche: registros entre 00:31 y 08:30 pertenecen al día anterior
-    if (turno === 'noche' && min >= 31 && min <= 510) {
+    // Colita de Tarde (00:00-00:29) y toda la Noche (00:30-08:29) pertenecen
+    // al mismo grupo que empezó el día anterior con la Mañana
+    if (min >= 0 && min <= 509) {
         const ayer = new Date(ahora);
         ayer.setDate(ayer.getDate() - 1);
         return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
@@ -59,10 +66,24 @@ function getFechaParaTurno(turno) {
 function perteneceAlTurno(horaStr, turno) {
     const min = horaAMinutos(horaStr);
     if (min === null) return false;
-    if (turno === 'manana') return min >= 511 && min <= 990;
-    if (turno === 'tarde')  return (min >= 991 && min <= 1439) || (min >= 0 && min <= 30);
-    if (turno === 'noche')  return min >= 31 && min <= 510;
+    if (turno === 'manana') return min >= 510 && min <= 990;
+    if (turno === 'tarde')  return (min >= 991 && min <= 1439) || (min >= 0 && min <= 29);
+    if (turno === 'noche')  return min >= 30 && min <= 509;
     return false;
+}
+
+// Filtra un objeto de registros (sobrantes) según el modo activo ('turno' o 'linea')
+function filtrarRegistros(data, modo, filtro) {
+    if (!data) return [];
+    if (modo === 'linea') {
+        const lineaLabel = LINEAS[filtro].label;
+        return Object.values(data).filter(s => s.linea === lineaLabel);
+    }
+    return Object.values(data).filter(s => perteneceAlTurno(s.hora, filtro));
+}
+
+function labelDelFiltro(modo, filtro) {
+    return modo === 'linea' ? LINEAS[filtro].label : TURNOS[filtro].label;
 }
 
 // ======================================
@@ -74,8 +95,11 @@ let calMes, calAnio, fechaSeleccionada = null;
 const CAL_MES_INICIO  = 2;
 const CAL_ANIO_INICIO = 2026;
 
-let turnoActivo = getTurnoActual();
-let fechaActiva = getFechaParaTurno(turnoActivo);
+// modoActivo: 'turno' (Mañana/Tarde/Noche) o 'linea' (Pan de Molde/Bollería, todo el día)
+let modoActivo   = 'turno';
+let filtroActivo = getTurnoActual();
+let turnoActivo  = filtroActivo; // alias, se mantiene por compatibilidad
+let fechaActiva  = getFechaParaTurno(filtroActivo);
 
 // ======================================
 //  INIT
@@ -95,11 +119,137 @@ function cargarSupervisorFirebase(fecha, turno) {
     });
 }
 
-const turnoInicial = getTurnoActual();
-const btnActual = document.getElementById(`btn-${turnoInicial}`);
-if (btnActual) btnActual.classList.add('active');
+// ======================================
+//  CARGAR FILTRO (unificado: turno o línea) — vista "hoy en vivo"
+// ======================================
+function cargarFiltro(tipo, valor) {
+    modoActivo   = tipo;
+    filtroActivo = valor;
+    if (tipo === 'turno') turnoActivo = valor;
 
-cargarTurno(turnoInicial);
+    // Turno: recalcula la fecha según el horario real. Línea: mantiene la misma franja/fecha ya activa.
+    if (tipo === 'turno') fechaActiva = getFechaParaTurno(valor);
+
+    activarBotonFiltro(tipo, valor);
+
+    if (tipo === 'turno') {
+        cargarSupervisorFirebase(fechaActiva, valor);
+    } else {
+        document.getElementById('supervisorNombre').innerText = 'Todos los turnos';
+    }
+
+    db.ref(`historial/${fechaActiva}/sobrantes`).once('value', (snapshot) => {
+        renderPlanilla(snapshot.val());
+    });
+}
+
+function activarBotonFiltro(tipo, valor) {
+    document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('active'));
+    const id  = tipo === 'turno' ? `btn-${valor}` : `btn-linea-${valor}`;
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.add('active');
+    document.getElementById('turnoLabel').innerText = labelDelFiltro(tipo, valor);
+}
+
+function cargarTurno(turno) {
+    cargarFiltro('turno', turno);
+}
+
+function cargarLinea(linea) {
+    cargarFiltro('linea', linea);
+}
+
+// ======================================
+//  CARGAR FILTRO (fecha específica, desde el calendario)
+// ======================================
+function cargarFiltroPorFecha(tipo, valor, fecha) {
+    modoActivo   = tipo;
+    filtroActivo = valor;
+    if (tipo === 'turno') turnoActivo = valor;
+    fechaActiva  = fecha;
+
+    activarBotonFiltro(tipo, valor);
+
+    if (tipo === 'turno') {
+        cargarSupervisorFirebase(fecha, valor);
+    } else {
+        document.getElementById('supervisorNombre').innerText = 'Todos los turnos';
+    }
+
+    db.ref(`historial/${fecha}/sobrantes`).once('value', (snapshot) => {
+        renderPlanilla(snapshot.val());
+    });
+}
+
+function cargarTurnoPorFecha(turno, fecha) {
+    cargarFiltroPorFecha('turno', turno, fecha);
+}
+
+function cargarLineaPorFecha(linea, fecha) {
+    cargarFiltroPorFecha('linea', linea, fecha);
+}
+
+// ======================================
+//  RENDER PLANILLA
+// ======================================
+function renderPlanilla(data) {
+    const tbody = document.getElementById('planillaBody');
+    let totalGeneral = 0;
+
+    tbody.innerHTML = '';
+
+    if (!data) {
+        tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay datos para esta selección.</td></tr>';
+        document.getElementById('totalGeneral').innerText = '—';
+        renderGrafico([], []);
+        return;
+    }
+
+    const registros = filtrarRegistros(data, modoActivo, filtroActivo);
+
+    if (registros.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay registros para esta selección.</td></tr>';
+        document.getElementById('totalGeneral').innerText = '—';
+        renderGrafico([], []);
+        return;
+    }
+
+    const totalesPorProducto = {};
+
+    registros.forEach(s => {
+        const total = s.total || 0;
+        totalGeneral += total;
+
+        // Agrupar para el gráfico
+        totalesPorProducto[s.producto] = (totalesPorProducto[s.producto] || 0) + total;
+
+        const bandejas    = s.vueltaCompleta
+            ? '<em class="badge-completa-reporte">✔ Vuelta completa</em>'
+            : (s.bandejas ?? '—');
+        const incompletos = s.vueltaCompleta ? '—' : (s.incompletos ?? '—');
+        const filas       = s.vueltaCompleta ? '—' : (s.filas ?? '—');
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${s.marca || '—'}</td>
+                <td>${s.linea || '—'}</td>
+                <td><strong>${s.producto}</strong></td>
+                <td>${filas}</td>
+                <td>${bandejas}</td>
+                <td>${incompletos}</td>
+                <td class="total-celda">${total.toLocaleString()}</td>
+                <td>${s.hora || '—'}</td>
+            </tr>`;
+    });
+
+    document.getElementById('totalGeneral').innerText = totalGeneral.toLocaleString();
+    renderGrafico(Object.keys(totalesPorProducto), Object.values(totalesPorProducto), totalGeneral);
+}
+
+// ======================================
+//  CARGA INICIAL (turno actual, en vivo)
+// ======================================
+cargarTurno(getTurnoActual());
 
 // ======================================
 //  ROL
@@ -145,101 +295,6 @@ if (rol === 'admin') {
     btnDrive.style.display    = 'block';
     btnVolver.textContent = '🚪 Cerrar Sesión';
     btnVolver.onclick = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
-}
-
-// ======================================
-//  CARGAR TURNO (hoy)
-// ======================================
-function cargarTurno(turno) {
-    turnoActivo = turno;
-    fechaActiva = getFechaParaTurno(turno);
-
-    document.querySelectorAll('.btn-turno').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById(`btn-${turno}`);
-    if (btn) btn.classList.add('active');
-    document.getElementById('turnoLabel').innerText = TURNOS[turno].label;
-
-    cargarSupervisorFirebase(fechaActiva, turno);
-
-    db.ref(`historial/${fechaActiva}/sobrantes`).once('value', (snapshot) => {
-        renderPlanilla(snapshot.val(), turno);
-    });
-}
-
-// ======================================
-//  CARGAR TURNO (fecha específica)
-// ======================================
-function cargarTurnoPorFecha(turno, fecha) {
-    turnoActivo = turno;
-    fechaActiva = fecha;
-
-    document.querySelectorAll('.btn-turno').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById(`btn-${turno}`);
-    if (btn) btn.classList.add('active');
-    document.getElementById('turnoLabel').innerText = TURNOS[turno].label;
-
-    cargarSupervisorFirebase(fecha, turno);
-
-    db.ref(`historial/${fecha}/sobrantes`).once('value', (snapshot) => {
-        renderPlanilla(snapshot.val(), turno);
-    });
-}
-
-// ======================================
-//  RENDER PLANILLA
-// ======================================
-function renderPlanilla(data, turno) {
-    const tbody = document.getElementById('planillaBody');
-    let totalGeneral = 0;
-
-    tbody.innerHTML = '';
-
-    if (!data) {
-        tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay datos para este turno.</td></tr>';
-        document.getElementById('totalGeneral').innerText = '—';
-        renderGrafico([], []);
-        return;
-    }
-
-    const registros = Object.values(data).filter(s => perteneceAlTurno(s.hora, turno));
-
-    if (registros.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay registros en este turno.</td></tr>';
-        document.getElementById('totalGeneral').innerText = '—';
-        renderGrafico([], []);
-        return;
-    }
-
-    const totalesPorProducto = {};
-
-    registros.forEach(s => {
-        const total = s.total || 0;
-        totalGeneral += total;
-
-        // Agrupar para el gráfico
-        totalesPorProducto[s.producto] = (totalesPorProducto[s.producto] || 0) + total;
-
-        const bandejas    = s.vueltaCompleta
-            ? '<em class="badge-completa-reporte">✔ Vuelta completa</em>'
-            : (s.bandejas ?? '—');
-        const incompletos = s.vueltaCompleta ? '—' : (s.incompletos ?? '—');
-        const filas       = s.vueltaCompleta ? '—' : (s.filas ?? '—');
-
-        tbody.innerHTML += `
-            <tr>
-                <td>${s.marca || '—'}</td>
-                <td>${s.linea || '—'}</td>
-                <td><strong>${s.producto}</strong></td>
-                <td>${filas}</td>
-                <td>${bandejas}</td>
-                <td>${incompletos}</td>
-                <td class="total-celda">${total.toLocaleString()}</td>
-                <td>${s.hora || '—'}</td>
-            </tr>`;
-    });
-
-    document.getElementById('totalGeneral').innerText = totalGeneral.toLocaleString();
-    renderGrafico(Object.keys(totalesPorProducto), Object.values(totalesPorProducto), totalGeneral);
 }
 
 // ======================================
@@ -370,15 +425,17 @@ function seleccionarFecha(fecha, cell, d) {
         document.getElementById('fechaInfoTexto').textContent = `${d} de ${meses[calMes]} de ${calAnio}`;
     }
 
-    const turnoActv = document.querySelector('.btn-turno.active');
-    const turno = turnoActv ? turnoActv.id.replace('btn-', '') : 'manana';
-    cargarTurnoPorFecha(turno, fecha);
+    const btnActivo = document.querySelector('.btn-filtro.active');
+    const tipo  = btnActivo ? btnActivo.dataset.tipo  : 'turno';
+    const valor = btnActivo ? btnActivo.dataset.valor : 'manana';
+    cargarFiltroPorFecha(tipo, valor, fecha);
 }
 
-document.querySelectorAll('.btn-turno').forEach(btn => {
+document.querySelectorAll('.btn-filtro').forEach(btn => {
     btn.addEventListener('click', () => {
-        const turno = btn.id.replace('btn-', '');
-        if (fechaSeleccionada) cargarTurnoPorFecha(turno, fechaSeleccionada);
+        const tipo  = btn.dataset.tipo;
+        const valor = btn.dataset.valor;
+        if (fechaSeleccionada) cargarFiltroPorFecha(tipo, valor, fechaSeleccionada);
     });
 });
 
@@ -451,11 +508,14 @@ async function ejecutarGuardadoDrive() {
         const snap      = await db.ref(`historial/${fechaActiva}/sobrantes`).once('value');
         const sobrantes = snap.val();
 
-        const snapSup    = await db.ref(`historial/${fechaActiva}/supervisores/${turnoActivo}`).once('value');
-        const supervisor = snapSup.val() || sessionStorage.getItem('supervisor') || '—';
+        let supervisor = 'Todos los turnos';
+        if (modoActivo === 'turno') {
+            const snapSup = await db.ref(`historial/${fechaActiva}/supervisores/${filtroActivo}`).once('value');
+            supervisor = snapSup.val() || sessionStorage.getItem('supervisor') || '—';
+        }
 
         if (!sobrantes) {
-            mostrarEstadoDrive('⚠️ No hay datos para guardar en este turno.', 'error');
+            mostrarEstadoDrive('⚠️ No hay datos para guardar en esta selección.', 'error');
             btn.disabled    = false;
             btn.textContent = '☁️ Guardar en Drive';
             return;
@@ -465,14 +525,14 @@ async function ejecutarGuardadoDrive() {
         const partes        = fechaActiva.split('-');
         const nombreMes     = meses[parseInt(partes[1]) - 1];
         const anio          = partes[2];
-        const turnoLabel    = TURNOS[turnoActivo].label;
-        const nombreArchivo = `${turnoLabel} - ${fechaActiva}`;
+        const filtroLabel   = labelDelFiltro(modoActivo, filtroActivo);
+        const nombreArchivo = `${filtroLabel} - ${fechaActiva}`;
 
         const carpetaAnio  = await obtenerOCrearCarpeta(anio,        FOLDER_RAIZ_ID);
         const carpetaMes   = await obtenerOCrearCarpeta(nombreMes,   carpetaAnio);
         const carpetaFecha = await obtenerOCrearCarpeta(fechaActiva, carpetaMes);
 
-        const htmlContent = generarHTMLPlanilla(turnoActivo, fechaActiva, sobrantes, supervisor);
+        const htmlContent = generarHTMLPlanilla(modoActivo, filtroActivo, fechaActiva, sobrantes, supervisor);
         const blob  = new Blob([htmlContent], { type: 'text/html' });
         const token = gapi.client.getToken().access_token;
 
@@ -532,13 +592,13 @@ async function buscarArchivo(nombre, carpetaId) {
     return res.result.files.length > 0 ? res.result.files[0].id : null;
 }
 
-function generarHTMLPlanilla(turno, fecha, sobrantes, supervisorNombre) {
+function generarHTMLPlanilla(modo, filtro, fecha, sobrantes, supervisorNombre) {
     const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const partes = fecha.split('-');
     const fechaLegible = `${partes[0]} de ${meses[parseInt(partes[1]) - 1]} de ${partes[2]}`;
-    const turnoLabel   = TURNOS[turno].label;
+    const filtroLabel  = labelDelFiltro(modo, filtro);
 
-    const registros = Object.values(sobrantes).filter(s => perteneceAlTurno(s.hora, turno));
+    const registros = filtrarRegistros(sobrantes, modo, filtro);
 
     let totalGeneral = 0;
     const filas = registros.map(s => {
@@ -571,7 +631,7 @@ function generarHTMLPlanilla(turno, fecha, sobrantes, supervisorNombre) {
         .tv{font-size:16px;color:#7a1a0a}
     </style></head><body>
     <h1>Planilla de Control de Producción</h1>
-    <div class="meta">${fechaLegible} — ${turnoLabel}</div>
+    <div class="meta">${fechaLegible} — ${filtroLabel}</div>
     <div class="sup">⭐ Supervisor: <strong>${supervisorNombre}</strong></div>
     <table>
         <thead><tr>
