@@ -16,8 +16,16 @@ if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const db = firebase.database();
 
 const getFechaHoy = () => {
-    const hoy = new Date();
-    return `${hoy.getDate()}-${hoy.getMonth() + 1}-${hoy.getFullYear()}`;
+    const ahora = new Date();
+    const min = ahora.getHours() * 60 + ahora.getMinutes();
+    // 00:00 - 08:29 es la cola del turno tarde (hasta 00:29) y el turno noche:
+    // ambos pertenecen a la fecha del día anterior.
+    if (min >= 0 && min <= 509) {
+        const ayer = new Date(ahora);
+        ayer.setDate(ayer.getDate() - 1);
+        return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
+    }
+    return `${ahora.getDate()}-${ahora.getMonth() + 1}-${ahora.getFullYear()}`;
 };
 
 let miGrafico;
