@@ -33,7 +33,7 @@ function getFechaParaTurno() {
 }
 // ─── USUARIOS ─────────────────────────────────────────
 const USUARIOS = [
-    { usuario: "admin",      contrasena: "admin.2026",      rol: "admin",      redirige: "./admin.html"   },
+    { usuario: "admin",      contrasena: "cin>>Eszenay7;",      rol: "admin",      redirige: "./admin.html"   },
     { usuario: "calidad",    contrasena: "calidad.2026",    rol: "calidad",    redirige: "./reporte.html" },
     { usuario: "operario",   contrasena: "operario.2026",   rol: "operario",   redirige: "./lista.html"   },
     { usuario: "romero",     contrasena: "romero.2026",     rol: "romero",     redirige: "./reporte.html" },
