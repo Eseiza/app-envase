@@ -27,18 +27,10 @@ function getTurnoActual() {
     return 'noche';                                  // 00:30 - 08:29
 }
 
+// La fecha sale de la jornada (8:30 a 8:30, sábado hasta el lunes 8:30): ver jornada.js
 function getFechaParaTurno() {
-    const ahora = new Date();
-    const min   = ahora.getHours() * 60 + ahora.getMinutes();
-    // Turno noche de madrugada → pertenece al día anterior
-    if (min >= 0 && min <= 509) {
-        const ayer = new Date(ahora);
-        ayer.setDate(ayer.getDate() - 1);
-        return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
-    }
-    return `${ahora.getDate()}-${ahora.getMonth() + 1}-${ahora.getFullYear()}`;
+    return getFechaJornada();
 }
-
 // ─── USUARIOS ─────────────────────────────────────────
 const USUARIOS = [
     { usuario: "admin",      contrasena: "admin.2026",      rol: "admin",      redirige: "./admin.html"   },
