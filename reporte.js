@@ -49,19 +49,10 @@ function getTurnoActual() {
     return 'noche';                                   // 00:30 - 08:29
 }
 
+// La fecha sale de la jornada (8:30 a 8:30, sábado hasta el lunes 8:30): ver jornada.js
 function getFechaParaTurno(turno) {
-    const ahora = new Date();
-    const min   = ahora.getHours() * 60 + ahora.getMinutes();
-    // Colita de Tarde (00:00-00:29) y toda la Noche (00:30-08:29) pertenecen
-    // al mismo grupo que empezó el día anterior con la Mañana
-    if (min >= 0 && min <= 509) {
-        const ayer = new Date(ahora);
-        ayer.setDate(ayer.getDate() - 1);
-        return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
-    }
-    return `${ahora.getDate()}-${ahora.getMonth() + 1}-${ahora.getFullYear()}`;
+    return getFechaJornada();
 }
-
 // Filtra si un registro pertenece al turno según su hora
 function perteneceAlTurno(horaStr, turno) {
     const min = horaAMinutos(horaStr);
@@ -77,9 +68,9 @@ function filtrarRegistros(data, modo, filtro) {
     if (!data) return [];
     if (modo === 'linea') {
         const lineaLabel = LINEAS[filtro].label;
-        return Object.values(data).filter(s => s.linea === lineaLabel);
+        return Object.entries(data).filter(([, s]) => s.linea === lineaLabel).map(([id, s]) => ({ ...s, _id: id }));
     }
-    return Object.values(data).filter(s => perteneceAlTurno(s.hora, filtro));
+    return Object.entries(data).filter(([, s]) => perteneceAlTurno(s.hora, filtro)).map(([id, s]) => ({ ...s, _id: id }));
 }
 
 function labelDelFiltro(modo, filtro) {
@@ -109,7 +100,7 @@ const hoy = (() => {
     return `${h.getDate()}-${h.getMonth() + 1}-${h.getFullYear()}`;
 })();
 
-document.getElementById('fechaReporte').innerText = "Fecha: " + hoy;
+document.getElementById('fechaReporte').innerText = "Fecha: " + fechaActiva.replace(/-/g, '/');
 
 function cargarSupervisorFirebase(fecha, turno) {
     db.ref(`historial/${fecha}/supervisores/${turno}`).once('value', snap => {
@@ -129,6 +120,7 @@ function cargarFiltro(tipo, valor) {
 
     // Turno: recalcula la fecha según el horario real. Línea: mantiene la misma franja/fecha ya activa.
     if (tipo === 'turno') fechaActiva = getFechaParaTurno(valor);
+    document.getElementById('fechaReporte').innerText = "Fecha: " + fechaActiva.replace(/-/g, '/');
 
     activarBotonFiltro(tipo, valor);
 
@@ -190,6 +182,23 @@ function cargarLineaPorFecha(linea, fecha) {
 }
 
 // ======================================
+//  BORRAR REGISTRO (solo admin)
+// ======================================
+function esAdmin() {
+    return sessionStorage.getItem('rol') === 'admin';
+}
+
+function borrarRegistro(id) {
+    if (!esAdmin()) return;
+    if (!confirm('¿Eliminar este registro de producción?')) return;
+    const fecha = fechaActiva;
+    StockSync.borrarSobrante(fecha, id).then(() => {
+        db.ref(`historial/${fecha}/sobrantes`).once('value', snap => renderPlanilla(snap.val()));
+    }).catch(e => alert('No se pudo eliminar: no se pudo actualizar el stock en AppStock (' + (e.message || e) + '). Reintentá.'));
+}
+window.borrarRegistro = borrarRegistro;
+
+// ======================================
 //  RENDER PLANILLA
 // ======================================
 function renderPlanilla(data) {
@@ -199,7 +208,7 @@ function renderPlanilla(data) {
     tbody.innerHTML = '';
 
     if (!data) {
-        tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay datos para esta selección.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="vacio">No hay datos para esta selección.</td></tr>';
         document.getElementById('totalGeneral').innerText = '—';
         renderGrafico([], []);
         return;
@@ -208,7 +217,7 @@ function renderPlanilla(data) {
     const registros = filtrarRegistros(data, modoActivo, filtroActivo);
 
     if (registros.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="vacio">No hay registros para esta selección.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="vacio">No hay registros para esta selección.</td></tr>';
         document.getElementById('totalGeneral').innerText = '—';
         renderGrafico([], []);
         return;
@@ -224,7 +233,7 @@ function renderPlanilla(data) {
         totalesPorProducto[s.producto] = (totalesPorProducto[s.producto] || 0) + total;
 
         const bandejas    = s.vueltaCompleta
-            ? '<em class="badge-completa-reporte">✔ Vuelta completa</em>'
+            ? '<em class="badge-completa-reporte">Vuelta completa</em>'
             : (s.bandejas ?? '—');
         const incompletos = s.vueltaCompleta ? '—' : (s.incompletos ?? '—');
         const filas       = s.vueltaCompleta ? '—' : (s.filas ?? '—');
@@ -239,6 +248,7 @@ function renderPlanilla(data) {
                 <td>${incompletos}</td>
                 <td class="total-celda">${total.toLocaleString()}</td>
                 <td>${s.hora || '—'}</td>
+                ${esAdmin() ? `<td class="no-print"><button onclick="borrarRegistro('${s._id}')">Borrar</button></td>` : ''}
             </tr>`;
     });
 
@@ -268,9 +278,13 @@ if (rol === 'supervisor' || rol === 'ventas') {
 
 const btnImprimir = document.getElementById('btn-imprimir');
 const btnDrive    = document.getElementById('btn-drive');
+const ICONO_SALIR = '<svg class="ico-salir" style="vertical-align:-3px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>';
+
 const btnVolver   = document.getElementById('btn-volver');
 
 if (rol === 'admin') {
+    const thAcc = document.getElementById('th-acciones');
+    if (thAcc) thAcc.style.display = '';
     btnImprimir.style.display = 'block';
     btnDrive.style.display    = 'block';
     btnVolver.textContent = '← Volver al Panel';
@@ -282,18 +296,18 @@ if (rol === 'admin') {
     btnVolver.onclick = () => window.location.href = 'admin.html';
 
 } else if (rol === 'ventas') {
-    btnVolver.textContent = '🚪 Cerrar Sesión';
+    btnVolver.innerHTML = ICONO_SALIR + ' Cerrar Sesión';
     btnVolver.onclick = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
 
 } else if (rol === 'romero') {
     btnImprimir.style.display = 'block';
-    btnVolver.textContent = '🚪 Cerrar Sesión';
+    btnVolver.innerHTML = ICONO_SALIR + ' Cerrar Sesión';
     btnVolver.onclick = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
 
 } else if (rol === 'calidad') {
     btnImprimir.style.display = 'block';
     btnDrive.style.display    = 'block';
-    btnVolver.textContent = '🚪 Cerrar Sesión';
+    btnVolver.innerHTML = ICONO_SALIR + ' Cerrar Sesión';
     btnVolver.onclick = () => { sessionStorage.clear(); window.location.href = 'index.html'; };
 }
 
@@ -471,7 +485,7 @@ window.gisLoaded = function () {
                 driveAutorizado = true;
                 ejecutarGuardadoDrive();
             } else {
-                mostrarEstadoDrive('❌ Autorización cancelada.', 'error');
+                mostrarEstadoDrive('Autorización cancelada.', 'error');
             }
         },
     });
@@ -501,7 +515,7 @@ window.guardarEnDrive = function () {
 async function ejecutarGuardadoDrive() {
     const btn = document.getElementById('btn-drive');
     btn.disabled    = true;
-    btn.textContent = '☁️ Guardando...';
+    btn.textContent = 'Guardando...';
     mostrarEstadoDrive('⏳ Guardando en Drive...', 'info');
 
     try {
@@ -515,9 +529,9 @@ async function ejecutarGuardadoDrive() {
         }
 
         if (!sobrantes) {
-            mostrarEstadoDrive('⚠️ No hay datos para guardar en esta selección.', 'error');
+            mostrarEstadoDrive('No hay datos para guardar en esta selección.', 'error');
             btn.disabled    = false;
-            btn.textContent = '☁️ Guardar en Drive';
+            btn.textContent = 'Guardar en Drive';
             return;
         }
 
@@ -560,14 +574,14 @@ async function ejecutarGuardadoDrive() {
             });
         }
 
-        mostrarEstadoDrive(`✅ Guardado: ${anio} / ${nombreMes} / ${fechaActiva} / ${nombreArchivo}`, 'ok');
+        mostrarEstadoDrive(`Guardado: ${anio} / ${nombreMes} / ${fechaActiva} / ${nombreArchivo}`, 'ok');
 
     } catch (err) {
         console.error('Error Drive:', err);
-        mostrarEstadoDrive('❌ Error al guardar en Drive. Revisá la consola.', 'error');
+        mostrarEstadoDrive('Error al guardar en Drive. Revisá la consola.', 'error');
     } finally {
         btn.disabled    = false;
-        btn.textContent = '☁️ Guardar en Drive';
+        btn.textContent = 'Guardar en Drive';
     }
 }
 
@@ -603,7 +617,7 @@ function generarHTMLPlanilla(modo, filtro, fecha, sobrantes, supervisorNombre) {
     let totalGeneral = 0;
     const filas = registros.map(s => {
         totalGeneral += s.total || 0;
-        const bandejasTexto = s.vueltaCompleta ? '✔ Vuelta completa' : (s.bandejas ?? '—');
+        const bandejasTexto = s.vueltaCompleta ? 'Vuelta completa' : (s.bandejas ?? '—');
         return `<tr>
             <td>${s.marca||'—'}</td><td>${s.linea||'—'}</td>
             <td><strong>${s.producto}</strong></td>
@@ -632,7 +646,7 @@ function generarHTMLPlanilla(modo, filtro, fecha, sobrantes, supervisorNombre) {
     </style></head><body>
     <h1>Planilla de Control de Producción</h1>
     <div class="meta">${fechaLegible} — ${filtroLabel}</div>
-    <div class="sup">⭐ Supervisor: <strong>${supervisorNombre}</strong></div>
+    <div class="sup">Supervisor: <strong>${supervisorNombre}</strong></div>
     <table>
         <thead><tr>
             <th>Marca</th><th>Línea</th><th>Producto</th>
