@@ -1,0 +1,31 @@
+/* Botón de cerrar sesión (compartido) */
+.btn-salir {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    background: var(--crema, #fdf6ec);
+    color: var(--rojo, #b13009);
+    border: 2px solid var(--rojo, #b13009);
+    border-radius: 10px;
+    font-family: 'Lora', serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, color 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.btn-salir:hover {
+    background: var(--rojo, #b13009);
+    color: var(--crema, #fdf6ec);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(177,48,9,0.3);
+}
+.btn-salir .ico-salir { flex: none; }
+.header-acciones { display: flex; align-items: center; gap: 10px; }
+.btn-salir--flotante { position: absolute; top: 14px; right: 14px; z-index: 10; }
+@media (max-width: 480px) {
+    .btn-salir { padding: 8px 12px; font-size: 13px; }
+    .btn-salir--flotante { top: 10px; right: 10px; }
+}
