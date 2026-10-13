@@ -14,21 +14,14 @@ if (!firebase.apps.length) {
 
 const db = firebase.database();
 
-const getFechaHoy = () => {
-    const ahora = new Date();
-    const min = ahora.getHours() * 60 + ahora.getMinutes();
-    // 00:00 - 08:29 es la cola del turno tarde (hasta 00:29) y el turno noche:
-    // ambos pertenecen a la fecha del día anterior.
-    if (min >= 0 && min <= 509) {
-        const ayer = new Date(ahora);
-        ayer.setDate(ayer.getDate() - 1);
-        return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
-    }
-    return `${ahora.getDate()}-${ahora.getMonth() + 1}-${ahora.getFullYear()}`;
-};
+// La fecha sale de la jornada (8:30 a 8:30, sábado hasta el lunes 8:30): ver jornada.js
+const getFechaHoy = () => getFechaJornada();
 
 // ESCUCHAR PEDIDOS EN TIEMPO REAL
-db.ref(`historial/${getFechaHoy()}/tareas`).on('value', (snapshot) => {
+let fechaActual = getFechaHoy();
+let refActual = null;
+
+const renderTareas = (snapshot) => {
     const tareas = snapshot.val();
     const contenedor = document.getElementById('pedidosList');
     if (!contenedor) return;
@@ -63,11 +56,27 @@ db.ref(`historial/${getFechaHoy()}/tareas`).on('value', (snapshot) => {
         `;
         contenedor.appendChild(li);
     });
-});
+};
+
+function suscribir() {
+    if (refActual) refActual.off('value');
+    fechaActual = getFechaHoy();
+    refActual = db.ref(`historial/${fechaActual}/tareas`);
+    refActual.on('value', renderTareas);
+}
+suscribir();
+
+// Si la página queda abierta al cruzar las 08:30 (cambio de "día de producción"),
+// re-suscribe el listener a la fecha nueva. Todo lo que escribe usa la misma fecha que se está mostrando.
+const refrescarFecha = () => {
+    if (getFechaHoy() !== fechaActual) suscribir();
+};
+setInterval(refrescarFecha, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescarFecha(); });
 
 // MARCAR COMO COMPLETADO
 window.toggleTarea = (id, estadoActual) => {
-    db.ref(`historial/${getFechaHoy()}/tareas/${id}`).update({
+    db.ref(`historial/${fechaActual}/tareas/${id}`).update({
         completado: !estadoActual
     });
 };
