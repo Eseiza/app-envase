@@ -15,18 +15,8 @@ const firebaseConfig = {
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const db = firebase.database();
 
-const getFechaHoy = () => {
-    const ahora = new Date();
-    const min = ahora.getHours() * 60 + ahora.getMinutes();
-    // 00:00 - 08:29 es la cola del turno tarde (hasta 00:29) y el turno noche:
-    // ambos pertenecen a la fecha del día anterior.
-    if (min >= 0 && min <= 509) {
-        const ayer = new Date(ahora);
-        ayer.setDate(ayer.getDate() - 1);
-        return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
-    }
-    return `${ahora.getDate()}-${ahora.getMonth() + 1}-${ahora.getFullYear()}`;
-};
+// La fecha sale de la jornada (8:30 a 8:30, sábado hasta el lunes 8:30): ver jornada.js
+const getFechaHoy = () => getFechaJornada();
 
 let miGrafico;
 
@@ -127,7 +117,7 @@ document.getElementById('add-task-btn').onclick = function () {
         return alert("Ingresá la cantidad de bandejas o marcá 'Vuelta completa'");
     }
 
-    db.ref(`historial/${getFechaHoy()}/tareas`).push({
+    db.ref(`historial/${fechaActual}/tareas`).push({
         marca, categoria, producto,
         cantidad: completa ? '—' : cantidad,
         vueltaCompleta: completa,
@@ -215,7 +205,7 @@ window.guardarTarea = function (id) {
     if (!vuelta || !marca || !linea || !producto) return alert("Faltan datos");
     if (!completa && !cantidad) return alert("Ingresá la cantidad de bandejas o marcá 'Vuelta completa'");
 
-    db.ref(`historial/${getFechaHoy()}/tareas/${id}`).update({
+    db.ref(`historial/${fechaActual}/tareas/${id}`).update({
         vuelta,
         marca,
         categoria: linea,
@@ -235,7 +225,10 @@ window.cerrarModal = function () {
 // ======================================
 //  ACTUALIZACIÓN EN TIEMPO REAL
 // ======================================
-db.ref(`historial/${getFechaHoy()}`).on('value', (snapshot) => {
+let fechaActual = getFechaHoy();
+let refActual = null;
+
+const renderHistorial = (snapshot) => {
     const data = snapshot.val() || { tareas: {}, sobrantes: {} };
 
     // Lista de Tareas
@@ -266,25 +259,46 @@ db.ref(`historial/${getFechaHoy()}`).on('value', (snapshot) => {
     const valores = [];
 
     if (data.sobrantes) {
-        Object.values(data.sobrantes).forEach(s => {
+        Object.entries(data.sobrantes).forEach(([id, s]) => {
             const total = s.total || 0;
             labels.push(s.producto);
             valores.push(total);
             listaS.innerHTML += `
                 <li>
-                    <strong>${s.producto}</strong>: <b>${total.toLocaleString()} paq.</b>
-                    — ${s.marca || ''} ${s.linea || ''} — a las ${s.hora || '?'}
+                    <span>
+                        <strong>${s.producto}</strong>: <b>${total.toLocaleString()} paq.</b>
+                        — ${s.marca || ''} ${s.linea || ''} — a las ${s.hora || '?'}
+                    </span>
+                    <button class="no-print" onclick="borrarSobrante('${id}')">❌</button>
                 </li>`;
         });
         dibujarGrafico(labels, valores);
     }
-});
+};
+
+function suscribir() {
+    if (refActual) refActual.off('value');
+    fechaActual = getFechaHoy();
+    refActual = db.ref(`historial/${fechaActual}`);
+    refActual.on('value', renderHistorial);
+}
+suscribir();
+
+// Si la página queda abierta al cruzar las 08:30 (cambio de "día de producción"),
+// re-suscribe el listener a la fecha nueva. Todo lo que escribe usa la misma fecha que se está mostrando.
+const refrescarFecha = () => {
+    if (getFechaHoy() !== fechaActual) suscribir();
+};
+setInterval(refrescarFecha, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescarFecha(); });
 
 // ======================================
 //  GRÁFICO
 // ======================================
 function dibujarGrafico(labels, valores) {
-    const ctx = document.getElementById('graficoStock').getContext('2d');
+    const canvas = document.getElementById('graficoStock');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
     if (miGrafico) miGrafico.destroy();
     miGrafico = new Chart(ctx, {
         type: 'bar',
@@ -302,7 +316,8 @@ function dibujarGrafico(labels, valores) {
     });
 }
 
-window.borrarTarea      = (id) => { if (confirm("¿Eliminar orden?")) db.ref(`historial/${getFechaHoy()}/tareas/${id}`).remove(); };
+window.borrarTarea      = (id) => { if (confirm("¿Eliminar orden?")) db.ref(`historial/${fechaActual}/tareas/${id}`).remove(); };
+window.borrarSobrante   = (id) => { if (confirm("¿Eliminar este registro de producción?")) StockSync.borrarSobrante(fechaActual, id).catch(e => alert('No se pudo eliminar: no se pudo actualizar el stock en AppStock (' + (e.message || e) + '). Reintentá.')); };
 window.cerrarSesion     = () => { sessionStorage.clear(); window.location.href = "index.html"; };
 window.descargarReporte = () => { window.print(); };
 window.abrirModalTarea  = abrirModalTarea;
