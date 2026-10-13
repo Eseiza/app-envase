@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte de Producción - Romero Panificados</title>
-    <link rel="stylesheet" href="style5.css">
+    <link rel="stylesheet" href="style5.css?v=20261009">
     <!-- Firebase PRIMERO -->
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -28,23 +28,23 @@
 
             <!-- SUPERVISOR -->
             <div class="supervisor-badge">
-                <span class="supervisor-icon">⭐</span>
+                
                 <span>Supervisor de turno: <strong id="supervisorNombre">—</strong></span>
             </div>
 
             <!-- SELECTOR DE TURNO -->
             <div class="turno-selector no-print">
-                <p class="section-title">🕐 Seleccionar Turno</p>
+                <p class="section-title">Seleccionar Turno</p>
                 <div class="turno-btns">
                     <button class="btn-turno btn-filtro" data-tipo="turno" data-valor="manana" id="btn-manana" onclick="cargarFiltro('turno','manana')">Mañana<br><small>08:30 - 16:30</small></button>
-                    <button class="btn-turno btn-filtro" data-tipo="turno" data-valor="tarde"  id="btn-tarde"  onclick="cargarFiltro('turno','tarde')">Tarde<br><small>16:30 - 00:30</small></button>
-                    <button class="btn-turno btn-filtro" data-tipo="turno" data-valor="noche"  id="btn-noche"  onclick="cargarFiltro('turno','noche')">Noche<br><small>00:30 - 08:30</small></button>
+                    <button class="btn-turno btn-filtro" data-tipo="turno" data-valor="tarde"  id="btn-tarde"  onclick="cargarFiltro('turno','tarde')">Tarde<br><small>16:31 - 00:29</small></button>
+                    <button class="btn-turno btn-filtro" data-tipo="turno" data-valor="noche"  id="btn-noche"  onclick="cargarFiltro('turno','noche')">Noche<br><small>00:30 - 08:29</small></button>
                 </div>
             </div>
 
             <!-- SELECTOR DE LÍNEA (mismo día, sin dividir por turno) -->
             <div class="turno-selector no-print">
-                <p class="section-title">🍞 Ver por Línea (todo el día, sin turnos)</p>
+                <p class="section-title">Ver por Línea (todo el día, sin turnos)</p>
                 <div class="turno-btns">
                     <button class="btn-turno btn-filtro" data-tipo="linea" data-valor="pan"      id="btn-linea-pan"      onclick="cargarFiltro('linea','pan')">Pan de Molde</button>
                     <button class="btn-turno btn-filtro" data-tipo="linea" data-valor="bolleria" id="btn-linea-bolleria" onclick="cargarFiltro('linea','bolleria')">Bollería</button>
@@ -53,7 +53,7 @@
 
             <!-- PLANILLA -->
             <div class="detalle-section">
-                <p class="section-title">📋 Planilla de Control de Producción</p>
+                <p class="section-title">Planilla de Control de Producción</p>
                 <table class="planilla">
                     <thead>
                         <tr>
@@ -65,10 +65,11 @@
                             <th>Paq. sueltos</th>
                             <th>Total paq.</th>
                             <th>Hora</th>
+                            <th class="no-print" id="th-acciones" style="display:none;"></th>
                         </tr>
                     </thead>
                     <tbody id="planillaBody">
-                        <tr><td colspan="8" class="vacio">Seleccioná un turno para ver los datos.</td></tr>
+                        <tr><td colspan="9" class="vacio">Seleccioná un turno para ver los datos.</td></tr>
                     </tbody>
                     <tfoot>
                         <tr>
@@ -81,8 +82,8 @@
             </div>
 
             <!-- GRÁFICO DONUT -->
-            <div class="chart-section">
-                <p class="section-title">📊 Gráfico de Producción</p>
+            <div class="chart-section no-print">
+                <p class="section-title">Gráfico de Producción</p>
                 <div class="chart-container">
                     <canvas id="graficoStock"></canvas>
                 </div>
@@ -90,7 +91,7 @@
 
             <!-- CALENDARIO HISTORIAL (solo admin, calidad, romero) -->
             <div class="calendario-section no-print" id="calendarioSection" style="display:none;">
-                <p class="section-title">📅 Historial por Fecha</p>
+                <p class="section-title">Historial por Fecha</p>
                 <div class="calendario-wrap">
                     <div class="cal-header">
                         <button class="cal-nav-btn" onclick="cambiarMes(-1)">&#8592;</button>
@@ -120,8 +121,8 @@
 
             <!-- BOTONES -->
             <div class="reporte-actions no-print">
-                <button id="btn-imprimir" onclick="window.print()"   class="btn btn-imprimir" style="display:none;">🖨️ Imprimir / Guardar PDF</button>
-                <button id="btn-drive"    onclick="guardarEnDrive()" class="btn btn-drive"    style="display:none;">☁️ Guardar en Drive</button>
+                <button id="btn-imprimir" onclick="window.print()"   class="btn btn-imprimir" style="display:none;">Imprimir / Guardar PDF</button>
+                <button id="btn-drive"    onclick="guardarEnDrive()" class="btn btn-drive"    style="display:none;">Guardar en Drive</button>
                 <button id="btn-volver"                               class="btn btn-volver">← Volver al Panel</button>
             </div>
 
@@ -132,7 +133,10 @@
     </div>
 
     <!-- reporte.js PRIMERO — define gapiLoaded y gisLoaded -->
-    <script src="reporte.js"></script>
+    <script src="jornada.js?v=20261008"></script>
+    <script src="sobrantes-stock.js?v=20261008"></script>
+    <script src="stock-sync.js?v=20261008"></script>
+    <script src="reporte.js?v=20261008"></script>
     <!-- Google Drive DESPUÉS -->
     <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
     <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
