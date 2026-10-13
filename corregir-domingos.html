@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pasar el domingo al sábado</title>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;1,400&family=Nunito:wght@400;600;700&display=swap');
+
+:root {
+    --dorado:       #c8960c;
+    --dorado-claro: #e8b84b;
+    --bordo:        #7a1a0a;
+    --rojo:         #b13009;
+    --crema:        #fdf6ec;
+    --gris-claro:   #f5f0e8;
+    --texto:        #2a1a0a;
+    --texto-suave:  #6b4c2a;
+    --border:       #e8dcc8;
+    --verde:        #2f7d32;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    background: #2a1a0a;
+    padding: 24px 16px;
+    color: var(--texto);
+}
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.98);
+    border-radius: 20px;
+    border-top: 4px solid var(--dorado);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    overflow: hidden;
+}
+header {
+    background: var(--gris-claro);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 28px;
+}
+h1 { font-family: 'Lora', serif; color: var(--bordo); font-size: 1.4rem; }
+p.subtitulo { color: var(--texto-suave); font-size: 0.9rem; margin-top: 4px; }
+main { padding: 24px 28px; }
+.bloque {
+    background: var(--crema);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 20px;
+}
+label { font-weight: 700; font-size: 0.9rem; display: block; margin-bottom: 6px; }
+input[type="date"] {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    margin-right: 10px;
+}
+button {
+    font-family: inherit;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+.btn-buscar { background: var(--dorado); color: #fff; }
+.btn-buscar:hover { background: var(--dorado-claro); }
+.btn-mover { background: var(--verde); color: #fff; margin-top: 14px; }
+.btn-mover:hover { opacity: 0.9; }
+.btn-mover:disabled { background: #ccc; cursor: not-allowed; }
+.aviso { font-size: 0.85rem; color: var(--texto-suave); margin-top: 10px; line-height: 1.4; }
+table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 0.9rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+th { color: var(--bordo); }
+tr.correcta td { color: #999; }
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.badge-mover { background: #fce4dc; color: var(--rojo); }
+.badge-ok { background: #e3f2e1; color: var(--verde); }
+#estado { margin-top: 14px; font-size: 0.9rem; white-space: pre-line; }
+.vacio { color: var(--texto-suave); font-style: italic; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Pasar el domingo al sábado</h1>
+        <p class="subtitulo">La jornada del sábado va de sábado 8:30 a lunes 8:30, así que todo lo guardado bajo un domingo (producción, órdenes y supervisores) tiene que estar en el sábado anterior.</p>
+    </header>
+    <main>
+        <div class="bloque">
+            <label for="fechaRevisar">Domingo a revisar</label>
+            <input type="date" id="fechaRevisar">
+            <button class="btn-buscar" id="btnBuscar">Buscar</button>
+            <p class="aviso">
+                Se mueve todo lo que haya bajo ese domingo al sábado anterior, con el mismo id (no se duplica y el stock de AppStock no cambia).
+                Si el sábado ya tiene supervisor en un turno, se conserva el del sábado.
+            </p>
+        </div>
+
+        <div id="resultado"></div>
+    </main>
+</div>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyAJgnFCKt_8TT4BpWrDwqy--Oep0raYA18",
+    authDomain: "romero-env.firebaseapp.com",
+    databaseURL: "https://romero-env-default-rtdb.firebaseio.com",
+    projectId: "romero-env",
+    storageBucket: "romero-env.firebasestorage.app",
+    messagingSenderId: "350498956335",
+    appId: "1:350498956335:web:901f91c4d7b983308252da"
+};
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+const db = firebase.database();
+
+const fmtFecha = (d) => `${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}`;
+const aInput   = (key) => { const [d, m, y] = key.split('-'); return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`; };
+const deInput  = (v)   => { const [y, m, d] = v.split('-'); return `${parseInt(d, 10)}-${parseInt(m, 10)}-${y}`; };
+
+// Último domingo (hoy si es domingo) como valor inicial.
+const inicio = new Date();
+inicio.setDate(inicio.getDate() - inicio.getDay());
+const inputFecha = document.getElementById('fechaRevisar');
+inputFecha.value = aInput(fmtFecha(inicio));
+const resultadoDiv = document.getElementById('resultado');
+
+document.getElementById('btnBuscar').onclick = async () => {
+    const fecha = deInput(inputFecha.value);
+    const [d, m, y] = fecha.split('-').map(n => parseInt(n, 10));
+    const dom = new Date(y, m - 1, d);
+    if (dom.getDay() !== 0) {
+        resultadoDiv.innerHTML = `<p class="vacio">El ${fecha} no es domingo. Elegí un domingo.</p>`;
+        return;
+    }
+    const sab = new Date(dom); sab.setDate(sab.getDate() - 1);
+    const fechaSabado = fmtFecha(sab);
+    resultadoDiv.innerHTML = '<p class="aviso">Buscando...</p>';
+
+    const datos = (await db.ref(`historial/${fecha}`).once('value')).val();
+    const sobrantes = (datos && datos.sobrantes) || {};
+    const tareas = (datos && datos.tareas) || {};
+    const supers = (datos && datos.supervisores) || {};
+    const nS = Object.keys(sobrantes).length, nT = Object.keys(tareas).length, nSup = Object.keys(supers).length;
+
+    if (!nS && !nT && !nSup) {
+        resultadoDiv.innerHTML = `<p class="vacio">No hay nada guardado bajo el domingo ${fecha}.</p>`;
+        return;
+    }
+
+    let html = `<div class="bloque"><p>Bajo el domingo <strong>${fecha}</strong> hay <strong>${nS}</strong> registro(s) de producción, <strong>${nT}</strong> orden(es) y <strong>${nSup}</strong> supervisor(es). Pertenecen al sábado <strong>${fechaSabado}</strong>.</p></div>`;
+    if (nS) {
+        html += '<table><thead><tr><th>Hora</th><th>Turno</th><th>Marca</th><th>Producto</th><th>Total paq.</th></tr></thead><tbody>';
+        Object.entries(sobrantes).sort((x, y2) => x[0].localeCompare(y2[0])).forEach(([id, s]) => {
+            html += `<tr><td>${s.hora || '—'}</td><td>${s.turno || '—'}</td><td>${s.marca || '—'}</td><td>${s.producto || '—'}</td><td>${s.total ?? '—'}</td></tr>`;
+        });
+        html += '</tbody></table>';
+    }
+    html += `<button class="btn-mover" id="btnMover">Mover todo al sábado ${fechaSabado}</button><div id="estado"></div>`;
+    resultadoDiv.innerHTML = html;
+
+    const btn = document.getElementById('btnMover');
+    btn.onclick = async () => {
+        if (!confirm(`Se va a mover todo de ${fecha} (domingo) a ${fechaSabado} (sábado). ¿Confirmás?`)) return;
+        btn.disabled = true;
+        const estado = document.getElementById('estado');
+        try {
+            // Una sola escritura atómica: copia al sábado (mismo id) y borra del domingo.
+            const cambios = {};
+            for (const [id, s] of Object.entries(sobrantes)) { cambios[`${fechaSabado}/sobrantes/${id}`] = s; cambios[`${fecha}/sobrantes/${id}`] = null; }
+            for (const [id, tarea] of Object.entries(tareas)) { cambios[`${fechaSabado}/tareas/${id}`] = tarea; cambios[`${fecha}/tareas/${id}`] = null; }
+            for (const [turno, sup] of Object.entries(supers)) {
+                const ya = (await db.ref(`historial/${fechaSabado}/supervisores/${turno}`).once('value')).val();
+                if (!ya) cambios[`${fechaSabado}/supervisores/${turno}`] = sup;
+                cambios[`${fecha}/supervisores/${turno}`] = null;
+            }
+            await db.ref('historial').update(cambios);
+            estado.textContent = `✅ Listo. Se movió todo al sábado ${fechaSabado}.`;
+        } catch (e) {
+            estado.textContent = `Error: ${e.message}`;
+            btn.disabled = false;
+        }
+    };
+};
+
+document.getElementById('btnBuscar').click();
+</script>
+</body>
+</html>
