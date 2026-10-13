@@ -14,26 +14,40 @@ const db = firebase.database();
 // ======================================
 //  TURNO Y FECHA
 // ======================================
-function getTurnoActual() {
-    const ahora = new Date();
+function getTurnoActual(ahora = new Date()) {
     const min   = ahora.getHours() * 60 + ahora.getMinutes();
-    if (min >= 511 && min <= 990)  return 'manana';
-    if (min >= 991 || min <= 30)   return 'tarde';
-    return 'noche';
+    if (min >= 510 && min <= 990)  return 'manana'; // 08:30 - 16:30
+    if (min >= 991 || min <= 29)   return 'tarde';  // 16:31 - 00:29
+    return 'noche';                                  // 00:30 - 08:29
 }
 
-const getFechaParaGuardar = () => {
-    const ahora = new Date();
-    const min   = ahora.getHours() * 60 + ahora.getMinutes();
-    if (min >= 31 && min <= 510) {
-        const ayer = new Date(ahora);
-        ayer.setDate(ayer.getDate() - 1);
-        return `${ayer.getDate()}-${ayer.getMonth() + 1}-${ayer.getFullYear()}`;
-    }
-    return `${ahora.getDate()}-${ahora.getMonth() + 1}-${ahora.getFullYear()}`;
-};
+// La fecha sale de la jornada (8:30 a 8:30, sábado hasta el lunes 8:30): ver jornada.js
+const getFechaParaGuardar = (ahora = new Date()) => getFechaJornada(ahora);
 
 const getFechaLista = getFechaParaGuardar;
+
+// ======================================
+//  MOMENTO DE INICIO DE CARGA
+//  El turno, la hora y el día de un registro se toman de cuando el supervisor
+//  EMPEZÓ a cargarlo (primer dato tocado), no de cuando apretó "Guardar".
+//  Así, lo que se empieza antes de las 00:30 / 08:30 y se guarda después,
+//  queda en el turno y día que corresponde.
+// ======================================
+let inicioCarga = null;
+const CARGA_MAX_MS = 60 * 60 * 1000; // si pasó más de 1 h desde que se tocó el form, se toma como carga nueva
+
+document.addEventListener('input',  marcarInicioCarga, true);
+document.addEventListener('change', marcarInicioCarga, true);
+function marcarInicioCarga(e) {
+    const id = (e.target && e.target.id) || '';
+    if (!/^(sel-|inp-)/.test(id)) return; // solo el formulario de carga (no el modal de edición)
+    const ahora = Date.now();
+    if (!inicioCarga || ahora - inicioCarga.getTime() > CARGA_MAX_MS) inicioCarga = new Date(ahora);
+}
+function getMomentoCarga() {
+    if (inicioCarga && Date.now() - inicioCarga.getTime() <= CARGA_MAX_MS) return new Date(inicioCarga);
+    return new Date();
+}
 
 const BANDEJAS_POR_FILA = 14;
 
@@ -185,21 +199,32 @@ document.getElementById('guardar-sobrante-btn').onclick = function () {
     const lineaLabel  = PRODUCTOS[marca.value][linea.value].label;
 
     const supervisorActual = sessionStorage.getItem('supervisor') || 'No asignado';
-    const horaActual = new Date().toLocaleTimeString('es-AR', {
+    const fmtHora = (d) => d.toLocaleTimeString('es-AR', {
         hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
     });
 
-    const turnoActual  = getTurnoActual();
-    const fechaGuardar = getFechaParaGuardar();
+    const momentoCarga = getMomentoCarga();   // cuándo se empezó a cargar
+    const horaActual   = fmtHora(momentoCarga);
+    const turnoActual  = getTurnoActual(momentoCarga);
+    const fechaGuardar = getFechaParaGuardar(momentoCarga);
 
-    db.ref(`historial/${fechaGuardar}/sobrantes`).push({
+    const nuevoRef = db.ref(`historial/${fechaGuardar}/sobrantes`).push({
         marca: marcaLabel, linea: lineaLabel, producto,
         paqPorBandeja: paq, filas, bandejas, incompletos,
         total, supervisor: supervisorActual,
-        turno: turnoActual, hora: horaActual
+        turno: turnoActual, hora: horaActual, horaGuardado: fmtHora(new Date())
+    });
+
+    // Registra en AppStock en el momento (si falla, AppStock lo toma después como respaldo).
+    StockSync.registrarSobrante({
+        id: nuevoRef.key, fecha: fechaGuardar,
+        marca: marcaLabel, linea: lineaLabel, producto,
+        paqPorBandeja: paq, total, hora: horaActual
     });
 
     db.ref(`historial/${fechaGuardar}/supervisores/${turnoActual}`).set(supervisorActual);
+
+    inicioCarga = null;
 
     // Reset form
     document.getElementById('sel-marca').value      = '';
@@ -307,7 +332,7 @@ window.recalcularModalTotal = function () {
     document.getElementById('modal-total-num').textContent = total.toLocaleString();
 };
 
-window.guardarSobrante = function (id) {
+window.guardarSobrante = async function (id) {
     const marcaKey    = document.getElementById('edit-s-marca').value;
     const lineaKey    = document.getElementById('edit-s-linea').value;
     const producto    = document.getElementById('edit-s-producto').value;
@@ -319,12 +344,24 @@ window.guardarSobrante = function (id) {
     const marcaLabel  = marcaKey === 'romero' ? 'Romero' : 'The Roxy';
     const lineaLabel  = PRODUCTOS[marcaKey][lineaKey].label;
 
-    db.ref(`historial/${getFechaLista()}/sobrantes/${id}`).update({
+    const fechaEdit = fechaActual;
+    const refS = db.ref(`historial/${fechaEdit}/sobrantes/${id}`);
+    const viejo = (await refS.once('value')).val();
+    if (!viejo) { cerrarModal(); return; }
+
+    const cambios = {
         marca: marcaLabel, linea: lineaLabel, producto,
         paqPorBandeja: paq, filas, bandejas, incompletos, total
-    });
-
+    };
     cerrarModal();
+    await refS.update(cambios);
+
+    // El stock en AppStock se ajusta con la diferencia.
+    try {
+        await StockSync.editarSobrante({ id, fecha: fechaEdit, viejo, nuevo: { ...viejo, ...cambios } });
+    } catch (e) {
+        alert('El registro se guardó, pero no se pudo actualizar el stock en AppStock: ' + (e.message || e) + '\nAvisá al administrador.');
+    }
 };
 
 window.cerrarModal = function () {
@@ -335,7 +372,10 @@ window.cerrarModal = function () {
 // ======================================
 //  ESCUCHAR EN TIEMPO REAL
 // ======================================
-db.ref(`historial/${getFechaLista()}/sobrantes`).on('value', (snapshot) => {
+let fechaActual = getFechaLista();
+let refActual = null;
+
+const renderSobrantes = (snapshot) => {
     const data  = snapshot.val();
     const lista = document.getElementById('taskList');
     lista.innerHTML = "";
@@ -364,14 +404,31 @@ db.ref(`historial/${getFechaLista()}/sobrantes`).on('value', (snapshot) => {
                 </div>
             </li>`;
     });
-});
+};
+
+function suscribir() {
+    if (refActual) refActual.off('value');
+    fechaActual = getFechaLista();
+    refActual = db.ref(`historial/${fechaActual}/sobrantes`);
+    refActual.on('value', renderSobrantes);
+}
+suscribir();
+
+// Si la página queda abierta al cruzar las 08:30 (cambio de "día de producción"),
+// re-suscribe el listener a la fecha nueva. Todo lo que escribe usa la misma fecha que se está mostrando.
+const refrescarFecha = () => {
+    if (getFechaLista() !== fechaActual) suscribir();
+};
+setInterval(refrescarFecha, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescarFecha(); });
 
 // ======================================
 //  ELIMINAR
 // ======================================
 window.eliminar = (id) => {
     if (confirm("¿Eliminar este registro?")) {
-        db.ref(`historial/${getFechaLista()}/sobrantes/${id}`).remove();
+        StockSync.borrarSobrante(fechaActual, id).catch(e =>
+            alert('No se pudo eliminar: no se pudo actualizar el stock en AppStock (' + (e.message || e) + '). Reintentá.'));
     }
 };
 
